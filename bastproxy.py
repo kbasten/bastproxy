@@ -4,15 +4,11 @@
 This is the beginnings of a Mud Proxy that can have triggers, aliases, gags
 
 TODO:
--- mccp
--- gmcp
--- telopts
--- Ask: char/password on first connect
 -- plugins
     - each plugin is a class, look at lyntin
     - save state (pickle?, sqlitedb?, configparser?)
--- event mgr
 -- command parser
+-- make options drop in so client/server auto uses them, make them single file
 
 """
 import asyncore
@@ -22,14 +18,16 @@ import sys
 import traceback
 import socket
 from libs import exported
-from libs.event import EventMgr
-from libs.net.proxy import Proxy
-from libs.net.client import ProxyClient
-from plugins import PluginMgr
 
+from libs.event import EventMgr
 exported.eventMgr = EventMgr()
 
+from libs.net.proxy import Proxy
+from libs.net.client import ProxyClient
+
+from plugins import PluginMgr
 exported.pluginMgr = PluginMgr()
+
 
 class Listener(asyncore.dispatcher):
   def __init__(self, listen_port, server_address, server_port):
@@ -56,6 +54,7 @@ class Listener(asyncore.dispatcher):
     print "Accepted connection from", source_addr[0], ':', source_addr[1]
     ProxyClient(client_connection, source_addr[0], source_addr[1])
 
+
 def main(listen_port, server_address, server_port):
   proxy = Listener(listen_port, server_address, server_port)
   try:
@@ -70,8 +69,6 @@ def main(listen_port, server_address, server_port):
        pass
 
   exported.debug("Shutting down...")
-  #proxy.shutdown(SHUT_RDWR)
-  #asyncore.loop()
 
 
 if __name__ == "__main__":
