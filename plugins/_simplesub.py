@@ -22,10 +22,10 @@ class Substitute:
     self._substitutes[item] = sub
 
   def onload(self):
-    exported.registerevent('to_user_event', self.findsub)
+    exported.registerevent('to_client_event', self.findsub)
 
   def onunload(self):
-    exported.unregisterevent('to_user_event', self.findsub)
+    exported.unregisterevent('to_client_event', self.findsub)
 
 
 def load():
