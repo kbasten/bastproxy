@@ -39,8 +39,8 @@ class EventMgr:
     self.timerlookup = {}
     self.lasttime = int(time.time())
     exported.debug('lasttime', self.lasttime)
-    self.registerevent('to_user_event', self.touser)
-    self.registerevent('from_user_event', self.fromuser)
+    self.registerevent('to_client_event', self.touser)
+    self.registerevent('from_client_event', self.fromuser)
 
   def addtrigger(self, triggername, regex):
     self.trigger[triggername] = regex
@@ -65,7 +65,7 @@ class EventMgr:
           self.events[eventname][i].remove(func)
 
   def processevent(self, eventname, args):
-    exported.debug('processevent', eventname, args)
+    #exported.debug('processevent', eventname, args)
     nargs = args.copy()
     if eventname in self.events:
       keys = self.events[eventname].keys()

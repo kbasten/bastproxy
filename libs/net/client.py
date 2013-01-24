@@ -18,7 +18,7 @@ class ProxyClient(Telnet):
     self.supports = {}
     if sock:
       self.connected = True
-    exported.registerevent('to_user_event', self.addtooutbufferevent, 99)
+    exported.registerevent('to_client_event', self.addtooutbufferevent, 99)
     optionMgr.addtoclient(self)
     exported.proxy.addclient(self)
     self.state = PASSWORD
@@ -57,7 +57,7 @@ class ProxyClient(Telnet):
           exported.proxy.connectmud()
         newdata = {}
         if len(data) > 0:
-          newdata = exported.processevent('from_user_event', {'fromdata':data})
+          newdata = exported.processevent('from_client_event', {'fromdata':data})
 
         if 'fromdata' in newdata:
           data = newdata['fromdata']
@@ -82,6 +82,6 @@ class ProxyClient(Telnet):
   def handle_close(self):
     print "Client Disconnected"
     exported.proxy.removeclient(self)
-    exported.unregisterevent('to_user_event', self.addtooutbuffer)
+    exported.unregisterevent('to_client_event', self.addtooutbuffer)
     Telnet.handle_close(self)
 
