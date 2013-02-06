@@ -4,7 +4,7 @@ $Id$
 from libs.net.telnetlib import Telnet, IAC, WILL, DO, SE, SB, DONT
 from libs import exported
 from libs.net.options import toptionMgr
-from libs.color import convertcodes
+from libs.color import convertcolors
 import zlib
 
 PASSWORD = 0
@@ -23,7 +23,7 @@ class ProxyClient(Telnet):
     toptionMgr.addtoclient(self)
     exported.proxy.addclient(self)
     self.state = PASSWORD
-    self.addtooutbufferevent({'todata':exported.colors('#BP: Please enter the proxy password:', 'red', bold=True), 'dtype':'passwd'})
+    self.addtooutbufferevent({'todata':convertcolors('@R#BP@w: @RPlease enter the proxy password:@w'), 'dtype':'passwd'})
 
   def addtooutbufferevent(self, args):  
     outbuffer = args['todata']
@@ -76,9 +76,9 @@ class ProxyClient(Telnet):
           if not exported.proxy.connected:
             exported.proxy.connectmud()
           else:
-            self.addtooutbufferevent({'todata':exported.colors('#BP: The proxy is already connected to the mud', 'green', bold=True)})
+            self.addtooutbufferevent({'todata':convertcolors('@R#BP@W: @GThe proxy is already connected to the mud@w')})
         else:
-          self.addtooutbufferevent({'todata':'#BP: Please try again! Proxy Password:', 'dtype':'passwd'})
+          self.addtooutbufferevent({'todata':convertcolors('@R#BP@w: @RPlease try again! Proxy Password:@w'), 'dtype':'passwd'})
 
   def handle_close(self):
     print "Client Disconnected"
