@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import sys, traceback
 from libs import color
-color = color.color
+colors = color.color
 
 eventMgr = None
 pluginMgr = None
@@ -52,7 +52,10 @@ def write_error(text):
 
 
 def sendtouser(text, raw=False):
-  eventMgr.processevent('to_client_event', {'todata':text, 'raw':raw})
+  # parse colors here
+  if not raw:
+    text = color.convertcodes('@R#BP@w: ' + text)
+  eventMgr.processevent('to_client_event', {'todata':text, 'raw':raw, 'dtype':'fromproxy'})
 
 
 def addtimer(name, func, seconds, onetime=False):
