@@ -1,5 +1,6 @@
 """
 $Id$
+
 """
 import re
 
@@ -55,6 +56,80 @@ STYLEMAP = {
              "b cyan": "46",
              "b white": "47"
            }
+      
+
+      
+CONVERTCOLORS = {
+  'k' : '0;30',
+  'r' : '0;31',
+  'g' : '0;32',
+  'y' : '0;33', 
+  'b' : '0;34', 
+  'm' : '0;35',
+  'c' : '0;36',
+  'w' : '0;37',
+  'D' : '1;30',
+  'R' : '1;31',
+  'G' : '1;32',
+  'Y' : '1;33',
+  'B' : '1;34',
+  'M' : '1;35',
+  'C' : '1;36',
+  'W' : '1;37', 
+}
+
+
+def genrepl(m):
+  return m.group(1)
+
+
+def fixstring(tstr):
+  # Thanks to Fiendish from the aardwolf mushclient package, see 
+  # http://code.google.com/p/aardwolfclientpackage/
+  
+  tstr = re.sub("@-", "~", tstr)                   # fix tildes
+  tstr = re.sub("@@", "\0", tstr)                  # change @@ to \0
+  tstr = re.sub("@x([^\d])", genrepl, tstr)        # strip invalid xterm codes (non-number)
+  tstr = re.sub("@x[3-9]\d\d", "", tstr)           # strip invalid xterm codes (300+)
+  tstr = re.sub("@x2[6-9]\d", "", tstr)            # strip invalid xterm codes (260+)
+  tstr = re.sub("@x25[6-9]", "", tstr)             # strip invalid xterm codes (256+)
+  tstr = re.sub("@z([^\d])", genrepl, tstr)        # strip invalid xterm codes (non-number)
+  tstr = re.sub("@z[3-9]\d\d", "", tstr)           # strip invalid xterm codes (300+)
+  tstr = re.sub("@z2[6-9]\d", "", tstr)            # strip invalid xterm codes (260+)
+  tstr = re.sub("@z25[6-9]", "", tstr)             # strip invalid xterm codes (256+)  
+  tstr = re.sub("@[^xzcmyrgbwCMYRGBWD]", "", tstr)  # rip out hidden garbage  
+  return tstr
+
+
+def convertcodes(tstr):
+  if '@' in tstr:
+    if tstr[-2:] != '@w':
+      tstr = tstr + '@w'
+    tstr = fixstring(tstr)
+    tstr2 = ''
+    for tmatch in re.finditer("@(\w)([^@]+)", tstr):
+      color, text = tmatch.groups()
+      if color == 'x':
+        tcolor, newtext = re.findall("^(\d\d?\d?)(.*)$", text)[0]
+        color = '38;5;%s' % tcolor
+        tstr2 = tstr2 + ansicode(color, newtext)
+      elif color == 'z':
+        tcolor, newtext = re.findall("^(\d\d?\d?)(.*)$", text)[0]
+        color = '48;5;%s' % tcolor
+        tstr2 = tstr2 + ansicode(color, newtext)
+      else:
+        tstr2 = tstr2 + ansicode(CONVERTCOLORS[color], text)
+        
+    if tstr2:
+      tstr = tstr2 + "%c[0m" % chr(27)
+  else:
+    pass
+  tstr = re.sub("\0", "@", tstr)    # put @ back in 
+  return tstr
+
+      
+def ansicode(color, data):
+  return "%c[%sm%s" % (chr(27), color, data)
 
 
 def color(data, fc=37, bc=40, bold=False):
