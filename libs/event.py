@@ -41,7 +41,9 @@ class EventMgr:
     exported.debug('lasttime', self.lasttime)
     self.registerevent('to_client_event', self.touser)
     self.registerevent('from_client_event', self.fromuser)
-
+    self.registerevent('to_server_event', self.toserver)
+    self.registerevent('from_server_event', self.fromserver)
+    
   def addtrigger(self, triggername, regex):
     self.trigger[triggername] = regex
     self.regexlookup[regex] = triggername
@@ -67,6 +69,7 @@ class EventMgr:
   def processevent(self, eventname, args):
     #exported.debug('processevent', eventname, args)
     nargs = args.copy()
+    nargs['eventname'] = eventname
     if eventname in self.events:
       keys = self.events[eventname].keys()
       if keys:
@@ -87,6 +90,14 @@ class EventMgr:
     pass
 
   def fromuser(self, args):
+    #exported.debug('fromuser got', args['fromdata'].strip())
+    pass
+
+  def toserver(self, args):
+    #exported.debug('touser got', args['todata'].strip())
+    pass
+
+  def fromserver(self, args):
     #exported.debug('fromuser got', args['fromdata'].strip())
     pass
 
