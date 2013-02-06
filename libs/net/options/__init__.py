@@ -62,14 +62,14 @@ class TelnetOptionMgr:
       try:
         self.optionsmod[i].CLIENT(client)
       except AttributeError:
-        print('Did not add option:', i)
+        print('Did not add option to client:', i)
         
   def addtoserver(self, server):
     for i in self.options:
       try:
         self.optionsmod[i].SERVER(server)
       except AttributeError:
-        print('Did not add option:', i)
+        print('Did not add option to server:', i)
   
   def resetoptions(self, server, onclose=False):
     print('resetoptions')
