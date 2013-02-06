@@ -7,7 +7,7 @@ from plugins import BasePlugin
 
 name = 'GMCP Test'
 sname = 'gmcpt'
-autoload = True
+autoload = False
 
 class Plugin(BasePlugin):
   def __init__(self, name, sname, filename, directory, importloc):
