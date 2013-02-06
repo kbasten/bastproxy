@@ -1,7 +1,7 @@
 """
 $Id$
 
-This will manage options
+This will manage Telnet Options
 """
 
 import glob, os, sys
@@ -12,7 +12,7 @@ def get_module_name(filename):
   path, filename = os.path.split(filename)
   return os.path.splitext(filename)[0]
 
-class OptionMgr:
+class TelnetOptionMgr:
   def __init__(self):
     self.options = {}
     self.optionsmod = {}
@@ -40,10 +40,13 @@ class OptionMgr:
         name = "libs.net.options." + mem2
         _module = __import__(name)
         _module = sys.modules[name]
+          
+        if _module.__dict__.has_key("Plugin"):
+           exported.pluginMgr.add_plugin(_module.Plugin(_module.name, _module.sname,  mem, path, name))            
 
         if _module.__dict__.has_key("load"):
           _module.load()
-
+          
         _module.__dict__["proxy_import"] = 1
         self.options[name] = True
         self.optionsmod[name] = _module
@@ -76,4 +79,4 @@ class OptionMgr:
         server.option_handlers[i].reset(onclose)          
       
         
-optionMgr = OptionMgr()
+toptionMgr = TelnetOptionMgr()
