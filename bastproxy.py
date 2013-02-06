@@ -9,8 +9,7 @@ TODO:
     - each plugin is a class, look at lyntin
     - save state (pickle?, sqlitedb?, configparser?)
 -- command parser
--- make options drop in so client/server auto uses them, make them single file
--- support xterm 256
+-- add manager for managers
 
 """
 import asyncore
@@ -24,11 +23,12 @@ from libs import exported
 from libs.event import EventMgr
 exported.eventMgr = EventMgr()
 
+from plugins import PluginMgr
+exported.pluginMgr = PluginMgr()
+
 from libs.net.proxy import Proxy
 from libs.net.client import ProxyClient
 
-from plugins import PluginMgr
-exported.pluginMgr = PluginMgr()
 
 
 class Listener(asyncore.dispatcher):
@@ -85,7 +85,7 @@ def main(listen_port, server_address, server_port):
     while True:
 
       asyncore.loop(timeout=.5,count=1)
-     # check our timer event or go through and
+     # check our timer event
      # timer events can have attributes, run_forever, and how_often
       exported.eventMgr.checktimerevents()
 
