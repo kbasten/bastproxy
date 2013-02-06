@@ -5,7 +5,7 @@ This file holds the class that connects to the mud
 """
 from libs.net.telnetlib import Telnet
 from libs import exported
-from libs.color import strip_ansi
+from libs.color import strip_ansi, convertcolors
 from libs.net.options import toptionMgr
 
 
@@ -74,7 +74,7 @@ class Proxy(Telnet):
     hand closing the connection
     """
     exported.debug('Server Disconnected')
-    exported.processevent('to_client_event', {'todata':'#BP: The mud closed the connection', 'dtype':'fromproxy'})
+    exported.processevent('to_client_event', {'todata':convertcolors('@R#BP@w: The mud closed the connection'), 'dtype':'fromproxy'})
     toptionMgr.resetoptions(self, True)
     Telnet.handle_close(self)
     exported.processevent('muddisconnect', {})  
