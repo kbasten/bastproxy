@@ -54,7 +54,7 @@ def write_error(text):
 def sendtouser(text, raw=False):
   # parse colors here
   if not raw:
-    text = color.convertcodes('@R#BP@w: ' + text)
+    text = color.convertcolors('@R#BP@w: ' + text)
   eventMgr.processevent('to_client_event', {'todata':text, 'raw':raw, 'dtype':'fromproxy'})
 
 
