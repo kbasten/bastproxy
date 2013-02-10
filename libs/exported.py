@@ -6,8 +6,8 @@ from __future__ import print_function
 
 import sys, traceback
 from libs import color
-colors = color.color
 
+cmdMgr = None
 eventMgr = None
 pluginMgr = None
 config = None
@@ -54,7 +54,10 @@ def write_error(text):
 def sendtouser(text, raw=False):
   # parse colors here
   if not raw:
-    text = color.convertcolors('@R#BP@w: ' + text)
+    test = []
+    for i in text.split('\n'):
+      test.append(color.convertcolors('@R#BP@w: ' + i))
+    text = '\n'.join(test)
   eventMgr.processevent('to_client_event', {'todata':text, 'raw':raw, 'dtype':'fromproxy'})
 
 
