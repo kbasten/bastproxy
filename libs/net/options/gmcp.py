@@ -40,6 +40,10 @@ canreload = True
 
 name = 'GMCP'
 sname = 'GMCP'
+purpose = 'GMCP'
+author = 'Bast'
+version = 1
+autoload = True
 
 class dotdict(dict):
     def __getattr__(self, attr):
@@ -64,9 +68,16 @@ class SERVER(TelnetOption):
     if command == WILL:
       self.telnetobj.msg('GMCP: sending IAC DO GMCP', level=2, mtype='GMCP')
       self.telnetobj.send(IAC + DO + GMCP)
+      self.telnetobj.options[ord(GMCP)] = True
+      exported.processevent('GMCP:server-enabled', {})
       
     elif command == SE:
-      self.telnetobj.options[ord(GMCP)] = True        
+      if not self.telnetobj.options[ord(GMCP)]:
+        # somehow we missed negotiation
+        print '##BUG: Enabling GMCP, missed negotiation'
+        self.telnetobj.options[ord(GMCP)] = True        
+        exported.processevent('GMCP:server-enabled', {})
+        
       data = sbdata
       modname, data = data.split(" ", 1)
       import json
@@ -177,7 +188,13 @@ class Plugin(BasePlugin):
     datatable = previoustable[mods[tlen - 1]]
     
     for i in args['data']:
-       datatable[i] = args['data'][i]
+      try:
+        datatable[i] = args['data'][i]
+      except TypeError:
+        print "TypeError: string indices must be integers"
+        print 'i', i
+        print 'datatable', datatable
+        print 'args[data]', args['data']
     
     exported.processevent('GMCP', args)
     exported.processevent('GMCP:%s' % modname, args)
@@ -225,7 +242,7 @@ class Plugin(BasePlugin):
   def load(self):
     exported.registerevent('GMCP_raw', self.gmcpfromserver)
     exported.registerevent('GMCP_from_client', self.gmcpfromclient)
-    exported.registerevent('mudconnect', self.gmcprequest)
+    exported.registerevent('GMCP:server-enabled', self.gmcprequest)
     exported.registerevent('muddisconnect', self.disconnect)
     exported.gmcp = dotdict()
     exported.gmcp['getv'] = self.gmcpget
@@ -235,7 +252,7 @@ class Plugin(BasePlugin):
   def unload(self):
     exported.unregisterevent('GMCP_raw', self.gmcpfromserver)
     exported.unregisterevent('GMCP_from_client', self.gmcpfromclient)
-    exported.unregisterevent('mudconnect', self.gmcprequest)
+    exported.unregisterevent('GMCP:server-enabled', self.gmcprequest)
     exported.unregisterevent('muddisconnect', self.disconnect)
     exported.gmcp = None  
   
