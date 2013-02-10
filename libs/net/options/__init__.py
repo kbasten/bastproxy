@@ -42,7 +42,7 @@ class TelnetOptionMgr:
         _module = sys.modules[name]
           
         if _module.__dict__.has_key("Plugin"):
-           exported.pluginMgr.add_plugin(_module.Plugin(_module.name, _module.sname,  mem, path, name))            
+           exported.pluginMgr.add_plugin(_module, mem2, path, name)
 
         if _module.__dict__.has_key("load"):
           _module.load()
@@ -62,14 +62,14 @@ class TelnetOptionMgr:
       try:
         self.optionsmod[i].CLIENT(client)
       except AttributeError:
-        print('Did not add option to client:', i)
+        print 'Did not add option to client:', i
         
   def addtoserver(self, server):
     for i in self.options:
       try:
         self.optionsmod[i].SERVER(server)
       except AttributeError:
-        print('Did not add option to server:', i)
+        print 'Did not add option to server:', i
   
   def resetoptions(self, server, onclose=False):
     print('resetoptions')
