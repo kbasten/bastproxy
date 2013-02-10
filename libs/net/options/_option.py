@@ -6,7 +6,7 @@ class TelnetOption(object):
     self.telnetobj = telnetobj
     self.option = option    
     self.telnetobj.option_handlers[ord(self.option)] = self
-    self.telnetobj.debug_types.append(self.option)
+    #self.telnetobj.debug_types.append(self.option)
 
   def onconnect(self):
     self.telnetobj.msg('onconnect for option', ord(self.option), mtype='option')
