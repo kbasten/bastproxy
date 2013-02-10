@@ -63,15 +63,13 @@ class ProxyClient(Telnet):
         if 'fromdata' in newdata:
           data = newdata['fromdata']
 
-        if data[0:4] == '#bp.':
-          print('got a command:', data.strip())
-        else:
-          exported.processevent('to_mud_event', {'data':data})
+        if data:
+          exported.processevent('to_mud_event', {'data':data, 'dtype':'fromclient'})
                 
       elif self.state == PASSWORD:
         data = data.strip()
         if data ==  exported.config.get("proxy", "password"):
-          exported.debug('Successful password from %s:%s' % (self.host, self.port))
+          exported.debug('Successful password from %s : %s' % (self.host, self.port))
           self.state = CONNECTED
           if not exported.proxy.connected:
             exported.proxy.connectmud()
