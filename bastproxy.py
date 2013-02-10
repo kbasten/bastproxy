@@ -10,6 +10,11 @@ TODO:
     - save state (pickle?, sqlitedb?, configparser?)
 -- command parser
 -- add manager for managers
+-- debug manager
+     - every debug message has a type
+     - on startup, plugins and other things register types
+     - command to enable/disable output of types
+     - can go to clients, logs, or both
 
 """
 import asyncore
@@ -22,6 +27,9 @@ from libs import exported
 
 from libs.event import EventMgr
 exported.eventMgr = EventMgr()
+
+from libs.cmdman import CmdMgr
+exported.cmdMgr = CmdMgr()
 
 from plugins import PluginMgr
 exported.pluginMgr = PluginMgr()
