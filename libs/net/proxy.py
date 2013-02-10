@@ -40,11 +40,6 @@ class Proxy(Telnet):
 
     data = self.getdata()
     if data:
-      newdata = exported.processevent('net_read_data_filter',  {'data':data})
-      self.msg('newdata', newdata)
-      if 'adjdata' in newdata:
-        data = newdata['adjdata']
-
       ndata = self.lastmsg + data
       alldata = ndata.replace("\r","")
       ndatal = alldata.split('\n')
@@ -101,11 +96,17 @@ class Proxy(Telnet):
       raw - set a raw flag, which means IAC will not be doubled
     """
     data = ''
+    dtype = 'fromclient'
     if isinstance(args, dict):
       data = args['data']
+      dtype = args['dtype']
       if 'raw' in args:
         raw = args['raw']
     else:
       data = args
 
-    Telnet.addtooutbuffer(self, data, raw)
+    if len(dtype) == 1 and ord(dtype) in self.options:
+      print('sending an option')
+      Telnet.addtooutbuffer(self, data, raw)
+    elif dtype == 'fromclient':
+      Telnet.addtooutbuffer(self, data, raw)
