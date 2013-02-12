@@ -9,7 +9,7 @@ class CmdMgr:
     self.cmds = {}
     self.addCmd('help', 'Help', 'list', self.listCmds)
     self.addCmd('help', 'Help', 'default', self.listCmds)
-    exported.registerevent('from_client_event', self.chkCmd)
+    exported.registerevent('from_client_event', self.chkCmd, 1)
 
   def chkCmd(self, data):
     tdat = data['fromdata']
@@ -40,7 +40,7 @@ class CmdMgr:
           except ValueError:
             pass
           self.listCmds(targs)
-        elif sname:
+        elif sname and scmd:
           if sname in self.cmds:
             stcmd = None
             if scmd in self.cmds[sname]:
@@ -62,7 +62,7 @@ class CmdMgr:
               if not retval:
                 self.listCmds([sname, scmd])              
           else:  
-            exported.sendtouser("@R%s.%s@W is not a command" % (sname, scmd))
+            exported.sendtouser("@R%s.%s@W is not a command." % (sname, scmd))
         else:
           try:
             del targs[targs.index(None)]
@@ -72,7 +72,6 @@ class CmdMgr:
             del targs[targs.index('help')]            
           except ValueError:
             pass
-          print 'targs before calling help 2', targs
           self.listCmds(targs)
         return {'fromdata':''}
     else:
@@ -82,6 +81,10 @@ class CmdMgr:
     if not (sname in self.cmds):
       self.cmds[sname] = {}
     self.cmds[sname][cmd] = {'func':tfunction, 'lname':lname, 'lhelp':lhelp, 'shelp':shelp}
+    
+  def removeCmd(self, sname, cmd):
+    if sname in self.cmds and cmd in self.cmds[sname]:
+      del self.cmds[sname][cmd]
     
   def setDefault(self, sname, cmd):
     if sname in self.cmds and cmd in self.cmds[sname]:
@@ -114,3 +117,8 @@ class CmdMgr:
       for i in self.cmds:
         exported.sendtouser('  %s' % i)
             
+  def resetPluginCmds(self, sname):
+    if sname in self.cmds:
+      del self.cmds[sname]
+      
+      
