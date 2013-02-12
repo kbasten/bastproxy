@@ -106,7 +106,6 @@ class Proxy(Telnet):
       data = args
 
     if len(dtype) == 1 and ord(dtype) in self.options:
-      print('sending an option')
       Telnet.addtooutbuffer(self, data, raw)
     elif dtype == 'fromclient':
       Telnet.addtooutbuffer(self, data, raw)
