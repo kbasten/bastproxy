@@ -71,6 +71,7 @@ class ProxyClient(Telnet):
         if data ==  exported.config.get("proxy", "password"):
           exported.debug('Successful password from %s : %s' % (self.host, self.port))
           self.state = CONNECTED
+          exported.processevent('client_connected', {'client':self})
           if not exported.proxy.connected:
             exported.proxy.connectmud()
           else:
