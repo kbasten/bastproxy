@@ -36,13 +36,12 @@ from plugins import BasePlugin
 
 GMCP = chr(201)
 
-canreload = True
-
 name = 'GMCP'
 sname = 'GMCP'
 purpose = 'GMCP'
 author = 'Bast'
 version = 1
+
 autoload = True
 
 class dotdict(dict):
@@ -122,6 +121,7 @@ class Plugin(BasePlugin):
     self.gmcpmodqueue - the queue of gmcp modules that were enabled by the client before connected to the server
     """
     BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    self.canreload = False
 
     self.gmcpcache = {}
     self.modstates = {}
@@ -170,31 +170,34 @@ class Plugin(BasePlugin):
     
   def gmcpfromserver(self, args):
     modname = args['module'].lower()
-
     mods = modname.split('.')  
     mods = [x.lower() for x in mods]    
-    tlen = len(mods)
+
+    if modname != 'room.wrongdir':
+      tlen = len(mods)
+        
+      currenttable = self.gmcpcache
+      previoustable = dotdict()
+      for i in range(0,tlen):
+        if not (mods[i] in currenttable):
+          currenttable[mods[i]] = dotdict()
+        
+        previoustable = currenttable
+        currenttable = currenttable[mods[i]]
+        
+      previoustable[mods[tlen - 1]] = dotdict()  
+      datatable = previoustable[mods[tlen - 1]]
       
-    currenttable = self.gmcpcache
-    previoustable = dotdict()
-    for i in range(0,tlen):
-      if not (mods[i] in currenttable):
-        currenttable[mods[i]] = dotdict()
-      
-      previoustable = currenttable
-      currenttable = currenttable[mods[i]]
-      
-    previoustable[mods[tlen - 1]] = dotdict()  
-    datatable = previoustable[mods[tlen - 1]]
-    
-    for i in args['data']:
-      try:
-        datatable[i] = args['data'][i]
-      except TypeError:
-        print "TypeError: string indices must be integers"
-        print 'i', i
-        print 'datatable', datatable
-        print 'args[data]', args['data']
+      for i in args['data']:
+        try:
+          datatable[i] = args['data'][i]
+        except TypeError:
+          print "TypeError: string indices must be integers"
+          print 'i', i
+          print 'datatable', datatable
+          print 'args', args
+          print 'args[data]', args['data']
+
     
     exported.processevent('GMCP', args)
     exported.processevent('GMCP:%s' % modname, args)
