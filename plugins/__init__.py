@@ -6,6 +6,7 @@ import glob, os, sys
 
 from libs import exported
 from libs.fileutils import find_files
+import inspect
 
 
 def get_module_name(path, filename):
@@ -27,8 +28,10 @@ class BasePlugin:
     self.fullname = fullname
     self.basepath = basepath
     self.fullimploc = fullimploc
+    
     self.cmds = {}
     self.defaultcmd = ''
+    self.variables = {}
     self.events = []
     self.timers = {}
     
@@ -80,6 +83,41 @@ class PluginMgr:
     exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'load', self.cmd_load, 'Load a plugin')
     exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'unload', self.cmd_unload, 'Unload a plugin')
     exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'reload', self.cmd_reload, 'Reload a plugin')
+    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'exported', self.cmd_exported, 'Examine the exported module')
+    exported.cmdMgr.setDefault('plugins', 'list')
+
+  def cmd_exported(self, args):
+    """---------------------------------------------------------------
+@G%(name)s@w - @B%(cmdname)s@w
+  see what functions are available to the exported module
+  useful for finding out what can be gotten for scripting
+  @CUsage@w: exported
+---------------------------------------------------------------"""
+    if len(args) == 0:
+      exported.sendtouser('Items available in exported')
+      for i in dir(exported):
+        if not (i in ['sys', 'traceback', '__builtins__', '__doc__', '__file__', '__name__', '__package__',]):
+          if inspect.isfunction(exported.__dict__[i]):
+            exported.sendtouser('Function: %s' % i)
+          elif isinstance(exported.__dict__[i], dict):
+            for t in exported.__dict__[i]:
+              exported.sendtouser('Function: %s.%s' % (i,t))
+    else:
+      i = args[0]
+      if i in dir(exported):
+        if inspect.isfunction(exported.__dict__[i]):
+          self.printexported(i, exported.__dict__[i])
+        elif isinstance(exported.__dict__[i], dict):
+          for t in exported.__dict__[i]:
+            self.printexported('%s.%s' % (i,t), exported.__dict__[i][t])
+    return True
+    
+  def printexported(self, item, tfunction):
+    exported.sendtouser('Function: %s' % (item))
+    if tfunction.__doc__:
+      tlist = tfunction.__doc__.split('\n')
+      for i in tlist:
+        exported.sendtouser('  %s' % i)    
     
   def cmd_list(self, args):
     """---------------------------------------------------------------
