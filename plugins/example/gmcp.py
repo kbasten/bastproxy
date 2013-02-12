@@ -6,18 +6,34 @@ from libs import exported
 from plugins import BasePlugin
 
 name = 'GMCP Test'
-sname = 'gmcpt'
+sname = 'gmcpex'
+purpose = 'examples for using the gmcp plugin'
+author = 'Bast'
+version = 1
+
 autoload = False
 
 class Plugin(BasePlugin):
   def __init__(self, name, sname, filename, directory, importloc):
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)    
-    self._substitutes = {}
-    self.cmds = {}
-    self.cmds['test'] = self.cmd_test
-
-  def cmd_test(self, args):
-    print(args)
+    BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
+    self.events.append({'event':'GMCP', 'func':self.test})
+    self.events.append({'event':'GMCP:char', 'func':self.testchar})
+    self.events.append({'event':'GMCP:char.status', 'func':self.testcharstatus})
+    self.cmds['get'] = {'func':self.cmd_get, 'shelp':'print what is in the gmcp cache'}
+    self.defaultcmd = 'get'
+    
+  def cmd_get(self, args):
+    """---------------------------------------------------------------
+@G%(name)s@w - @B%(cmdname)s@w
+  print an item from the gmcpcache
+  @CUsage@w: rem @Y<gmcpmod>@w
+    @Ygmcpmod@w    = The gmcp module to print, such as char.status
+---------------------------------------------------------------"""    
+    if len(args) > 0:
+      exported.sendtouser('%s' % exported.gmcp.getv(args[0]))
+      return True
+    
+    return False
 
   def test(self, args):
     exported.sendtouser('@x52@z192 Event @w- @GGMCP@w: @B%s@w : %s' % (args['module'], args['data']))
@@ -46,15 +62,5 @@ class Plugin(BasePlugin):
 
   def testcharstatus(self, args):
     exported.sendtouser('@CEvent@w - @GGMCP:char.status@w')
-
-  def load(self):
-    exported.registerevent('GMCP', self.test)
-    exported.registerevent('GMCP:char', self.testchar)
-    exported.registerevent('GMCP:char.status', self.testcharstatus)
-
-  def unload(self):
-    exported.unregisterevent('GMCP', self.test)
-    exported.unregisterevent('GMCP:char', self.testchar)
-    exported.unregisterevent('GMCP:char.status', self.testcharstatus)
 
   

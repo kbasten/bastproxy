@@ -5,11 +5,14 @@ from libs import exported
 from libs import color
 from plugins import BasePlugin
 
+#these 5 are required
 name = 'Simple Substitute'
 sname = 'ssub'
 purpose = 'simple substitution of strings'
 author = 'Bast'
 version = 1
+
+# This keeps the plugin from being autoloaded if set to False
 autoload = True
 
 
@@ -17,8 +20,13 @@ class Plugin(BasePlugin):
   def __init__(self, name, sname, filename, directory, importloc):
     BasePlugin.__init__(self, name, sname, filename, directory, importloc)
     self._substitutes = {}
-    self.cmds = {}
-   
+    self.cmds['add'] = {'func':self.cmd_add, 'shelp':'Add a substitute'}
+    self.cmds['remove'] = {'func':self.cmd_remove, 'shelp':'Remove a substitute'}
+    self.cmds['list'] = {'func':self.cmd_list, 'shelp':'List substitutes'}
+    self.defaultcmd = 'list'
+    self.events.append({'event':'to_client_event', 'func':self.findsub})
+        
+        
   def findsub(self, args):
     data = args['todata']
     dtype = args['dtype']
@@ -85,16 +93,4 @@ class Plugin(BasePlugin):
       tstr = tstr + "%-35s : %s@w\n\r" % (item, self._substitutes[item]['sub'])
     tstr = tstr + '-' * 75
     exported.sendtouser(tstr)  
-    
-  def load(self):
-    exported.registerevent('to_client_event', self.findsub)
-    self.addCmd('add', self.cmd_add, 'Add a substitute')
-    self.addCmd('remove', self.cmd_remove, 'Remove a substitute')
-    self.addCmd('list', self.cmd_list, 'List substitutes')
-    self.setDefaultCmd('list')
-    self.addsub('Aardwolf', 'AARDWOLF')
 
-  def unload(self):
-    exported.unregisterevent('to_client_event', self.findsub)
-    #exported.cmdMgr.remCmd(self.sname, 'add', self.cmd_add)
-    #exported.cmdMgr.remCmd(self.sname, 'remove', self.cmd_remove)
