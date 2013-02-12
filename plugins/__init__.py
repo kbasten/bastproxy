@@ -17,21 +17,51 @@ def get_module_name(path, filename):
 
 
 class BasePlugin:
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, name, sname, fullname, basepath, fullimploc):
     self.author = ''
     self.purpose = ''
     self.version = 0
     self.name = name
     self.sname = sname
-    self.filename = filename
-    self.directory = directory
-    self.importloc = importloc
+    self.canreload = True
+    self.fullname = fullname
+    self.basepath = basepath
+    self.fullimploc = fullimploc
+    self.cmds = {}
+    self.defaultcmd = ''
+    self.events = []
+    self.timers = {}
     
   def load(self):
-    pass
+    # load all commands
+    for i in self.cmds:
+      self.addCmd(i, self.cmds[i]['func'], self.cmds[i]['shelp'])
+      
+    # if there is a default command, then set it
+    if self.defaultcmd:
+      self.setDefaultCmd(self.defaultcmd)
+      
+    # register all events
+    for i in self.events:
+      exported.registerevent(i['event'], i['func'])
+      
+    # register all timers
+    for i in self.timers:
+      tim = self.timers[i]
+      exported.addtimer(i, tim['func'], tim['seconds'], tim['onetime'])
   
   def unload(self):
-    pass
+    'clear all commands for this plugin from cmdMgr'
+    exported.cmdMgr.resetPluginCmds(self.sname)
+
+    # unregister all events
+    for i in self.events:
+      exported.unregisterevent(i['event'], i['func'])
+
+    # delete all timers
+    for i in self.timers:
+      exported.deletetimer(i)
+
 
   def addCmd(self, cmd, tfunc, shelp=None):
     exported.cmdMgr.addCmd(self.sname, self.name, cmd, tfunc, shelp)
@@ -45,9 +75,12 @@ class PluginMgr:
     self.plugins = {}
     self.pluginl = {}
     self.pluginm = {}
-    self.load_modules()
-    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'list', self.cmd_list, 'List Plugins')
-
+    self.load_modules("*.py")
+    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'list', self.cmd_list, 'List plugins')
+    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'load', self.cmd_load, 'Load a plugin')
+    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'unload', self.cmd_unload, 'Unload a plugin')
+    exported.cmdMgr.addCmd('plugins', 'Plugin Manager', 'reload', self.cmd_reload, 'Reload a plugin')
+    
   def cmd_list(self, args):
     """---------------------------------------------------------------
 @G%(name)s@w - @B%(cmdname)s@w
@@ -65,150 +98,204 @@ class PluginMgr:
     return True
     
   def cmd_load(self, args):
-    pass
+    """---------------------------------------------------------------
+@G%(name)s@w - @B%(cmdname)s@w
+  Load a plugin
+  @CUsage@w: load @Yplugin@w
+    @Yplugin@w    = the name of the plugin to load
+               use the name without the .py    
+---------------------------------------------------------------"""      
+    if len(args) == 1:
+      basepath = ''
+      index = __file__.rfind(os.sep)
+      if index == -1:
+        basepath = "." + os.sep
+      else:
+        basepath = __file__[:index]      
+        
+      _module_list = find_files( basepath, args[0] + ".py")
+      
+      if len(_module_list) > 1:
+        exported.sendtouser('There is more than one module that matches: %s' % args[0])
+      elif len(_module_list) == 0:
+        exported.sendtouser('There are no modules that match: %s' % args[0])        
+      else:
+        sname = self.load_module(_module_list[0], basepath, True)
+        if sname:
+          exported.sendtouser('Load complete: %s - %s' % (sname, self.plugins[sname].name))
+        else:
+          exported.sendtouser('Could not load: %s' % args[0])
+      return True
+    else:
+      return False
 
-  def load_modules(self):
+  def cmd_unload(self, args):
+    """---------------------------------------------------------------
+@G%(name)s@w - @B%(cmdname)s@w
+  unload a plugin
+  @CUsage@w: unload @Yplugin@w
+    @Yplugin@w    = the shortname of the plugin to load
+---------------------------------------------------------------"""    
+    if len(args) == 1 and args[0] in self.plugins:
+      if self.plugins[args[0]].canreload:
+        if self.unload_module(self.plugins[args[0]].fullimploc):
+          exported.sendtouser("Unloaded: %s" % args[0])
+        else:
+          exported.sendtouser("Could not unload:: %s" % args[0])
+      else:
+        exported.sendotouser("That plugin can not be unloaded")
+      return True
+      
+    return False
+
+  def cmd_reload(self, args):
+    """---------------------------------------------------------------
+@G%(name)s@w - @B%(cmdname)s@w
+  reload a plugin
+  @CUsage@w: reload @Yplugin@w
+    @Yplugin@w    = the shortname of the plugin to reload
+---------------------------------------------------------------"""       
+    if args[0] and args[0] in self.plugins:
+      if self.plugins[args[0]].canreload:
+        tret = self.reload_module(args[0])
+        if tret and tret != True:
+          exported.sendtouser("Reload complete: %s" % self.plugins[tret].fullimploc)
+          return True
+      else:
+        exported.sendtouser("That plugin cannot be reloaded")
+        return True
+    else:
+      exported.sendtouser("That plugin does not exist")
+      return True
+
+  def load_modules(self, filter):
     index = __file__.rfind(os.sep)
     if index == -1:
-      path = "." + os.sep
+      basepath = "." + os.sep
     else:
-      path = __file__[:index]
-
+      basepath = __file__[:index]
     
-    _module_list = find_files( path, "*.py")
+    _module_list = find_files( basepath, filter)
     _module_list.sort()
 
-    for mem in _module_list:
+    for fullname in _module_list:
       # we skip over all files that start with a _
       # this allows hackers to be working on a module and not have
       # it die every time.
-      impl, iname = get_module_name(path, mem)
-      
-      if iname.startswith("_"):
-        continue
+      self.load_module(fullname, basepath)
 
-      try:
-        if impl == '.':
-          name = "plugins" + impl + iname          
-        else:
-          name = "plugins" + impl + '.' + iname
-        print 'importing name', name
-        _module = __import__(name)
-        _module = sys.modules[name]
-        load = True
-
-        if _module.__dict__.has_key("autoload"):
-          if not _module.autoload:          
-            load = False
-        
-        if load:
-          if _module.__dict__.has_key("Plugin"):
-            self.add_plugin(_module, mem, path, name)
-
-          else:
-            print('Module %s has no Plugin class', _module.name)
-
-          _module.__dict__["proxy_import"] = 1
-        else:
-          print('Not loading %s (%s) because autoload is False' % (_module.name, iname)) 
-      except:
-        exported.write_traceback("Module '%s' refuses to load." % name)
-
-  def cmd_load(self, args):
-    pass
-  
-  def cmd_reload(self, args):
-    pass
-
-  def reload_module(self, modname):
-    mod = ''
-    plugin = None
+  def load_module(self, fullname, basepath, fromcmd=False):
+    imploc, modname = get_module_name(basepath, fullname)
     
-    if modname in self.sname:
-      plugin = self.plugins[modname]  
-      mod = plugin.importloc
-      del self,plugins[plugin.sname]
-      del self.pluginl[plugin.name]
-      del self.pluginm[plugin.name]
-    else:
+    if modname.startswith("_") and not fromcmd:
       return False
-    
-    if sys.modules.has_key(mod):
 
-      _module = sys.modules[mod]
+    try:
+      if imploc == '.':
+        fullimploc = "plugins" + imploc + modname          
+      else:
+        fullimploc = "plugins" + imploc + '.' + modname
+      print 'loading', fullimploc
+      _module = __import__(fullimploc)
+      _module = sys.modules[fullimploc]
+      load = True
+
+      if _module.__dict__.has_key("autoload") and not fromcmd:
+        if not _module.autoload:          
+          load = False
+      
+      if load:
+        if _module.__dict__.has_key("Plugin"):
+          self.add_plugin(_module, fullname, basepath, fullimploc)
+
+        else:
+          print('Module %s has no Plugin class', _module.name)
+
+        _module.__dict__["proxy_import"] = 1
+        exported.write_message("load: loaded %s" % fullimploc)
+        
+        return _module.sname
+      else:
+        print('Not loading %s (%s) because autoload is False' % (_module.name, fullimploc)) 
+      return True
+    except:
+      exported.write_traceback("Module '%s' refuses to load." % fullimploc)
+      return False
+     
+  def unload_module(self, fullimploc):
+    if sys.modules.has_key(fullimploc):
+      
+      _module = sys.modules[fullimploc]
       _oldmodule = _module
       try:
-        if _module.__dict__.has_key("lyntin_import"):
-          # if we're told not to reload it, we toss up a message and then
-          # do nothing
-          if not reload:
-            exported.write_message("load: module %s has already been loaded." % mod)
-            return
-
-          # if we loaded it via a lyntin_import mechanism and it has an
-          # unload method, then we try calling that
+        if _module.__dict__.has_key("proxy_import"):
+          
           if _module.__dict__.has_key("unload"):
             try:
               _module.unload()
             except:
-              exported.write_traceback("load: module %s didn't unload properly." % mod)
-        del sys.modules[mod]
-        exported.write_message("load: reloading %s." % mod)
+              exported.write_traceback("unload: module %s didn't unload properly." % fullimploc)
+          
+          if not self.remove_plugin(_module.sname):
+            exported.write_message('could not remove plugin %s' % fullimploc)
+          
+        del sys.modules[fullimploc]
+        exported.write_message("unload: unloaded %s." % fullimploc)
 
       except:
-        exported.write_traceback("load: had problems unloading %s." % mod)
-        return
+        exported.write_traceback("unload: had problems unloading %s." % fullimploc)
+        return False
     else:
       _oldmodule = None
-
-
-    # here's where we import the module
-    try:
-      _module = __import__( mod )
-      _module = sys.modules[mod]
-
-      if (_oldmodule and _oldmodule.__dict__.has_key("reload")):
-        try:
-          _oldmodule.reload()
-        except:
-          exported.write_traceback("load: had problems calling reload on %s." % mod)
       
-      if (_module.__dict__.has_key("load")):
-        _module.load()
+    return True
 
-      _module.__dict__["lyntin_import"] = 1
-      exported.write_message("load successful.")
-      if mod not in config.lyntinmodules:
-        config.lyntinmodules.append(mod)
+  def reload_module(self, modname):
+    if modname in self.plugins:
+      plugin = self.plugins[modname]  
+      fullimploc = plugin.fullimploc
+      basepath = plugin.basepath
+      fullname = plugin.fullname
+      plugin = None
+      if not self.unload_module(fullimploc):
+        return False
 
-    except:
-      exported.write_traceback("load: had problems with %s." % mod)
+      if fullname and basepath:
+        return self.load_module(fullname, basepath)
+
+    else:
+      return False
   
-  def add_plugin(self, module, mem, path, name):
+  def add_plugin(self, module, fullname, basepath, fullimploc):
     module.__dict__["lyntin_import"] = 1    
-    plugin = module.Plugin(module.name, module.sname, mem, path, name)
+    plugin = module.Plugin(module.name, module.sname, fullname, basepath, fullimploc)
     plugin.author = module.author
     plugin.purpose = module.purpose
     plugin.version = module.version    
     if plugin.name in self.pluginl:
       print('Plugin %s already exists' % plugin.name)
-      return
+      return False
     if plugin.sname in self.plugins:
       print('Plugin %s already exists' % plugin.sname)
-      return
+      return False
     
     plugin.load()
     self.pluginl[plugin.name] = plugin
     self.plugins[plugin.sname] = plugin
     self.pluginm[plugin.name] = module
+    return True
 
   def remove_plugin(self, pluginname):
     plugin = None
     if pluginname in self.plugins:
       plugin = self.plugins[pluginname]
-
-    if plugin:
       plugin.unload()
-      del(self.plugins[pluginname])
-      
+      del self.plugins[plugin.sname]
+      del self.pluginl[plugin.name]
+      del self.pluginm[plugin.name]      
+      plugin = None      
+      return True
+    else:
+      return False
+
       
