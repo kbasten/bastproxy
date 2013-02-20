@@ -128,5 +128,5 @@ def execute(cmd):
 argument 1: the cmd to execute
   It will first be checked to see if it is an internal command
   and then sent to the mud if not"""
-  exported.raiseevent('to_mud_event', {'data':cmd, 'dtype':'fromclient'})
+  raiseevent('to_mud_event', {'data':cmd, 'dtype':'fromclient'})
   
