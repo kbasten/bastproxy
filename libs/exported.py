@@ -129,11 +129,11 @@ argument 1: the cmd to execute
   It will first be checked to see if it is an internal command
   and then sent to the mud if not"""
   data = None
-  newdata = exported.raiseevent('from_client_event', {'fromdata':cmd})
+  newdata = raiseevent('from_client_event', {'fromdata':cmd})
 
   if 'fromdata' in newdata:
     data = newdata['fromdata']
 
   if data:
-    exported.raiseevent('to_mud_event', {'data':data, 'dtype':'fromclient'})
+    raiseevent('to_mud_event', {'data':data, 'dtype':'fromclient'})
   
