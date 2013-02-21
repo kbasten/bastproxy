@@ -1,5 +1,5 @@
 import pickle, json, csv, os, shutil
-from lib.utils import convert
+from libs.utils import convert
 
 class PersistentDict(dict):
     ''' Persistent dictionary with an API compatible with shelve and anydbm.
