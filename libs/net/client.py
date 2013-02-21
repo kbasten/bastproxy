@@ -69,12 +69,14 @@ class ProxyClient(Telnet):
             exported.proxy.connectmud()
           newdata = {}
           if len(data) > 0:
+            # can transform data here
             newdata = exported.raiseevent('from_client_event', {'fromdata':data})
 
           if 'fromdata' in newdata:
             data = newdata['fromdata']
 
           if data:
+            # cannot transform data
             exported.raiseevent('to_mud_event', {'data':data, 'dtype':'fromclient'})
                 
       elif self.state == PASSWORD:

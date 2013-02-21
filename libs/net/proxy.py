@@ -48,7 +48,16 @@ class Proxy(Telnet):
       ndatal = alldata.split('\n')
       self.lastmsg = ndatal[-1]
       for i in ndatal[:-1]:
-        exported.raiseevent('to_client_event', {'todata':i, 'dtype':'frommud', 'noansidata':strip_ansi(i)})
+        if len(i) > 0:
+          #data can be transformed here
+          newdata = exported.raiseevent('from_mud_event', {'fromdata':i, 'dtype':'frommud', 'noansidata':strip_ansi(i)})
+
+        if 'fromdata' in newdata:
+          ndata = newdata['fromdata']
+
+        if ndata:
+          #data cannot be transformed here
+          exported.raiseevent('to_client_event', {'todata':ndata, 'dtype':'frommud', 'noansidata':strip_ansi(ndata)})        
 
   def addclient(self, client):
     """

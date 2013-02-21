@@ -39,10 +39,6 @@ class EventMgr:
     self.timerlookup = {}
     self.lasttime = int(time.time())
     exported.msg('lasttime:  %s' % self.lasttime, 'timer')
-    self.registerevent('to_client_event', self.touser)
-    self.registerevent('from_client_event', self.fromuser)
-    self.registerevent('to_server_event', self.toserver)
-    self.registerevent('from_server_event', self.fromserver)
     
   def addtrigger(self, triggername, regex):
     self.trigger[triggername] = regex
@@ -87,22 +83,6 @@ class EventMgr:
       #exported.msg('nothing to process for %s' % eventname)
     #exported.msg('returning', nargs)
     return nargs
-
-  def touser(self, args):
-    #exported.msg('touser got', args['todata'].strip())
-    pass
-
-  def fromuser(self, args):
-    #exported.msg('fromuser got', args['fromdata'].strip())
-    pass
-
-  def toserver(self, args):
-    #exported.msg('touser got', args['todata'].strip())
-    pass
-
-  def fromserver(self, args):
-    #exported.msg('fromuser got', args['fromdata'].strip())
-    pass
 
   def addtimer(self, name, func, seconds, onetime):
     tevent = TimerEvent(name, func, seconds, onetime)
