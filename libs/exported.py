@@ -83,7 +83,7 @@ argument 1: the text of the error"""
   logger.msg({'msg':msg, 'dtype':'error'})
 
 
-def sendtoclient(text, raw=False):
+def sendtoclient(text, raw=False, preamble=True):
   """send text to the clients converting color codes
 argument 1: the text to send
 argument 2: (optional) if this argument is True, do
@@ -91,7 +91,7 @@ argument 2: (optional) if this argument is True, do
   if isinstance(text, basestring):
     text = text.split('\n')
   
-  if not raw:
+  if (not raw) and preamble:
     test = []
     for i in text:
       test.append(color.convertcolors('@R#BP@w: ' + i))
