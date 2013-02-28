@@ -23,11 +23,12 @@ import socket
 
 from libs import exported
 
-index = __file__.rfind(os.sep)
+npath = os.path.abspath(__file__)
+index = npath.rfind(os.sep)
 if index == -1:
-  exported.basepath = "." + os.sep
+  exported.basepath = os.curdir + os.sep
 else:
-  exported.basepath = __file__[:index]
+  exported.basepath = npath[:index]
 
 print 'setting basepath to', exported.basepath
 

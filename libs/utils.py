@@ -25,7 +25,7 @@ def timedeltatostring(stime, etime):
     days, hours, minutes = False, False, False
     if outAr[0] != 0:
       days = True
-      tmsg.append('%dy' % outAr[0])
+      tmsg.append('%dd' % outAr[0])
     if outAr[1] != 0 or days:
       hours = True
       tmsg.append('%dh' % outAr[1])
@@ -44,9 +44,9 @@ def verify_bool(val):
     return True
   elif isinstance(val, basestring):
     val = val.lower()
-    if val  == 'false':
+    if val  == 'false' or val == 'no':
       return False
-    elif val == 'true':
+    elif val == 'true' or val == 'yes':
       return True
   
   return bool(val)

@@ -56,7 +56,7 @@ class Proxy(Telnet):
 
         if tosend != None:
           #data cannot be transformed here
-          exported.raiseevent('to_client_event', {'todata':tosend, 'dtype':'frommud', 'noansidata':strip_ansi(tosend)})        
+          exported.raiseevent('to_client_event', {'todata':tosend, 'dtype':'frommud', 'nocolordata':strip_ansi(tosend)})        
 
   def addclient(self, client):
     """
