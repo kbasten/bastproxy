@@ -2,6 +2,14 @@ import fnmatch
 import os
 import datetime
 
+
+class dotdict(dict):
+    def __getattr__(self, attr):
+      return self.get(attr, dotdict())
+    __setattr__= dict.__setitem__
+    __delattr__= dict.__delitem__
+    
+
 def find_files(directory, filematch):
   matches = []
   for root, dirnames, filenames in os.walk(directory):
