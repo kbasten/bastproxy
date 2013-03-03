@@ -2,12 +2,13 @@
 $Id$
 
 This file holds the class that connects to the mud
+#TODO: if disconnected from mud, clear buffer that sends command to mud
 """
 import time
 from libs.net.telnetlib import Telnet
 from libs import exported
 from libs.color import strip_ansi, convertcolors
-from libs.net.options import toptionMgr
+from libs.net.options import TELOPTMGR
 
 
 class Proxy(Telnet):
@@ -32,8 +33,8 @@ class Proxy(Telnet):
     self.ttype = 'Server'
     self.banned = {}
     self.connectedtime = None
-    exported.registerevent('to_mud_event', self.addtooutbuffer, 99)
-    toptionMgr.addtoserver(self)
+    exported.event.register('to_mud_event', self.addtooutbuffer, 99)
+    TELOPTMGR.addtoserver(self)
 
   def handle_read(self):
     """
@@ -49,14 +50,18 @@ class Proxy(Telnet):
       self.lastmsg = ndatal[-1]
       for i in ndatal[:-1]:
         tosend = i
-        newdata = exported.raiseevent('from_mud_event', {'fromdata':tosend, 'dtype':'frommud', 'nocolordata':strip_ansi(tosend)})
+        newdata = exported.event.eraise('from_mud_event', 
+            {'fromdata':tosend, 'dtype':'frommud', 
+                    'nocolordata':strip_ansi(tosend)})
 
         if 'fromdata' in newdata:
           tosend = newdata['fromdata']
 
         if tosend != None:
           #data cannot be transformed here
-          exported.raiseevent('to_client_event', {'todata':tosend, 'dtype':'frommud', 'nocolordata':strip_ansi(tosend)})        
+          exported.event.eraise('to_client_event', 
+             {'todata':tosend, 'dtype':'frommud', 
+                'nocolordata':strip_ansi(tosend)})        
 
   def addclient(self, client):
     """
@@ -104,17 +109,19 @@ class Proxy(Telnet):
     self.doconnect()
     self.connectedtime = time.mktime(time.localtime())
     exported.msg('Connected to mud', 'net')    
-    exported.raiseevent('mudconnect', {})
+    exported.event.eraise('mudconnect', {})
 
   def handle_close(self):
     """
     hand closing the connection
     """
     exported.msg('Disconnected from mud', 'net')
-    exported.raiseevent('to_client_event', {'todata':convertcolors('@R#BP@w: The mud closed the connection'), 'dtype':'fromproxy'})
-    toptionMgr.resetoptions(self, True)
+    exported.event.eraise('to_client_event',
+        {'todata':convertcolors('@R#BP@w: The mud closed the connection'), 
+        'dtype':'fromproxy'})
+    TELOPTMGR.resetoptions(self, True)
     Telnet.handle_close(self)
-    exported.raiseevent('muddisconnect', {})  
+    exported.event.eraise('muddisconnect', {})  
 
   def addtooutbuffer(self, args, raw=False):
     """

@@ -6,64 +6,31 @@ from __future__ import print_function
 
 import sys, traceback
 from libs import color
+from libs.utils import DotDict
 
-basepath = ''
-cmdMgr = None
-eventMgr = None
-pluginMgr = None
-config = None
-proxy = None
-logger = None
+BASEPATH = ''
+CMDMGR = None
+EVENTMGR = None
+PLUGINMGR = None
+CONFIG = None
+PROXY = None
+LOGGER = None
 
-connected = False
+CONNECTED = False
 
-def msg(msg, dtype='default'):
-  """send a msg through the logger
+def msg(tmsg, dtype='default'):
+  """send a msg through the LOGGER
 argument 1: the message to send
 argument 2: (optional) the data type, the default is 'default"""
-  if logger:
-    logger.msg({'msg':msg}, dtype)
+  if LOGGER:
+    LOGGER.msg({'msg':tmsg}, dtype)
    
    
-def addtrigger(name, regex):
-  """add a trigger
-argument 1: the name of the trigger
-argument 2: the regex for the trigger"""
-  eventMgr.addtrigger(name, regex)
-
-
-def deletetrigger(name):
-  """delete a trigger
-argument 1: the name of the trigger"""
-  eventMgr.deletetrigger(name)
-
-
-def registerevent(name, func, prio=50):
-  """register an event in the event manager
-argument 1: the name of the event
-argument 2: the function to call
-argument 3: (optional) the priority of the event, default is 50"""
-  eventMgr.registerevent(name, func, prio)
-
-
-def unregisterevent(name, func):
-  """unregister an event
-argument 1: the name of the event
-argument 2: the function to call"""
-  eventMgr.unregisterevent(name, func)
-
-
-def raiseevent(name, args):
-  """process an event and call all functions associated with ht
-argument 1: the name of the event
-argument 2: the argument list"""
-  return eventMgr.raiseevent(name, args)
-
-
 def write_traceback(message=""):
-  """write a traceback through the logger
+  """write a traceback through the LOGGER
 argument 1: (optional) the message to show with the traceback"""
-  exc = "".join(traceback.format_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]))
+  exc = "".join(traceback.format_exception(sys.exc_info()[0],
+                    sys.exc_info()[1], sys.exc_info()[2]))
 
   if message:
     message = message + "\n" + exc
@@ -73,14 +40,14 @@ argument 1: (optional) the message to show with the traceback"""
 
 
 def write_error(text):
-  """write an error through the logger
+  """write an error through the LOGGER
 argument 1: the text of the error"""
   text = str(text)
   test = []
   for i in text.split('\n'):
     test.append(color.convertcolors('@x136%s@w' % i))
-  msg = '\n'.join(test)
-  logger.msg({'msg':msg, 'dtype':'error'})
+  tmsg = '\n'.join(test)
+  LOGGER.msg({'msg':tmsg, 'dtype':'error'})
 
 
 def sendtoclient(text, raw=False, preamble=True):
@@ -99,36 +66,8 @@ argument 2: (optional) if this argument is True, do
       test.append(color.convertcolors(i))
     text = test
  
-  eventMgr.raiseevent('to_client_event', {'todata':'\n'.join(text), 'raw':raw, 'dtype':'fromproxy'})
-
-write_message = sendtoclient
-
-
-def addtimer(name, func, seconds, onetime=False):
-  """add a timer
-argument 1: the name of the timer
-argument 2: the function to call when this timer fires
-argument 3: the # of seconds in the future to fire the timer
-argument 4: (optional) if True, only fire this timer once. Default is False"""
-  eventMgr.addtimer(name, func, seconds, onetime)
-
-
-def deletetimer(name):
-  """delete a timer
-argument 1: the name of the timer to delete"""
-  eventMgr.deletetimer(name)
-
-
-def enabletimer(name):
-  """enable a timer
-argument 1: the name of the timer to enable"""
-  eventMgr.enabletimer(name)
-
-
-def disabletimer(name):
-  """disable a timer
-argument 1: the name of the timer to disable"""
-  eventMgr.disabletimer(name)
+  event.eraise('to_client_event', {'todata':'\n'.join(text), 
+                                    'raw':raw, 'dtype':'fromproxy'})
 
 
 def execute(cmd):
@@ -139,11 +78,43 @@ argument 1: the cmd to execute
   data = None
   if cmd[-1] != '\n':
     cmd = cmd + '\n'
-  newdata = raiseevent('from_client_event', {'fromdata':cmd})
+  newdata = event.eraise('from_client_event', {'fromdata':cmd})
 
   if 'fromdata' in newdata:
     data = newdata['fromdata']
 
   if data:
-    raiseevent('to_mud_event', {'data':data, 'dtype':'fromclient'})
+    event.eraise('to_mud_event', {'data':data, 'dtype':'fromclient'})
   
+  
+def add(func, subname=None, funcname=None):
+  """add a function to exported
+argument 1: the function
+argument 2: the subgroup to put the function in"""  
+  if not funcname:
+    funcname = func.func_name
+  if subname:
+    if not (subname in globals()):
+      globals()[subname] = DotDict()
+    globals()[subname][funcname] = func
+  else:
+    globals()[funcname] = func
+    
+    
+def remove(func=None, subname=None):
+  """remove a function or subgroup from exported
+argument 1: the function
+argument 2: the subgroup"""   
+  if subname:
+    try:
+      del globals()[subname]
+    except KeyError:
+      msg('exported has no subsection named %s' % subname, 'default')      
+  else:
+    try:
+      del globals()[func.func_name]
+    except KeyError:
+      msg('exported has no function named %s' % \
+                                                func.func_name, 'default')      
+    
+    

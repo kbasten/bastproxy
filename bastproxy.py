@@ -23,42 +23,49 @@ import socket
 
 from libs import exported
 
-npath = os.path.abspath(__file__)
-index = npath.rfind(os.sep)
-if index == -1:
-  exported.basepath = os.curdir + os.sep
-else:
-  exported.basepath = npath[:index]
+def setuppaths():
+  """
+  setup paths
+  """
+  npath = os.path.abspath(__file__)
+  index = npath.rfind(os.sep)
+  if index == -1:
+    exported.BASEPATH = os.curdir + os.sep
+  else:
+    exported.BASEPATH = npath[:index]
 
-print 'setting basepath to', exported.basepath
+  print 'setting basepath to', exported.BASEPATH
 
-try:
-  os.makedirs(os.path.join(exported.basepath, 'data', 'logs'))
-except OSError:
-  pass
+  try:
+    os.makedirs(os.path.join(exported.BASEPATH, 'data', 'logs'))
+  except OSError:
+    pass  
 
-from libs.logger import logger
-exported.logger = logger()
+setuppaths()
+
+from libs.logger import Logger
+exported.LOGGER = Logger()
 
 from libs.event import EventMgr
-exported.eventMgr = EventMgr()
+exported.EVENTMGR = EventMgr()
 
 from libs.cmdman import CmdMgr
-exported.cmdMgr = CmdMgr()
+exported.CMDMGR = CmdMgr()
 
 from plugins import PluginMgr
-exported.pluginMgr = PluginMgr()
+exported.PLUGINMGR = PluginMgr()
 
-exported.logger.load()
-exported.cmdMgr.load()
-exported.pluginMgr.load()
-exported.eventMgr.load()
+exported.LOGGER.load()
+exported.CMDMGR.load()
+exported.PLUGINMGR.load()
+exported.EVENTMGR.load()
 
-exported.logger.adddtype('net')
-exported.logger.cmd_console(['net'])
+exported.LOGGER.adddtype('net')
+exported.LOGGER.cmd_console(['net'])
 
 from libs.net.proxy import Proxy
 from libs.net.client import ProxyClient
+
 
 
 class Listener(asyncore.dispatcher):
@@ -97,45 +104,50 @@ class Listener(asyncore.dispatcher):
     if not self.proxy:
       # do proxy stuff here
       self.proxy = Proxy(self.server_address, self.server_port)
-      exported.proxy = self.proxy
+      exported.PROXY = self.proxy
     client_connection, source_addr = self.accept()
 
     try:
-      ip = source_addr[0]
-      if self.proxy.checkbanned(ip):
-        exported.msg("HOST: %s is banned" % ip, 'net')
+      ipaddress = source_addr[0]
+      if self.proxy.checkbanned(ipaddress):
+        exported.msg("HOST: %s is banned" % ipaddress, 'net')
         client_connection.close()
       elif len(self.proxy.clients) == 5:
         exported.msg("Only 5 clients can be connected at the same time", 'net')
         client_connection.close()
       else:
-        exported.msg("Accepted connection from %s : %s" % (source_addr[0], source_addr[1]), 'net')
-        test = ProxyClient(client_connection, source_addr[0], source_addr[1])
+        exported.msg("Accepted connection from %s : %s" % 
+                                      (source_addr[0], source_addr[1]), 'net')
+                                      
+        #Proxy client keeps up with itself
+        ProxyClient(client_connection, source_addr[0], source_addr[1])
     except:
-       exported.write_traceback('Error handling client')
+      exported.write_traceback('Error handling client')
 
 
-def main(listen_port, server_address, server_port):
+def start(listen_port, server_address, server_port):
   """
   start the proxy
   
   we do a single asyncore.loop then we check timers
   """
-  proxy = Listener(listen_port, server_address, server_port)
+  Listener(listen_port, server_address, server_port)
   try:
     while True:
 
-      asyncore.loop(timeout=.5,count=1)
+      asyncore.loop(timeout=.25, count=1)
      # check our timer event
-      exported.eventMgr.checktimerevents()
+      exported.EVENTMGR.checktimerevents()
 
   except KeyboardInterrupt:
-       pass
+    pass
 
   exported.msg("Shutting down...")
 
-
-if __name__ == "__main__":
+def main():
+  """
+  the main function that runs everything
+  """
   try:
     if sys.argv[1] == "-d":
       daemon = True
@@ -148,34 +160,35 @@ if __name__ == "__main__":
     sys.exit(1)
 
   try:
-    exported.config = ConfigParser.RawConfigParser()
-    exported.config.read(config)
+    exported.CONFIG = ConfigParser.RawConfigParser()
+    exported.CONFIG.read(config)
   except:
     print "Error parsing config!"
     sys.exit(1)
 
   def guard(func, message):
+    """
+    a wrap function for getting stuff from the config
+    """
     try:
       return func()
     except:
       print "Error:", message
       raise
-      sys.exit(1)
+#      sys.exit(1)
 
-  mode = 'proxy'
-  listen_port = guard(lambda:exported.config.getint("proxy", "listen_port"),
+  listen_port = guard(lambda:exported.CONFIG.getint("proxy", "listen_port"),
     "listen_port is a required field")
-  server_address = guard(lambda:exported.config.get("proxy", "server_address"),
+  server_address = guard(lambda:exported.CONFIG.get("proxy", "server_address"),
     "server is a required field")
-  server_port = guard(lambda:exported.config.getint("proxy", "server_port"),
+  server_port = guard(lambda:exported.CONFIG.getint("proxy", "server_port"),
     "server_port is a required field")
 
   if not daemon:
     try:
-      main(listen_port, server_address, server_port)
+      start(listen_port, server_address, server_port)
     except KeyboardInterrupt:
-      exported.raiseevent('savestate', {})
-      pass
+      exported.event.eraise('savestate', {})
   else:
     os.close(0)
     os.close(1)
@@ -187,8 +200,13 @@ if __name__ == "__main__":
     if os.fork() == 0:
       # We are the child
       try:
-        sys.exit(main(listen_port, host, port, mode))
+        sys.exit(start(listen_port, server_address, server_port))
       except KeyboardInterrupt:
         print
       sys.exit(0)
 
+  
+if __name__ == "__main__":
+  main()
+  
+  

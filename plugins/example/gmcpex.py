@@ -5,40 +5,54 @@ $Id$
 from libs import exported
 from plugins import BasePlugin
 
-name = 'GMCP Test'
-sname = 'gmcpex'
-purpose = 'examples for using the gmcp plugin'
-author = 'Bast'
-version = 1
+NAME = 'GMCP Test'
+SNAME = 'gmcpex'
+PURPOSE = 'examples for using the gmcp plugin'
+AUTHOR = 'Bast'
+VERSION = 1
 
-autoload = False
+AUTOLOAD = False
 
 class Plugin(BasePlugin):
+  """
+  a plugin to show gmcp usage
+  """
   def __init__(self, name, sname, filename, directory, importloc):
+    """
+    initialize the instance
+    """
     BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
     self.events.append({'event':'GMCP', 'func':self.test})
     self.events.append({'event':'GMCP:char', 'func':self.testchar})
-    self.events.append({'event':'GMCP:char.status', 'func':self.testcharstatus})
-    self.cmds['get'] = {'func':self.cmd_get, 'shelp':'print what is in the gmcp cache'}
+    self.events.append({'event':'GMCP:char.status', 
+                                'func':self.testcharstatus})
+    self.cmds['get'] = {'func':self.cmd_get, 
+                        'shelp':'print what is in the gmcp cache'}
     self.defaultcmd = 'get'
     
   def cmd_get(self, args):
-    """---------------------------------------------------------------
-@G%(name)s@w - @B%(cmdname)s@w
-  print an item from the gmcpcache
-  @CUsage@w: rem @Y<gmcpmod>@w
-    @Ygmcpmod@w    = The gmcp module to print, such as char.status
----------------------------------------------------------------"""    
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      print an item from the gmcpcache
+      @CUsage@w: rem @Y<gmcpmod>@w
+        @Ygmcpmod@w    = The gmcp module to print, such as char.status
+    """    
     if len(args) > 0:
-      exported.sendtoclient()
       return True, ['%s' % exported.gmcp.getv(args[0])]
     
     return False
 
   def test(self, args):
-    exported.sendtoclient('@x52@z192 Event @w- @GGMCP@w: @B%s@w : %s' % (args['module'], args['data']))
+    """
+    show the gmcp event
+    """
+    exported.sendtoclient('@x52@z192 Event @w- @GGMCP@w: @B%s@w : %s' % \
+                         (args['module'], args['data']))
 
   def testchar(self, args):
+    """
+    show the gmcp char event
+    """
     msg = []
     msg.append('testchar --------------------------')
     tchar = exported.gmcp.getv('char')
@@ -63,6 +77,9 @@ class Plugin(BasePlugin):
     exported.sendtoclient('@CEvent@w - @GGMCP:char@w: %s' % args['module'])
 
   def testcharstatus(self, args):
+    """
+    show the gmcp char.status event
+    """
     exported.sendtoclient('@CEvent@w - @GGMCP:char.status@w')
 
   

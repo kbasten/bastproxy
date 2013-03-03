@@ -15,26 +15,42 @@ from libs.color import strip_ansi
 from libs.persistentdict import PersistentDict
 from libs import utils
 
-class logger:
+class Logger:
+  """
+  a class to manage logging and its related activities
+  """
   def __init__(self):
+    """
+    init the class
+    """
     self.sname = 'log'
-    self.savedir = os.path.join(exported.basepath, 'data', 'plugins', self.sname)
-    self.logdir = os.path.join(exported.basepath, 'data', 'logs')
+    self.savedir = os.path.join(exported.BASEPATH, 'data', 
+                                          'plugins', self.sname)
+    self.logdir = os.path.join(exported.BASEPATH, 'data', 'logs')
     try:
       os.makedirs(self.savedir)
     except OSError:
       pass       
     self.dtypes = {}
-    self.sendtoclient = PersistentDict(os.path.join(self.savedir, 'sendtoclient.txt'), 'c')
-    self.sendtoconsole = PersistentDict(os.path.join(self.savedir, 'sendtoconsole.txt'), 'c')
-    self.sendtofile = PersistentDict(os.path.join(self.savedir, 'sendtofile.txt'), 'c')
+    self.sendtoclient = PersistentDict(
+                          os.path.join(self.savedir, 'sendtoclient.txt'), 
+                          'c')
+    self.sendtoconsole = PersistentDict(
+                          os.path.join(self.savedir, 'sendtoconsole.txt'), 
+                          'c')
+    self.sendtofile = PersistentDict(
+                          os.path.join(self.savedir, 'sendtofile.txt'), 
+                          'c')
     self.openlogs = {}
     self.currentlogs = {}    
     self.colors = {}
     self.adddtype('default')
     self.adddtype('frommud')
     self.sendtoconsole['default'] = True
-    self.sendtofile['default'] = {'logdir':os.path.join(self.logdir, 'default'), 'file':'%a-%b-%d-%Y.log', 'timestamp':True}
+    self.sendtofile['default'] = {
+                                'logdir':os.path.join(self.logdir, 'default'), 
+                                'file':'%a-%b-%d-%Y.log', 'timestamp':True
+                                  }
     self.adddtype('error')
     self.sendtoconsole['error'] = True
     self.sendtoclient['error'] = True
@@ -44,16 +60,24 @@ class logger:
     self.sendtofile.sync()
   
   def adddtype(self, dtype):
+    """
+    add a datatype
+    """
     if not (dtype in self.dtypes):
       self.dtypes[dtype] = True
       self.sendtoclient[dtype] = False
       self.sendtoconsole[dtype] = False    
     
   def msg(self, args, dtype='default'):
+    """
+    process a message
+    """
     if 'dtype' in args:
       dtype = args['dtype']
       
-    tstring = '%s - %-10s : ' % (time.strftime('%a %b %d %Y %H:%M:%S', time.localtime()), dtype)
+    tstring = '%s - %-10s : ' % (
+                time.strftime('%a %b %d %Y %H:%M:%S', time.localtime()), 
+                dtype)
     if dtype in self.colors:
       tstring = exported.color.convertcolors(self.colors[dtype] + tstring)
     tmsg = [tstring]
@@ -75,24 +99,33 @@ class logger:
     self.logtofile(timestampmsg, 'default')
     
   def logtofile(self, msg, dtype):
+    """
+    send a message to a log file
+    """
     #print('logging', dtype)
-    file = os.path.join(self.sendtofile[dtype]['logdir'], time.strftime(self.sendtofile[dtype]['file'], time.localtime()))
+    tfile = os.path.join(self.sendtofile[dtype]['logdir'], 
+                  time.strftime(self.sendtofile[dtype]['file'], 
+                  time.localtime()))
     if not os.path.exists(self.sendtofile[dtype]['logdir']):
       os.makedirs(self.sendtofile[dtype]['logdir'])
       os.makedirs(os.path.join(self.sendtofile[dtype]['logdir'], 'archive'))
-    if (not (dtype in self.currentlogs)) or (dtype in self.currentlogs and not self.currentlogs[dtype]):
-      self.currentlogs[dtype] = file
-    elif file != self.currentlogs[dtype]:
+    if (not (dtype in self.currentlogs)) or \
+       (dtype in self.currentlogs and not self.currentlogs[dtype]):
+      self.currentlogs[dtype] = tfile
+    elif tfile != self.currentlogs[dtype]:
       self.openlogs[self.currentlogs[dtype]].close()
-      shutil.move(self.currentlogs[dtype], os.path.join(self.sendtofile[dtype]['logdir'], 'archive'))
+      shutil.move(self.currentlogs[dtype], 
+                  os.path.join(self.sendtofile[dtype]['logdir'], 'archive'))
       del self.openlogs[self.currentlogs[dtype]]
-      self.currentlogs[dtype] = file      
+      self.currentlogs[dtype] = tfile      
     
     if not (self.currentlogs[dtype] in self.openlogs):
-      self.openlogs[self.currentlogs[dtype]] = open(self.currentlogs[dtype], 'a')
+      self.openlogs[self.currentlogs[dtype]] = \
+                      open(self.currentlogs[dtype], 'a')
     #print('logging to %s' % tfile)
     if self.sendtofile[dtype]['timestamp']:
-      tstring = '%s : ' % (time.strftime('%a %b %d %Y %H:%M:%S', time.localtime()))
+      tstring = '%s : ' % \
+            (time.strftime('%a %b %d %Y %H:%M:%S', time.localtime()))
       msg = tstring + msg
     self.openlogs[self.currentlogs[dtype]].write(strip_ansi(msg) + '\n')
     self.openlogs[self.currentlogs[dtype]].flush()
@@ -172,19 +205,20 @@ class logger:
       except IndexError:
         pass
       tfile = '%a-%b-%d-%Y.log'
-      strftfile = time.strftime(tfile, time.localtime())
       
       self.sendtofile[dtype] = {'file':tfile, 
                                  'logdir':os.path.join(self.logdir, dtype),
                                  'timestamp':timestamp}
-      tmsg.append('setting %s to log to %s' % (dtype, self.sendtofile[dtype]['file']))
+      tmsg.append('setting %s to log to %s' % \
+                      (dtype, self.sendtofile[dtype]['file']))
       self.sendtofile.sync()
       return True, tmsg
     else:
       tmsg.append('Current types going to file')
       for i in self.sendtofile:
         if self.sendtofile[i]:
-          tmsg.append('%s - %s - %s' % (i, self.sendtofile[i]['file'], self.sendtofile[i]['timestamp']))
+          tmsg.append('%s - %s - %s' % \
+             (i, self.sendtofile[i]['file'], self.sendtofile[i]['timestamp']))
       return True, tmsg
    
   def cmd_types(self, args):
@@ -199,16 +233,29 @@ class logger:
     return True, tmsg
   
   def logmud(self, args):
+    """
+    log all data from the mud
+    """
     if 'frommud' in self.sendtofile and self.sendtofile['frommud']['file']:
       self.logtofile(args['nocolordata'], 'frommud')
     return args
    
   def load(self):
-    #exported.cmdMgr.addCmd('log', 'Logger', 'logtofile', self.cmd_logtofile, 'Log debug types to a file')
-    exported.cmdMgr.addCmd('log', 'Logger', 'client', self.cmd_client, 'Send message of a type to clients')
-    exported.cmdMgr.addCmd('log', 'Logger', 'file', self.cmd_file, 'Send message of a type to a file')
-    exported.cmdMgr.addCmd('log', 'Logger', 'console', self.cmd_console, 'Send message of a type to console')
-    exported.cmdMgr.addCmd('log', 'Logger', 'types', self.cmd_types, 'Show data types')
-    exported.registerevent('from_mud_event', self.logmud)
+    """
+    load external stuff
+    """
+    exported.cmd.add('log', 'client', 
+                        {'lname':'Logger', 'func':self.cmd_client, 
+                         'shelp':'Send message of a type to clients'})
+    exported.cmd.add('log', 'file', 
+                        {'lname':'Logger', 'func':self.cmd_file, 
+                        'shelp':'Send message of a type to a file'})
+    exported.cmd.add('log', 'console', 
+                        {'lname':'Logger', 'func':self.cmd_console, 
+                        'shelp':'Send message of a type to console'})
+    exported.cmd.add('log', 'types', 
+                        {'lname':'Logger', 'func':self.cmd_types, 
+                        'shelp':'Show data types'})
+    exported.event.register('from_mud_event', self.logmud)
   
   

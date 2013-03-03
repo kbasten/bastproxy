@@ -1,51 +1,70 @@
+"""
+$Id$
+"""
 import fnmatch
 import os
 import datetime
 
 
-class dotdict(dict):
-    def __getattr__(self, attr):
-      return self.get(attr, dotdict())
-    __setattr__= dict.__setitem__
-    __delattr__= dict.__delitem__
+class DotDict(dict):
+  """
+  a class to create dictionaries that can be accessed like dict.key
+  """
+  def __getattr__(self, attr):
+    """
+    override __getattr__ to use get
+    """
+    return self.get(attr, DotDict())
+  __setattr__ = dict.__setitem__
+  __delattr__ = dict.__delitem__
     
 
 def find_files(directory, filematch):
+  """
+  find files in a directory that match a filter
+  """
   matches = []
-  for root, dirnames, filenames in os.walk(directory):
+  for root, _, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, filematch):
-        matches.append(os.path.join(root, filename))
+      matches.append(os.path.join(root, filename))
         
   return matches
 
   
 def timedeltatostring(stime, etime):
-    delay = datetime.timedelta(seconds=abs(etime - stime))
-    if (delay.days > 0):
-        tstr = str(delay)
-        tstr = tstr.replace(" day, ", ":")
-        out  = tstr.replace(" days, ", ":")
-    else:
-        out = "0:" + str(delay)
-    outAr = out.split(':')
-    outAr = [(int(float(x))) for x in outAr]
-    tmsg = []
-    days, hours, minutes = False, False, False
-    if outAr[0] != 0:
-      days = True
-      tmsg.append('%dd' % outAr[0])
-    if outAr[1] != 0 or days:
-      hours = True
-      tmsg.append('%dh' % outAr[1])
-    if outAr[2] != 0 or days or hours:
-      tmsg.append('%dm' % outAr[2])
-    tmsg.append('%ds' % outAr[3])
-      
-    out   = ":".join(tmsg)
-    return out
+  """
+  take two times and return a string of the difference
+  in the form ##d:##h:##m:##s
+  """
+  delay = datetime.timedelta(seconds=abs(etime - stime))
+  if (delay.days > 0):
+    tstr = str(delay)
+    tstr = tstr.replace(" day, ", ":")
+    out  = tstr.replace(" days, ", ":")
+  else:
+    out = "0:" + str(delay)
+  outar = out.split(':')
+  outar = [(int(float(x))) for x in outar]
+  tmsg = []
+  days, hours = False, False
+  if outar[0] != 0:
+    days = True
+    tmsg.append('%02dd' % outar[0])
+  if outar[1] != 0 or days:
+    hours = True
+    tmsg.append('%02dh' % outar[1])
+  if outar[2] != 0 or days or hours:
+    tmsg.append('%02dm' % outar[2])
+  tmsg.append('%02ds' % outar[3])
+    
+  out   = ":".join(tmsg)
+  return out
 
   
 def verify_bool(val):
+  """
+  convert a value to a bool, also converts some string and numbers
+  """
   if val == 0 or val == '0':
     return False
   elif val == 1 or val == '1':
@@ -61,6 +80,9 @@ def verify_bool(val):
 
   
 def verify(val, vtype):
+  """
+  verify values
+  """
   vtab = {}
   vtab[bool] = verify_bool
   
@@ -69,15 +91,17 @@ def verify(val, vtype):
   else:
     return vtype(val)
   
-def convert(input):
-  """converts input to ascii"""  
-  if isinstance(input, dict):
-      return {convert(key): convert(value) for key, value in input.iteritems()}
-  elif isinstance(input, list):
-      return [convert(element) for element in input]
-  elif isinstance(input, unicode):
-      return input.encode('utf-8')
+def convert(tinput):
+  """
+  converts input to ascii
+  """  
+  if isinstance(tinput, dict):
+    return {convert(key): convert(value) for key, value in tinput.iteritems()}
+  elif isinstance(tinput, list):
+    return [convert(element) for element in tinput]
+  elif isinstance(tinput, unicode):
+    return tinput.encode('utf-8')
   else:
-      return input
-    
+    return tinput
+  
   

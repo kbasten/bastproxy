@@ -1,31 +1,38 @@
 """
 $Id$
 """
-from libs import exported
 from plugins import BasePlugin
 
 #these 5 are required
-name = 'Color Example'
-sname = 'colorex'
-purpose = 'show colors'
-author = 'Bast'
-version = 1
+NAME = 'Color Example'
+SNAME = 'colorex'
+PURPOSE = 'show colors'
+AUTHOR = 'Bast'
+VERSION = 1
 
 # This keeps the plugin from being autoloaded when set to False
-autoload = False
+AUTOLOAD = False
 
 
 class Plugin(BasePlugin):
+  """
+  a plugins to show colors
+  """
   def __init__(self, name, sname, filename, directory, importloc):
+    """
+    initialize the instance
+    """
     BasePlugin.__init__(self, name, sname, filename, directory, importloc)
     self.cmds['show'] = {'func':self.show, 'shelp':'Show colors'}
     self.cmds['example'] = {'func':self.example, 'shelp':'Show colors'}
     
   def show(self, args):
-    """@G%(name)s@w - @B%(cmdname)s@w
-  Show xterm colors
-  @CUsage@w: show @Y"compact"@w
-    @Y"compact"@w    = The original string to be replaced"""  
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      Show xterm colors
+      @CUsage@w: show @Y"compact"@w
+        @Y"compact"@w    = The original string to be replaced
+    """  
     msg = ['']
     lmsg = []
     compact = False
@@ -36,7 +43,7 @@ class Plugin(BasePlugin):
       joinc = ''
     else:
       colors = '@B%-3s : @z%s    @w'
-    for i in range(0,16):
+    for i in range(0, 16):
       if i % 8 == 0 and i != 0:
         msg.append(joinc.join(lmsg))
         lmsg = []
@@ -51,7 +58,7 @@ class Plugin(BasePlugin):
 
     lmsg = []
     
-    for i in range(16,256):
+    for i in range(16, 256):
       if (i - 16) % 36 == 0 and ((i - 16) != 0 and not i > 233):
         lmsg.append('\n')
               
@@ -73,9 +80,11 @@ class Plugin(BasePlugin):
 
 
   def example(self, args):
-    """@G%(name)s@w - @B%(cmdname)s@w
-  Show examples of how to use colors
-  @CUsage@w: example"""      
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      Show examples of how to use colors
+      @CUsage@w: example
+    """      
     msg = ['']
     msg.append('Examples')
     msg.append('Raw   : @@z165Regular text with color 165 Background@@w')

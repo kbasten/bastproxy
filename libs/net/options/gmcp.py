@@ -20,8 +20,10 @@ The args for the event will look like
 It adds the following functions to exported
 #TODO Test These
 gmcp.get(module) - get data that is in cache for the specified gmcp module
-gmcp.sendpacket(what) - send a gmcp packet to the mud with the specified contents
-gmcp.togglemodule(modname, mstate) - toggle the gmcp module with modname, mstate should be True or False
+gmcp.sendpacket(what) - send a gmcp packet to 
+                the mud with the specified contents
+gmcp.togglemodule(modname, mstate) - toggle the gmcp module 
+                with modname, mstate should be True or False
 
 To get GMCP data:
 1: Save the data from the event
@@ -32,53 +34,62 @@ To get GMCP data:
 from libs.net.options._option import TelnetOption
 from libs.net.telnetlib import WILL, DO, IAC, SE, SB
 from libs import exported
-from libs.utils import convert
+from libs.utils import convert, DotDict
 from plugins import BasePlugin
 
 GMCP = chr(201)
 
-name = 'GMCP'
-sname = 'GMCP'
-purpose = 'GMCP'
-author = 'Bast'
-version = 1
+NAME = 'GMCP'
+SNAME = 'GMCP'
+PURPOSE = 'GMCP'
+AUTHOR = 'Bast'
+VERSION = 1
 
-autoload = True
+AUTOLOAD = True
 
-class dotdict(dict):
-    def __getattr__(self, attr):
-      return self.get(attr, dotdict())
-    __setattr__= dict.__setitem__
-    __delattr__= dict.__delitem__
-    
     
 #IAC SB GMCP <atcp message text> IAC SE
 def gmcpsendpacket(what):
-  """send a gmcp packet
-only argument is what to send"""
-  exported.raiseevent('to_mud_event', {'data':'%s%s%s%s%s%s' % (IAC, SB, GMCP, what.replace(IAC, IAC+IAC), IAC, SE), 'raw':True, 'dtype':GMCP})  
+  """
+  send a gmcp packet
+  only argument is what to send
+  """
+  exported.event.eraise('to_mud_event', {'data':'%s%s%s%s%s%s' % \
+              (IAC, SB, GMCP, what.replace(IAC, IAC+IAC), IAC, SE), 
+              'raw':True, 'dtype':GMCP})  
     
     
 # Server
 class SERVER(TelnetOption):
+  """
+  a class to handle gmcp data from the server
+  """
   def __init__(self, telnetobj):
+    """
+    initialize the instance
+    """
     TelnetOption.__init__(self, telnetobj, GMCP)
     #self.telnetobj.debug_types.append('GMCP')
 
   def handleopt(self, command, sbdata):
-    self.telnetobj.msg('GMCP:', ord(command), '- in handleopt', level=2, mtype='GMCP')
+    """
+    handle the gmcp option
+    """
+    self.telnetobj.msg('GMCP:', ord(command), '- in handleopt', 
+                              level=2, mtype='GMCP')
     if command == WILL:
       self.telnetobj.msg('GMCP: sending IAC DO GMCP', level=2, mtype='GMCP')
       self.telnetobj.send(IAC + DO + GMCP)
       self.telnetobj.options[ord(GMCP)] = True
-      exported.raiseevent('GMCP:server-enabled', {})
+      exported.event.eraise('GMCP:server-enabled', {})
       
     elif command == SE:
       if not self.telnetobj.options[ord(GMCP)]:
         # somehow we missed negotiation
-        self.telnetobj.msg('##BUG: Enabling GMCP, missed negotiation', level=2, mtype='GMCP')
+        self.telnetobj.msg('##BUG: Enabling GMCP, missed negotiation', 
+                                                  level=2, mtype='GMCP')
         self.telnetobj.options[ord(GMCP)] = True        
-        exported.raiseevent('GMCP:server-enabled', {})
+        exported.event.eraise('GMCP:server-enabled', {})
         
       data = sbdata
       modname, data = data.split(" ", 1)
@@ -93,13 +104,21 @@ class SERVER(TelnetOption):
       tdata['data'] = newdata
       tdata['module'] = modname
       tdata['server'] = self.telnetobj
-      exported.raiseevent('to_client_event', {'todata':'%s%s%s%s%s%s' % (IAC, SB, GMCP, sbdata.replace(IAC, IAC+IAC), IAC, SE), 'raw':True, 'dtype':GMCP})      
-      exported.raiseevent('GMCP_raw', tdata)
+      exported.event.eraise('to_client_event', {'todata':'%s%s%s%s%s%s' % \
+                      (IAC, SB, GMCP, sbdata.replace(IAC, IAC+IAC), IAC, SE), 
+                      'raw':True, 'dtype':GMCP})      
+      exported.event.eraise('GMCP_raw', tdata)
 
 
 # Client
 class CLIENT(TelnetOption):
+  """
+  a class to handle gmcp data from a client
+  """
   def __init__(self, telnetobj):
+    """
+    initalize the instance
+    """
     TelnetOption.__init__(self, telnetobj, GMCP)
     #self.telnetobj.debug_types.append('GMCP')    
     self.telnetobj.msg('GMCP: sending IAC WILL GMCP', mtype='GMCP')    
@@ -107,26 +126,43 @@ class CLIENT(TelnetOption):
     self.cmdqueue = []
     
   def handleopt(self, command, sbdata):
+    """
+    handle gmcp data from a client
+    """
     self.telnetobj.msg('GMCP:', ord(command), '- in handleopt', mtype='GMCP')
     if command == DO:
-      self.telnetobj.msg('GMCP:setting options["GMCP"] to True', mtype='GMCP')    
+      self.telnetobj.msg('GMCP:setting options["GMCP"] to True', 
+                                    mtype='GMCP')    
       self.telnetobj.options[ord(GMCP)] = True        
     elif command == SE:
-      exported.raiseevent('GMCP_from_client', {'data': sbdata, 'client':self.telnetobj})
+      exported.event.eraise('GMCP_from_client', 
+                      {'data': sbdata, 'client':self.telnetobj})
       
       
 # Plugin
 class Plugin(BasePlugin):
-  def __init__(self, name, sname, filename, directory, importloc):
+  """
+  a plugin to handle external gmcp actions
+  """
+  def __init__(self, tname, tsname, filename, directory, importloc):
     """
     Iniitialize the class
     
     self.gmcpcache - the cache of values for different GMCP modules
     self.modstates - the current counter for what modules have been enabled
-    self.gmcpqueue - the queue of gmcp commands that the client sent before connected to the server
-    self.gmcpmodqueue - the queue of gmcp modules that were enabled by the client before connected to the server
+    self.gmcpqueue - the queue of gmcp commands that the client sent 
+              before connected to the server
+    self.gmcpmodqueue - the queue of gmcp modules that were enabled by 
+              the client before connected to the server
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, tname, tsname, filename, directory, importloc)
+    self.exported['getv'] = {'func':self.gmcpget}
+    self.exported['togglemodule'] = {'func':self.gmcptogglemodule}
+    self.exported['sendpacket'] = {'func':gmcpsendpacket}
+    self.events['GMCP_raw'] = {'func':self.gmcpfromserver}
+    self.events['GMCP_from_client'] = {'func':self.gmcpfromclient}
+    self.events['GMCP:server-enabled'] = {'func':self.gmcprequest}
+    self.events['muddisconnect'] = {'func':self.disconnect}     
     self.canreload = False
 
     self.gmcpcache = {}
@@ -137,13 +173,18 @@ class Plugin(BasePlugin):
     self.reconnecting = False   
 
   def disconnect(self, args):
+    """
+    disconnect
+    """
     self.msg('setting reconnect to true')
     self.reconnecting = True    
 
   def gmcptogglemodule(self, modname, mstate):
-    """toggle a gmcp module
-argument 1: module name
-argument 2: state (boolean)"""
+    """
+    toggle a gmcp module
+    argument 1: module name
+    argument 2: state (boolean)
+    """
     if not (modname in self.modstates):
       self.modstates[modname] = 0
     
@@ -157,29 +198,34 @@ argument 2: state (boolean)"""
     else:
       self.modstates[modname] = self.modstates[modname] - 1
       if self.modstates[modname] == 0:
-        self.msg('Disabling GMCP module', modname)
+        self.msg('Disabling GMCP module: %s' % modname)
         cmd = 'Core.Supports.Set [ "%s %s" ]' % (modname, 0)
         gmcpsendpacket(cmd)       
     
   def gmcpget(self, module):
-    """Get a gmcp module from the cache
-argument 1: module name (such as char.status)"""
+    """
+    Get a gmcp module from the cache
+    argument 1: module name (such as char.status)
+    """
     mods = module.split('.')  
     mods = [x.lower() for x in mods]
     tlen = len(mods)
       
     currenttable = self.gmcpcache
-    previoustable = dotdict()
-    for i in range(0,tlen):
+    #previoustable = DotDict()
+    for i in range(0, tlen):
       if not (mods[i] in currenttable):
         return None
       
-      previoustable = currenttable
+      #previoustable = currenttable
       currenttable = currenttable[mods[i]]
       
     return currenttable
     
   def gmcpfromserver(self, args):
+    """
+    handle gmcp data from the server
+    """
     modname = args['module'].lower()
     mods = modname.split('.')  
     mods = [x.lower() for x in mods]    
@@ -188,15 +234,15 @@ argument 1: module name (such as char.status)"""
       tlen = len(mods)
         
       currenttable = self.gmcpcache
-      previoustable = dotdict()
-      for i in range(0,tlen):
+      previoustable = DotDict()
+      for i in range(0, tlen):
         if not (mods[i] in currenttable):
-          currenttable[mods[i]] = dotdict()
+          currenttable[mods[i]] = DotDict()
         
         previoustable = currenttable
         currenttable = currenttable[mods[i]]
         
-      previoustable[mods[tlen - 1]] = dotdict()  
+      previoustable[mods[tlen - 1]] = DotDict()  
       datatable = previoustable[mods[tlen - 1]]
       
       for i in args['data']:
@@ -212,19 +258,22 @@ argument 1: module name (such as char.status)"""
           exported.write_traceback('\n'.join(msg))
 
     
-    exported.raiseevent('GMCP', args)
-    exported.raiseevent('GMCP:%s' % modname, args)
-    exported.raiseevent('GMCP:%s' % mods[0], args)
+    exported.event.eraise('GMCP', args)
+    exported.event.eraise('GMCP:%s' % modname, args)
+    exported.event.eraise('GMCP:%s' % mods[0], args)
     
   def gmcprequest(self, args):
+    """
+    handle a gmcp request
+    """
     if not self.reconnecting:
       for i in self.gmcpmodqueue:
-        self.gmcptogglemodule(i['modname'],i['toggle'])
+        self.gmcptogglemodule(i['modname'], i['toggle'])
     else:
-      reconnecting = False
+      self.reconnecting = False
       for i in self.modstates:
-        v = self.modstates[i]
-        if v > 0:
+        tnum = self.modstates[i]
+        if tnum > 0:
           self.msg('Re-Enabling GMCP module %s' % i)
           cmd = 'Core.Supports.Set [ "%s %s" ]' % (i, 1)
           gmcpsendpacket(cmd)        
@@ -233,6 +282,9 @@ argument 1: module name (such as char.status)"""
       gmcpsendpacket(i)    
   
   def gmcpfromclient(self, args):
+    """
+    handle gmcp data from the client
+    """
     data = args['data']
     if 'core.supports.set' in data.lower():
       mods = data[data.find("[")+1:data.find("]")].split(',')
@@ -245,30 +297,14 @@ argument 1: module name (such as char.status)"""
         else:
           toggle = False
             
-        if not exported.connected:
+        if not exported.CONNECTED:
           self.gmcpmodqueue.append({'modname':modname, 'toggle':toggle})
         else:
           self.gmcptogglemodule(modname, toggle)
     else:
-      if not exported.connected:
+      if not exported.CONNECTED:
         self.gmcpqueue.append(data)
       else:
         gmcpsendpacket(data)  
-  
-  def load(self):
-    exported.registerevent('GMCP_raw', self.gmcpfromserver)
-    exported.registerevent('GMCP_from_client', self.gmcpfromclient)
-    exported.registerevent('GMCP:server-enabled', self.gmcprequest)
-    exported.registerevent('muddisconnect', self.disconnect)
-    exported.gmcp = dotdict()
-    exported.gmcp['getv'] = self.gmcpget
-    exported.gmcp['sendpacket'] = gmcpsendpacket
-    exported.gmcp['togglemodule'] = self.gmcptogglemodule    
-    
-  def unload(self):
-    exported.unregisterevent('GMCP_raw', self.gmcpfromserver)
-    exported.unregisterevent('GMCP_from_client', self.gmcpfromclient)
-    exported.unregisterevent('GMCP:server-enabled', self.gmcprequest)
-    exported.unregisterevent('muddisconnect', self.disconnect)
-    exported.gmcp = None  
+   
   

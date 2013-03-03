@@ -45,25 +45,41 @@ CONVERTCOLORS = {
 }
 
 
-def genrepl(m):
-  return m.group(1)
+def genrepl(match):
+  """
+  a general replace function
+  """
+  return match.group(1)
 
 
 def fixstring(tstr):
+  """
+  fix a strings invalid colors
+  """
   # Thanks to Fiendish from the aardwolf mushclient package, see 
   # http://code.google.com/p/aardwolfclientpackage/
   
-  tstr = re.sub("@-", "~", tstr)                    # fix tildes
-  tstr = re.sub("@@", "\0", tstr)                   # change @@ to \0
-  tstr = re.sub("@[xz]([^\d])", genrepl, tstr)      # strip invalid xterm codes (non-number)
-  tstr = re.sub("@[xz][3-9]\d\d", "", tstr)         # strip invalid xterm codes (300+)
-  tstr = re.sub("@[xz]2[6-9]\d", "", tstr)          # strip invalid xterm codes (260+)
-  tstr = re.sub("@[xz]25[6-9]", "", tstr)           # strip invalid xterm codes (256+)
-  tstr = re.sub("@[^xzcmyrgbwCMYRGBWD]", "", tstr)  # rip out hidden garbage  
+  # fix tildes
+  tstr = re.sub("@-", "~", tstr)  
+  # change @@ to \0
+  tstr = re.sub("@@", "\0", tstr)    
+  # strip invalid xterm codes (non-number)
+  tstr = re.sub("@[xz]([^\d])", genrepl, tstr)     
+  # strip invalid xterm codes (300+)
+  tstr = re.sub("@[xz][3-9]\d\d", "", tstr) 
+  # strip invalid xterm codes (260+)
+  tstr = re.sub("@[xz]2[6-9]\d", "", tstr) 
+  # strip invalid xterm codes (256+)
+  tstr = re.sub("@[xz]25[6-9]", "", tstr)         
+  # rip out hidden garbage
+  tstr = re.sub("@[^xzcmyrgbwCMYRGBWD]", "", tstr)    
   return tstr
 
 
 def convertcolors(tstr):
+  """
+  convert colors in a string
+  """
   if '@' in tstr:
     if tstr[-2:] != '@w':
       tstr = tstr + '@w'
@@ -91,8 +107,14 @@ def convertcolors(tstr):
 
       
 def ansicode(color, data):
+  """
+  return an ansicoded string
+  """
   return "%c[%sm%s" % (chr(27), color, data)
 
 
 def strip_ansi(text):
+  """
+  string all ansi from a sstring
+  """
   return ANSI_COLOR_REGEXP.sub('', text)
