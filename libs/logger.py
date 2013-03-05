@@ -237,7 +237,11 @@ class Logger:
     log all data from the mud
     """
     if 'frommud' in self.sendtofile and self.sendtofile['frommud']['file']:
-      self.logtofile(args['nocolordata'], 'frommud')
+      if args['eventname'] == 'from_mud_event':
+        data = args['nocolordata']
+      elif args['eventname'] == 'to_mud_event':
+        data = 'tomud: ' + args['data'].strip()
+      self.logtofile(data, 'frommud')
     return args
    
   def load(self):
@@ -257,5 +261,5 @@ class Logger:
                         {'lname':'Logger', 'func':self.cmd_types, 
                         'shelp':'Show data types'})
     exported.event.register('from_mud_event', self.logmud)
-  
+    exported.event.register('to_mud_event', self.logmud)  
   
