@@ -37,6 +37,7 @@ class BasePlugin:
     self.version = 0
     self.name = name
     self.sname = sname
+    self.dependencies = []
     self.canreload = True
     self.savedir = os.path.join(exported.BASEPATH, 'data', 
                                       'plugins', self.sname)
@@ -157,7 +158,10 @@ class BasePlugin:
         try:
           self.variables[var] =  verify(val, self.settings[var]['stype'])
           self.variables.sync()
-          return True, ['set %s to %s' % (var, self.variables[var])]
+          tvar = self.variables[var]
+          if self.settings[var]['nocolor']:
+            tvar = tvar.replace('@', '@@')
+          return True, ['set %s to %s' % (var, tvar)]
         except ValueError:
           msg = ['Cannot convert %s to %s' % \
                                   (val, self.settings[var]['stype'])]        
@@ -174,16 +178,19 @@ class BasePlugin:
     else:
       tform = '%-15s : %-15s - %s'
       for i in self.variables:
-        tmsg.append(tform % (i, self.variables[i], self.settings[i]['help']))
+        val = self.variables[i]
+        if 'nocolor' in self.settings[i] and self.settings[i]['nocolor']:
+          val = val.replace('@', '@@')
+        tmsg.append(tform % (i, val, self.settings[i]['help']))
     return tmsg
   
-  def addsetting(self, name, default, stype, shelp):
+  def addsetting(self, name, default, stype, shelp, nocolor=False):
     """
     add a setting
     """
     if not (name in self.variables):
       self.variables[name] = default
-    self.settings[name] = {'default':default, 'help':shelp, 'stype':stype}
+    self.settings[name] = {'default':default, 'help':shelp, 'stype':stype, 'nocolor':nocolor}
     
   def cmd_reset(self):
     """
@@ -221,7 +228,29 @@ class PluginMgr:
     self.sname = 'plugins'
     self.lname = 'Plugins'
     exported.LOGGER.adddtype(self.sname)
-    exported.LOGGER.cmd_console([self.sname])    
+    exported.LOGGER.cmd_console([self.sname])   
+    exported.add(self.isplugininstalled, self.sname)
+
+  def isplugininstalled(self, pluginname):
+    """
+    check if a plugin is installed
+    """
+    if pluginname in self.plugins or pluginname in self.pluginl:
+      return True
+    return False
+
+  def checkdependency(self, pluginname):
+    """
+    check the dependencies for a plugin
+    """
+    if pluginname in self.plugins:
+      for i in self.plugins[pluginname].dependencies:
+        if i in self.plugins or i in self.pluginl:
+          pass
+        else:
+          name, path = self._findplugin(i)
+          if name:
+            self.load_module(name, path, force=True)
 
   def cmd_exported(self, args):
     """
@@ -273,7 +302,7 @@ class PluginMgr:
       List plugins
       @CUsage@w: list
     """
-    msg = ['', 'Plugins:']
+    msg = ['Plugins:']
     msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                         ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
     msg.append('-' * 75)
@@ -281,9 +310,25 @@ class PluginMgr:
       tpl = self.plugins[plugin]
       msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                   (plugin, tpl.name, tpl.author, tpl.version, tpl.purpose))
-    msg.append('-' * 75)
-    msg.append('')
     return True, msg
+    
+  def _findplugin(self, name):
+    """
+    find a plugin file
+    """
+    basepath = ''
+    index = __file__.rfind(os.sep)
+    if index == -1:
+      basepath = "." + os.sep
+    else:
+      basepath = __file__[:index]     
+    
+    _module_list = find_files( basepath, name + ".py")
+    
+    if len(_module_list) == 1:
+      return _module_list[0], basepath
+    
+    return False, ''
     
   def cmd_load(self, args):
     """
@@ -405,12 +450,14 @@ class PluginMgr:
       _module = sys.modules[fullimploc]
       load = True
 
-      if _module.__dict__.has_key("AUTOLOAD") and not force:
+      if 'AUTOLOAD' in _module.__dict__ and not force:
         if not _module.AUTOLOAD: 
           load = False
+      elif not ('AUTOLOAD' in _module.__dict__):
+        load = False
       
       if load:
-        if _module.__dict__.has_key("Plugin"):
+        if "Plugin" in _module.__dict__:
           self.add_plugin(_module, fullname, basepath, fullimploc)
 
         else:
@@ -438,14 +485,14 @@ class PluginMgr:
     """
     unload a module
     """
-    if sys.modules.has_key(fullimploc):
+    if fullimploc in sys.modules:
       
       _module = sys.modules[fullimploc]
       _oldmodule = _module
       try:
-        if _module.__dict__.has_key("proxy_import"):
+        if "proxy_import" in _module.__dict__:
           
-          if _module.__dict__.has_key("unload"):
+          if "unload" in _module.__dict__:
             try:
               _module.unload()
             except:
@@ -541,6 +588,8 @@ class PluginMgr:
     load various things
     """
     self.load_modules("*.py")
+    for i in self.plugins:
+      self.checkdependency(i)
     exported.cmd.add(self.sname, 'list', {'lname':'Plugin Manager', 
                           'func':self.cmd_list, 'shelp':'List plugins'})
     exported.cmd.add(self.sname, 'load', {'lname':'Plugin Manager', 
