@@ -28,6 +28,7 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, name, sname, filename, directory, importloc)
     self.savecpfile = os.path.join(self.savedir, 'cp.txt')
     self.cp = PersistentDict(self.savecpfile, 'c', format='json')    
+    self.dependencies.append('aardu')    
     self.mobsleft = []
     self.cptimer = {}
     self.rewardtable = {
@@ -102,7 +103,7 @@ class Plugin(BasePlugin):
     self.cp['tp'] = 0
     self.cp['qp'] = 0
     self.cp['failed'] = 0
-    self.cp['level'] = exported.GMCP.getv('char.status.level')
+    self.cp['level'] = exported.aardu.getactuallevel(exported.GMCP.getv('char.status.level'))
     self.cp['starttime'] = time.mktime(time.localtime())
     self.cp['finishtime'] = 0
     self.cp['oncp'] = True

@@ -23,13 +23,13 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
     self.events['aard_quest_comp'] = {'func':self.compquest}
     self.events['aard_cp_comp'] = {'func':self.compcp}
+    self.events['aard_level_gain'] = {'func':self.levelgain}
     self.msgs = {}
     
   def compquest(self, args):
     """
     handle a quest completion
     """
-    self.msg('compquest: %s' % args)
     msg = []
     msg.append('@x172StatMonitor: Quest finished for ')
     msg.append('@w%s@x' % args['qp'])
@@ -57,6 +57,9 @@ class Plugin(BasePlugin):
     exported.timer.add('msgtimer', {'func':self.showmessages, 'seconds':1, 'onetime':True})
 
   def compcp(self, args):
+    """
+    handle a cp completion
+    """
     self.msg('compcp: %s' % args)
     msg = []
     msg.append('@x172StatMonitor: CP finished for ')    
@@ -72,6 +75,13 @@ class Plugin(BasePlugin):
       
     self.msgs['cp'] = ''.join(msg)
     exported.timer.add('msgtimer', {'func':self.showmessages, 'seconds':1, 'onetime':True})
+    
+  def levelgain(self, args):
+    """
+    handle a level or pup gain
+    """
+    self.msg('levelgain: %s' % args)
+    
     
   def showmessages(self, args=None):
     """

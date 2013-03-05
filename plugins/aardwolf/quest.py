@@ -38,6 +38,7 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
+    self.dependencies.append('aardu')    
     self.events['GMCP:comm.quest'] = {'func':self.quest}
     self.queststuff = {}
     
@@ -55,6 +56,7 @@ class Plugin(BasePlugin):
       self.queststuff['area'] = questi['area']
       self.queststuff['room'] = questi['room']
       self.queststuff['stimer'] = questi['timer']
+      self.queststuff['level'] = exported.aardu.getactuallevel(exported.GMCP.getv('char.status.level'))
       self.queststuff['starttime'] = time.mktime(time.localtime())
       exported.event.eraise('aard_quest_start', self.queststuff)
     elif questi['action'] == 'killed':
