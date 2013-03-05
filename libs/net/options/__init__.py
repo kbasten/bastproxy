@@ -53,10 +53,10 @@ class TelnetOptionMgr:
         _module = __import__(name)
         _module = sys.modules[name]
           
-        if _module.__dict__.has_key("Plugin"):
+        if "Plugin" in _module.__dict__:
           exported.PLUGINMGR.add_plugin(_module, mem2, path, name)
 
-        if _module.__dict__.has_key("load"):
+        if "load" in _module.__dict__:
           _module.load()
           
         _module.__dict__["proxy_import"] = 1
