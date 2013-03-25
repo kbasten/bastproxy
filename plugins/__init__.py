@@ -250,9 +250,9 @@ class PluginMgr:
     self.lname = 'Plugins'
     exported.LOGGER.adddtype(self.sname)
     exported.LOGGER.cmd_console([self.sname])   
-    exported.add(self.isplugininstalled, self.sname)
+    exported.add(self.isinstalled, self.sname)
 
-  def isplugininstalled(self, pluginname):
+  def isinstalled(self, pluginname):
     """
     check if a plugin is installed
     """
