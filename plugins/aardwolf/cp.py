@@ -1,7 +1,7 @@
 """
 $Id$
 """
-import time, os, copy
+import time, os, copy, re
 from libs import exported, utils
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
@@ -110,6 +110,7 @@ class Plugin(BasePlugin):
     self.cp['gold'] = 0
     self.cp['tp'] = 0
     self.cp['qp'] = 0
+    self.cp['bonusqp'] = 0
     self.cp['failed'] = 0
     self.cp['level'] = exported.aardu.getactuallevel(
                         exported.GMCP.getv('char.status.level'))
@@ -222,9 +223,19 @@ class Plugin(BasePlugin):
     """
     handle cpcompdone
     """
+    exported.event.register('trigger_all', self._triggerall)    
+  
+  def _triggerall(self, args=None):
+    """
+    check to see if we have the bonus qp message
+    """
+    exported.event.unregister('trigger_all', self._triggerall)
+    if 'first campaign completed today' in args['data']:
+      mat = re.match('^You receive (?P<bonus>\d*) quest points bonus " \
+                  "for your first campaign completed today.$', args['data'])
+      self.cp['bonusqp'] = int(mat.groupdict()['bonus'])
     exported.event.eraise('aard_cp_comp', copy.deepcopy(self.cp))
-    #self._cpnone()    
-    
+  
   def _cpclear(self, _=None):
     """
     handle cpclear
