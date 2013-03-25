@@ -50,7 +50,7 @@ class Sqldb:
     self.dbconn.text_factory = str
     self.turnonpragmas()    
     self.conns = 0
-    self.version = 0
+    self.version = 1
     self.versionfuncs = {}
     self.tableids = {}
     self.tables = {}
@@ -203,7 +203,9 @@ class Sqldb:
     checks the version of the database, upgrades if neccessary
     """
     dbversion = self.getversion()
-    if self.version > dbversion:
+    if dbversion == 0:
+      self.setversion(self.version)
+    elif self.version > dbversion:
       self.updateversion(dbversion, self.version)
       
   def setversion(self, version):
