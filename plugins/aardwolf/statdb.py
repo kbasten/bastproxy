@@ -1,10 +1,14 @@
 """
 $Id$
+
+TODO: Add commands to show stuff that is in miniwin_stats
+TODO: Add timer for automatic backups
 """
-import copy, time
+import copy, time, math
 from plugins import BasePlugin
 from libs.sqldb import Sqldb
 from libs import exported
+from libs.utils import ReadableNumber, format_time
 
 NAME = 'StatDB'
 SNAME = 'statdb'
@@ -446,7 +450,6 @@ class Statdb(Sqldb):
       
     return rowid
    
-   
   def savemobkill(self, killinfo):
     """
     save a mob kill
@@ -476,6 +479,8 @@ class Plugin(BasePlugin):
     self.dependencies.append('aardu')    
     self.cmds['backup'] = {'func':self.cmd_backup, 
               'shelp':'backup the database'}    
+    self.cmds['quests'] = {'func':self.cmd_quests, 
+              'shelp':'show quest stats'}                
     self.events['aard_quest_comp'] = {'func':self.questevent}
     self.events['aard_quest_failed'] = {'func':self.questevent}
     self.events['aard_cp_comp'] = {'func':self.cpevent}
@@ -488,6 +493,95 @@ class Plugin(BasePlugin):
     self.events['aard_gq_won'] = {'func':self.gqevent}
     self.exported['runselect'] = {'func':self.runselect}
     self.statdb = None
+    
+  def _format_row(self, rowname, data1, data2, datacolor="@W", 
+                    headercolor="@C", width1=14, width2=12, width3=12):
+    """
+    format a row of data
+    """    
+    
+    lstr = '%s%-14s : %s%-12s %s%-12s' % (headercolor, rowname,
+      datacolor, data1, datacolor, data2)
+    
+    return lstr
+    
+  def cmd_quests(self, args):
+    """
+    show quest stats
+    """
+    tqrow = self.statdb.runselect(
+        """SELECT AVG(finishtime - starttime) as avetime,
+                      SUM(qp) as qp,
+                      SUM(tier) as tier,
+                      AVG(tier) as tierave,
+                      SUM(mccp) as mccp,
+                      AVG(mccp) as mccpave,
+                      SUM(lucky) as lucky,
+                      AVG(qp) as qpquestave,
+                      AVG(lucky) as luckyave,
+                      SUM(tp) as tp,
+                      AVG(tp) as tpave,
+                      SUM(trains) as trains,
+                      AVG(trains) as trainsave,
+                      SUM(pracs) as pracs,
+                      AVG(pracs) as pracsave,
+                      COUNT(*) as qindb,
+                      SUM(totqp) as dboverall,
+                      AVG(totqp) as dboverallave,
+                      SUM(gold) as gold,
+                      AVG(gold) as avegold FROM quests where failed = 0""")                      
+    stats = tqrow[0]
+    tfrow = self.statdb.runselect(
+            "SELECT COUNT(*) as failedindb FROM quests where failed != 0")
+    stats.update(tfrow[0])
+    tsrow = self.statdb.runselect(
+         """SELECT qpearned, questscomplete, questsfailed, 
+            totallevels FROM stats WHERE milestone = 'current'""")
+    stats.update(tsrow[0])
+    stats['indb'] = stats['failedindb'] + stats['qindb']    
+    stats['qplevelave'] = stats['qpearned']/float(stats['totallevels'])
+    msg = []
+    msg.append(self._format_row('DB Stats', 'Total', 'In DB', '@G', '@G'))
+    msg.append('@G--------------------------------------------')
+    msg.append(self._format_row("Quests", 
+              stats['questscomplete'] + stats['questsfailed'], 
+              stats['indb']))
+    msg.append(self._format_row("Quests Comp", 
+              stats['questscomplete'], stats['qindb']))
+    msg.append(self._format_row("Quests Failed", 
+              stats['questsfailed'], stats['failedindb']))
+    msg.append('')
+    msg.append(self._format_row("QP Stats", "Total", "Average", '@G', '@G'))
+    msg.append('@G--------------------------------------------')
+    msg.append(self._format_row("Overall QP", stats['qpearned'], 
+        "%.3f/level" %  (stats['qplevelave'] or 0)))
+    msg.append(self._format_row("Quest QP", stats['qp'], 
+        "%.3f/quest" % (stats['qpquestave'] or 0)))
+    msg.append(self._format_row("MCCP", stats['mccp'],
+        "%.3f/quest" % (stats['mccpave'] or 0)))
+    msg.append(self._format_row("Lucky", stats['lucky'],
+        "%.3f/quest" % (stats['luckyave'] or 0)))
+    msg.append(self._format_row("Tier", stats['tier'],
+        "%.3f/quest" % (stats['tierave'] or 0)))
+    msg.append(self._format_row("QP Per Quest", "", 
+        "%.3f/quest" % (stats['dboverallave'] or 0)))
+    msg.append(self._format_row("Gold",
+          ReadableNumber(stats['gold'], 2),
+          "%d/quest" % (stats['avegold'] or 0)))
+    msg.append(self._format_row("Time", "", format_time(stats['avetime'])))
+    msg.append('')
+    msg.append(self._format_row("Bonus Rewards", "Total", 
+                              "Average", '@G', '@G'))
+    msg.append('@G--------------------------------------------')    
+    msg.append(self._format_row("TP", stats['tp'],
+        "%.3f/quest" % (stats['tpave'] or 0)))
+    msg.append(self._format_row("Trains", stats['trains'],
+        "%.3f/quest" % (stats['trainsave'] or 0)))
+    msg.append(self._format_row("Pracs", stats['pracs'],
+        "%.3f/quest" % (stats['pracsave'] or 0)))        
+    return True, msg
+    
+    
     
   def questevent(self, args):
     """
