@@ -813,7 +813,7 @@ class Plugin(BasePlugin):
 
     msg.append(self._format_row("Gold", 
                 tempg,
-                format_float(stats['avegold'], "/CP")))
+                "%d/CP" % stats['avegold']))
     if stats['avetime']:
       atime = format_time(stats['avetime'])
     else:
