@@ -805,7 +805,7 @@ class Plugin(BasePlugin):
     msg.append('@G--------------------------------------------')  
     msg.append(self._format_row("QP", 
                 stats['totalqp'] or 0, 
-                format_float(stats['avetrains'], "/CP")))  
+                format_float(stats['aveqp'], "/CP")))  
     if stats['totalgold']:
       tempg = ReadableNumber(stats['totalgold'])
     else:
@@ -813,7 +813,7 @@ class Plugin(BasePlugin):
 
     msg.append(self._format_row("Gold", 
                 tempg,
-                format_float(stats['avetrains'], "/CP")))
+                format_float(stats['avegold'], "/CP")))
     if stats['avetime']:
       atime = format_time(stats['avetime'])
     else:
