@@ -195,7 +195,7 @@ class Plugin(BasePlugin):
     """
     if args['triggername'] in ['mobsac', 'mobconsume'] \
         and self.kill_info['name']:
-      exported.sendtoclient('got mobsac/mobconsume with name')
+      #exported.sendtoclient('got mobsac/mobconsume with name')
       self.raise_kill()
 
   def mobxpptless(self, _=None):
@@ -221,7 +221,7 @@ class Plugin(BasePlugin):
     """
     add regular xp
     """
-    exported.sendtoclient('mobxp')
+    #exported.sendtoclient('mobxp')
     mxp = args['xp']
     if '+' in mxp:
       newxp = 0
@@ -311,7 +311,7 @@ class Plugin(BasePlugin):
     """
     raise a kill
     """
-    exported.sendtoclient('raising a kill')
+    #exported.sendtoclient('raising a kill')
     self.kill_info['finishtime'] = time.time()
     self.kill_info['room_id'] = exported.GMCP.getv('room.info.num')  
     self.kill_info['level'] = exported.aardu.getactuallevel()    
