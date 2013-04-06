@@ -30,7 +30,7 @@ class Plugin(BasePlugin):
     self.addsetting('started', False, bool, 'flag for a gq started') 
     self.addsetting('joined', False, bool, 'flag for a gq joined')
     self.addsetting('extended', False, bool, 'flag for extended')
-    self.mobsleft = {}
+    self.mobsleft = []
     self.nextdeath = False
     self.linecount = 0
     exported.watch.add('gq_check', {
@@ -49,7 +49,7 @@ class Plugin(BasePlugin):
       'enabled':False, 'group':'gqcheck'} 
     self.triggers['gqitem'] = {
       'regex':"^You still have to kill (?P<num>[\d]*) \* " \
-              "(?P<name>.*?) \((?P<location>.*?)\)(|\.)$", 
+              "(?P<mob>.*?) \((?P<location>.*?)\)(|\.)$", 
       'enabled':False, 'group':'gqcheck'}       
     self.triggers['gqnotstarted'] = {
       'regex':"^The global quest has not yet started.$", 
@@ -100,6 +100,7 @@ class Plugin(BasePlugin):
     self.events['trigger_gqextover'] = {'func':self._gqextover}
     self.events['trigger_gqextover2'] = {'func':self._gqextover}
     self.events['trigger_gqextfin'] = {'func':self._gqextfin}
+    self.events['cmd_gq_check'] = {'func':self._gqcheckcmd}     
 
     
   def _gqnew(self):
@@ -137,12 +138,12 @@ class Plugin(BasePlugin):
     """
     do something when a gq is joined
     """
-    exported.sendtoclient('#bp.gq: gqjoined')
     exported.trigger.togglegroup('gqdone', True)     
     exported.trigger.togglegroup('gq_start', True)     
     self.variables['joined'] = True
-    self.mobsleft = {}
+    self.mobsleft = []
     if self.variables['started'] or not self.variables['declared']:
+      self.variables['declared'] = True
       self._gqnew()
       self._gqstarted()
     exported.event.eraise('aard_gq_joined', args)
@@ -154,6 +155,7 @@ class Plugin(BasePlugin):
     if not args:
       args = {}
     self.variables['started'] = True
+    self._gqnew()
     if self.variables['joined']:
       self.gqinfo['starttime'] = time.time()
       exported.trigger.togglegroup("gqin", True)
@@ -179,20 +181,20 @@ class Plugin(BasePlugin):
     """
     exported.trigger.togglegroup('gqcheck', False)
     exported.trigger.togglegroup('gqin', False)
-    exported.event.unregister('emptyline', self._emptyline)    
+    exported.event.unregister('trigger_emptyline', self._emptyline)    
    
   def _emptyline(self, _=None):
     """
     this will be enabled when gq check is enabled
     """
     if not self.gqinfo['mobs']:
-      exported.sendtoclient('copying mobs')
       self.gqinfo['mobs'] = self.mobsleft[:]
       self.savestate()
       
     exported.trigger.togglegroup('gqcheck', False)
-    exported.event.unregister('emptyline', self._emptyline)
-    exported.event.eraise('aard_gq_mobsleft', copy.deepcopy(self.mobsleft))    
+    exported.event.unregister('trigger_emptyline', self._emptyline)
+    exported.event.eraise('aard_gq_mobsleft', 
+                {'mobs':copy.deepcopy(self.mobsleft)})    
     
   def _gqmobdead(self, _=None):
     """
@@ -287,7 +289,7 @@ class Plugin(BasePlugin):
     """
     self.mobsleft = []
     exported.trigger.togglegroup('gqcheck', True)   
-    exported.event.register('emptyline', self._emptyline)    
+    exported.event.register('trigger_emptyline', self._emptyline)    
     return args
   
   def _gqquit(self, _=None):
