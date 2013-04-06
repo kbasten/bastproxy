@@ -28,6 +28,7 @@ def format_float(item, addto=""):
     tempt = 0
   return tempt
 
+
 class Statdb(Sqldb):
   """
   a class to manage sqlite3 databases
@@ -742,7 +743,41 @@ class Plugin(BasePlugin):
     else:
       pavetime = ""          
       
-    msg.append(self._format_row("Time", lavetime, pavetime))                
+    msg.append(self._format_row("Time", lavetime, pavetime)) 
+    
+    if len(args) > 0 and int(args[0]) > 0:
+      lastitems = self.statdb.getlast('levels', int(args[0]))
+      
+      if len(lastitems) > 0:      
+        msg.append('')   
+        msg.append("@G%-6s %-3s %2s %2s %-2s %-2s %-2s" \
+                  " %-2s %-1s %-1s %-1s %-1s %-1s %-1s   %s" % ("ID", "Lvl",
+                  "TR", "BT", "PR", "HP", "MN", "MV", "S",
+                  "I", "W", "C",  "D", "L", "Time"))
+        msg.append('@G----------------------------------------------------')      
+      
+        for item in lastitems:
+          bonus = 0
+          if int(item['bonustrains']) > 0:
+            bonus = bonus + int(item['bonustrains'])
+          if int(item['blessingtrains']) > 0:
+            bonus = bonus + int(item['blessingtrains'])
+            
+          leveld = exported.aardu.convertlevel(item['level'])
+            
+          if item['finishtime'] != '-1' and item['starttime'] != '-1':
+            ttime = format_time(item['finishtime'] - item['starttime'])
+          else:
+            ttime = ''
+              
+          msg.append("%-6s %-3s %2s %2s %-2s %-2s %-2s" \
+                     " %-2s %-1s %-1s %-1s %-1s %-1s %-1s   %s" % ( 
+                     item['level_id'], leveld['level'], item['trains'],
+                     bonus, item['pracs'], item['hp'], item['mp'], 
+                     item['mv'], item['str'], item['int'], item['wis'],
+                     item['con'], item['dex'], item['luc'], ttime))
+     
+      
     return True, msg    
 
   def cmd_cps(self, args=None):
@@ -835,6 +870,39 @@ class Plugin(BasePlugin):
     msg.append(self._format_row("Pracs", 
                 stats['totalpracs'] or 0, 
                 format_float(stats['avepracs'], "/CP")))
+    
+    if len(args) > 0 and int(args[0]) > 0:
+      lastitems = self.statdb.getlast('campaigns', int(args[0]))
+      
+      mobc = self.statdb.runselectbykeyword(
+          'SELECT cp_id, count(*) as mobcount from cpmobs group by cp_id',
+          'cp_id')    
+      
+      if len(lastitems) > 0:      
+        msg.append('')   
+        msg.append("@G%-6s %-12s %-2s %-2s %-2s %-2s %-2s %6s" \
+                  " %-4s  %s" % ("ID", "Lvl",
+                  "QP", "BN", "TP", "TN", "PR", "Gold", "Mobs", "Time"))
+        msg.append('@G----------------------------------------------------')      
+      
+        for item in lastitems:
+          leveld = exported.aardu.convertlevel(item['level'])
+          levelstr = 'T%d R%d L%d' % (leveld['tier'], leveld['remort'], 
+                              leveld['level'])
+        
+          if item['finishtime'] != '-1' and item['starttime'] != '-1':
+            ttime = format_time(item['finishtime'] - item['starttime'])
+          else:
+            ttime = ''
+            
+          if int(item['failed']) == 1:
+            ttime = 'Failed'
+              
+          msg.append("%-6s %-12s %-2s %2s %2s %2s %2s %6s" \
+                     "  %-3s  %s" % ( 
+                     item['cp_id'], levelstr, item['qp'], item['bonusqp'],
+                     item['tp'], item['trains'], item['pracs'], item['gold'],
+                     mobc[item['cp_id']]['mobcount'], ttime))    
     
     return True, msg
 
@@ -943,6 +1011,36 @@ class Plugin(BasePlugin):
                 stats['lost']['totalqp'], 
                 format_float(stats['lost']['aveqp'], "/GQ")))                
                 
+    if len(args) > 0 and int(args[0]) > 0:
+      lastitems = self.statdb.getlast('gquests', int(args[0]))
+      
+      mobc = self.statdb.runselectbykeyword(
+          'SELECT gq_id, SUM(num) as mobcount from gqmobs group by gq_id',
+          'gq_id')    
+      
+      if len(lastitems) > 0:      
+        msg.append('')   
+        msg.append("@G%-6s %-12s %-2s %-2s %-2s %-2s %-2s %6s" \
+                  " %-4s  %s" % ("ID", "Lvl",
+                  "QP", "QM", "TP", "TN", "PR", "Gold", "Mobs", "Time"))
+        msg.append('@G----------------------------------------------------')      
+      
+        for item in lastitems:
+          leveld = exported.aardu.convertlevel(item['level'])
+          levelstr = 'T%d R%d L%d' % (leveld['tier'], leveld['remort'], 
+                              leveld['level'])
+        
+          if item['finishtime'] != '-1' and item['starttime'] != '-1':
+            ttime = format_time(item['finishtime'] - item['starttime'])
+          else:
+            ttime = ''
+            
+          msg.append("%-6s %-12s %2s %2s %2s %2s %2s %6s" \
+                     "  %-3s  %s" % ( 
+                     item['gq_id'], levelstr, item['qp'], item['qpmobs'],
+                     item['tp'], item['trains'], item['pracs'], item['gold'],
+                     mobc[item['gq_id']]['mobcount'], ttime))
+                     
     return True, msg
 
   def cmd_mobs(self, args=None):
@@ -1050,6 +1148,32 @@ class Plugin(BasePlugin):
                 stats['disintegrate'], 
                 format_float(avetype, "/kill") or ""))
                 
+                
+    if len(args) > 0 and int(args[0]) > 0:
+      lastitems = self.statdb.getlast('mobkills', int(args[0]))
+      
+      if len(lastitems) > 0:      
+        msg.append('')   
+        msg.append("@G%-6s %-12s %-2s %-2s %-2s %-2s %-2s %6s" \
+                  " %-4s  %s" % ("ID", "Lvl",
+                  "QP", "QM", "TP", "TN", "PR", "Gold", "Mobs", "Time"))
+        msg.append('@G----------------------------------------------------')      
+      
+        for item in lastitems:
+          leveld = exported.aardu.convertlevel(item['level'])
+          levelstr = 'T%d R%d L%d' % (leveld['tier'], leveld['remort'], 
+                              leveld['level'])
+        
+          if item['finishtime'] != '-1' and item['starttime'] != '-1':
+            ttime = format_time(item['finishtime'] - item['starttime'])
+          else:
+            ttime = ''
+            
+          msg.append("%-6s %-12s %2s %2s %2s %2s %2s %6s" \
+                     "  %-3s  %s" % ( 
+                     item['gq_id'], levelstr, item['qp'], item['qpmobs'],
+                     item['tp'], item['trains'], item['pracs'], item['gold'],
+                     mobc[item['gq_id']]['mobcount'], ttime))                
     return True, msg
                 
   def questevent(self, args):
