@@ -15,6 +15,34 @@ VERSION = 1
 
 AUTOLOAD = False
 
+def damagedefault():
+  """
+  return a default damage dictionary
+  """
+  tdamage = {}
+  tdamage['hits'] = 0
+  tdamage['misses'] = 0
+  tdamage['damage'] = 0 
+  return tdamage  
+
+
+def addtodamage(tdam, damtable):
+  damtype = tdam['damtype']
+  if not damtype:
+    damtype = 'Unknown'
+
+  if not (damtype in damtable):
+    damtable[damtype] = damagedefault()
+  
+  if tdam['damverb'] == 'misses':
+    damtable[damtype]['misses'] = damtable[damtype]['misses'] + tdam['hits']
+  else:
+    damtable[damtype]['hits'] = damtable[damtype]['hits'] + tdam['hits']
+    damtable[damtype]['damage'] = damtable[damtype]['damage'] + tdam['damage']
+    
+  return damtable
+
+
 class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
@@ -26,6 +54,7 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, name, sname, filename, directory, importloc)
     self.kill_info = {}
     self.reset_kill()
+    self.mobdamcache = {}
     self.addsetting('instatext', '@x0', 'color', 
                       'the text color for an instakill')
     self.addsetting('instaback', '@z10', 'color', 
@@ -36,7 +65,8 @@ class Plugin(BasePlugin):
     self.triggers['mobxpptless'] = {
       'regex':"^That was a pointless no experience kill!$"}    
     self.triggers['mobswitch'] = {
-      'regex':"^You switch targets and direct your attacks at (?P<name>.*).\.$"}    
+      'regex':"^You switch targets and " \
+              "direct your attacks at (?P<name>.*).\.$"}    
     self.triggers['mobflee'] = {
       'regex':"^You flee from combat!$"}    
     self.triggers['mobretreat'] = {
@@ -47,12 +77,16 @@ class Plugin(BasePlugin):
     self.triggers['mobbonusxp'] = {
       'regex':"^You receive (?P<bonxp>\d+) bonus experience points.*$"}
     self.triggers['mobgold'] = {
-      'regex':"^You get (?P<gold>.+) gold coins from .+ corpse of (?P<name>.+)\.$"}
+      'regex':"^You get (?P<gold>.+) gold coins " \
+              "from .+ corpse of (?P<name>.+)\.$"}
     self.triggers['mobname'] = {
       'regex':"^You get .+ corpse of (?P<name>.+)\.$"}
     self.triggers['mobsac'] = {
-      'regex':"^Ayla gives you (?P<sacgold>.+) gold coins? for " \
-                              "the .* corpse of (?P<name>.+)\.$"}
+      'regex':"^.* gives you (?P<sacgold>.+) gold coins? for " \
+                              "the .* ?corpse of (?P<name>.+)\.$"}
+    self.triggers['mobconsume'] = {
+      'regex':"^You bury your fangs deep into the " \
+              ".* ?corpse of (?P<name>.+), drinking thirstily.$"}
     self.triggers['mobsplitgold'] = {
       'regex':"^\w+ splits? \d+ gold coins?. " \
                                 "Your share is (?P<gold>\d+) gold\.$"}
@@ -71,7 +105,11 @@ class Plugin(BasePlugin):
       'regex':"^You have disintegrated (?P<name>.*)!$"}
     self.triggers['mobbanish'] = {
       'regex':"^You look at (?P<name>.*) very strangely.$"}
-
+    self.triggers['mobdamage'] = {
+      'regex':"^\[(.*)\] Your (.*) \[(.*)\]$"}
+    self.triggers['mobdamage2'] = {
+      'regex':"^Your (.*) \[(.*)\]$"}
+      
     self.events['trigger_mobxp'] = {'func':self.mobxp}
     self.events['trigger_mobxpptless'] = {'func':self.mobxpptless}
     self.events['trigger_mobswitch'] = {'func':self.mobswitch}
@@ -83,6 +121,7 @@ class Plugin(BasePlugin):
     self.events['trigger_mobsplitgold'] = {'func':self.mobgold}
     self.events['trigger_mobname'] = {'func':self.mobname}
     self.events['trigger_mobsac'] = {'func':self.mobname}
+    self.events['trigger_mobconsume'] = {'func':self.mobname}
     self.events['trigger_mobtrivia'] = {'func':self.mobtrivia}
     self.events['trigger_mobvorpal'] = {'func':self.mobvorpal}
     self.events['trigger_mobassassin'] = {'func':self.mobassassin}    
@@ -90,6 +129,19 @@ class Plugin(BasePlugin):
     self.events['trigger_mobslit'] = {'func':self.mobslit}    
     self.events['trigger_mobdisintegrate'] = {'func':self.mobdisintegrate}    
     self.events['trigger_mobbanish'] = {'func':self.mobbanish}    
+    self.events['trigger_mobdamage'] = {'func':self.mobdamage} 
+    self.events['trigger_mobdamage2'] = {'func':self.mobdamage} 
+    
+    self.events['GMCP:char.status'] = {'func':self.gmcpcharstatus}
+    
+  def gmcpcharstatus(self, args):
+    """
+    do stuff when we see a gmcp char.status
+    """
+    status = args['data']
+    if status['enemy'] != "" and self.kill_info['name'] == "":
+      self.kill_info['name'] = strip_ansi(status['enemy'])
+      self.reset_damage()
     
   def reset_kill(self):
     """
@@ -97,7 +149,6 @@ class Plugin(BasePlugin):
     """
     self.kill_info.clear()
     self.kill_info['name'] = ''
-    self.kill_info['room_id'] = -1
     self.kill_info['tp'] = 0
     self.kill_info['vorpal'] = 0
     self.kill_info['assassinate'] = 0
@@ -118,21 +169,33 @@ class Plugin(BasePlugin):
     self.kill_info['room_id'] = -1
     self.kill_info['damage'] = {}
     self.kill_info['immunities'] = {}
+    self.kill_info['starttime'] = None    
+    self.kill_info['finishtime'] = None
+
+  def reset_damage(self):
+    """
+    reset damage
+    """
+    self.kill_info['damage'] = {}
+    self.kill_info['immunities'] = {}
+    self.kill_info['starttime'] = None    
+    self.kill_info['finishtime'] = None
+    
 
   def mobnone(self, _=None):
     """
     reset the mob name
     """
     self.kill_info['name'] = ""
-    #self.reset_damage()
+    self.reset_damage()
     
   def mobname(self, args):
     """
     got a mob name
     """
-    if self.kill_info['name'] == "":
-      self.kill_info['name'] = strip_ansi(args['name'])
-    if args['triggername'] == 'mobsac':
+    if args['triggername'] in ['mobsac', 'mobconsume'] \
+        and self.kill_info['name']:
+      exported.sendtoclient('got mobsac/mobconsume with name')
       self.raise_kill()
 
   def mobxpptless(self, _=None):
@@ -158,6 +221,7 @@ class Plugin(BasePlugin):
     """
     add regular xp
     """
+    exported.sendtoclient('mobxp')
     mxp = args['xp']
     if '+' in mxp:
       newxp = 0
@@ -175,7 +239,7 @@ class Plugin(BasePlugin):
     switch mobs
     """
     self.kill_info['name'] = strip_ansi(args['name'])
-    #self.reset_damage()
+    self.reset_damage()
 
   def mobvorpal(self, _=None):
     """
@@ -247,6 +311,7 @@ class Plugin(BasePlugin):
     """
     raise a kill
     """
+    exported.sendtoclient('raising a kill')
     self.kill_info['finishtime'] = time.time()
     self.kill_info['room_id'] = exported.GMCP.getv('room.info.num')  
     self.kill_info['level'] = exported.aardu.getactuallevel()    
@@ -262,3 +327,44 @@ class Plugin(BasePlugin):
 
     self.reset_kill()    
     
+  def incombat(self):
+    """
+    just saw an incombat backstab
+    """
+    if not ('backstab' in kill_info['damage']):
+      kill_info['damage']['backstab'] = damagedefault()
+
+    kill_info.damage['backstab']['incombat'] = true
+    
+  def immunity(self, args):
+    """
+    saw an immunity for the current mob
+    """
+    mobname = args['name']
+    immunity = args['immunity']
+    if not (immunity in self.kill_info['immunities']) \
+          and self.kill_info['name'] == mobname:
+      self.kill_info['immunities'][immunity] = True
+   
+  def mobdamage(self, args):
+    """
+    saw a damage line
+    """
+    tdam = exported.aardu.parsedamageline(args['line'])
+    damtype = tdam['damtype']
+    
+    if not self.kill_info['starttime']:
+      self.kill_info['starttime'] = time.time()
+    if tdam['enemy'] \
+        and self.kill_info['name'] != '' \
+        and tdam['enemy'] != self.kill_info['name']:
+      if not (tdam['enemy'] in  self.mobdamcache):
+        self.mobdamcache[tdam['enemy']] = {}
+      addtodamage(tdam, self.mobdamcache[tdam['enemy']])
+      return
+    
+    if tdam['enemy'] in self.mobdamcache:
+        self.kill_info['damage'] = self.mobdamcache[tdam['enemy']]
+        del(self.mobdamcache[tdam['enemy']])
+    addtodamage(tdam, self.kill_info['damage'])
+
