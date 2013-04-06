@@ -95,11 +95,17 @@ def convertcolors(tstr):
   """
   convert colors in a string
   """
+  test = False
   if '@' in tstr:
     if tstr[-2:] != '@w':
       tstr = tstr + '@w'
     tstr = fixstring(tstr)
+    if test:
+      print 'After fixstring', tstr
     tstr2 = ''
+    tmat = re.search("@(\w)([^@]+)", tstr)
+    if tmat and tmat.start() != 0:
+      tstr2 = tstr[0:tmat.start()]
     for tmatch in re.finditer("@(\w)([^@]+)", tstr):
       color, text = tmatch.groups()
       if color == 'x':
@@ -115,6 +121,8 @@ def convertcolors(tstr):
         
     if tstr2:
       tstr = tstr2 + "%c[0m" % chr(27)
+    if test:
+      print 'After:', tstr
   else:
     pass
   tstr = re.sub("\0", "@", tstr)    # put @ back in 
