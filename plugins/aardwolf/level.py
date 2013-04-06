@@ -118,9 +118,9 @@ class Plugin(BasePlugin):
                                                             args['level'])
       self.levelinfo['type'] = 'level'
       if self.levelinfo['level'] == 200:
-        exported.trigger.eraise('aard_level_hero', {})
+        exported.event.eraise('aard_level_hero', {})
       elif self.levelinfo['level'] == 201:
-        exported.trigger.eraise('aard_level_superhero', {})
+        exported.event.eraise('aard_level_superhero', {})
         
     self.levelinfo['finishtime'] = time.time()     
     exported.trigger.togglegroup('linfo', True)  
