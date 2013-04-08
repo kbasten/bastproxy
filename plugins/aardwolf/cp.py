@@ -14,7 +14,6 @@ VERSION = 1
 
 AUTOLOAD = False
 
-
 class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
