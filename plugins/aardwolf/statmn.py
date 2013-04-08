@@ -3,6 +3,8 @@ $Id$
 """
 from libs import exported, utils
 from plugins import BasePlugin
+import time
+import copy
 
 NAME = 'StatMonitor'
 SNAME = 'statmn'
@@ -27,12 +29,36 @@ class Plugin(BasePlugin):
     self.events['aard_gq_won'] = {'func':self.compgq}
     self.events['aard_gq_done'] = {'func':self.compgq}
     self.events['aard_gq_completed'] = {'func':self.compgq}
+    self.events['statmn_showminutes'] = {'func':self.showchange}
     self.addsetting('statcolor', '@W', 'color', 'the stat color')
-    self.addsetting('infocolor', '@x172', 'color', 'the info color')
+    self.addsetting('infocolor', '@x33', 'color', 'the info color')
+    self.addsetting('showminutes', 5, int, 'show the report every x minutes')
+    self.addsetting('reportminutes', 60, int, 
+                      'the # of minutes for the report to show')    
     self.addsetting('exppermin', 20, int, 
                 'the threshhold for showing exp per minute')
-    self.msgs = {}
+    self.cmds['rep'] = {'func':self.cmd_rep, 
+              'shelp':'show report'}   
+    self.timers['statrep'] = {'func':self.timershow, 
+                                'seconds':5*60, 'nodupe':True}              
+    self.msgs = []
     
+  def showchange(self, args):
+    """
+    do something when the reportminutes changes
+    """    
+    exported.timer.remove('statrep')
+    exported.timer.add('statrep',
+               {'func':self.timershow, 
+                'seconds':int(args['newvalue']) * 60, 
+                'nodupe':True})    
+                
+  def timershow(self):
+    """
+    show the report
+    """
+    self.cmd_rep([])
+
   def compquest(self, args):
     """
     handle a quest completion
@@ -88,9 +114,7 @@ class Plugin(BasePlugin):
            self.variables['statcolor'], quest_total,
            self.variables['infocolor']))
            
-    self.msgs['quest'] = ''.join(msg)
-    exported.timer.add('msgtimer',
-                  {'func':self.showmessages, 'seconds':1, 'onetime':True})
+    self.addmessage(''.join(msg))
 
   def compcp(self, args):
     """
@@ -102,10 +126,11 @@ class Plugin(BasePlugin):
                   self.variables['infocolor'])
     if args['bonusqp'] > 0:
       totalqp = args['bonusqp'] + args['qp']
-      msg.append('%s%s%s+%s%sB%s=%s%sqp' % (self.variables['statcolor'], args['qp'],
-                  self.variables['infocolor'], self.variables['statcolor'],
-                  args['bonusqp'], self.variables['infocolor'], 
-                  self.variables['statcolor'], totalqp))
+      msg.append('%s%s%s+%s%sB%s=%s%sqp' % (self.variables['statcolor'], 
+                  args['qp'], self.variables['infocolor'], 
+                  self.variables['statcolor'], args['bonusqp'], 
+                  self.variables['infocolor'], self.variables['statcolor'], 
+                  totalqp))
     else:
       msg.append('%s%s%sqp' % (self.variables['statcolor'], args['qp'],
                   self.variables['infocolor']))
@@ -122,12 +147,10 @@ class Plugin(BasePlugin):
          self.variables['infocolor'],
          utils.timedeltatostring(args['starttime'], args['finishtime'], 
          fmin=True, colorn=self.variables['statcolor'], 
-         colors=self.variables['infocolor'])))      
-      
-    self.msgs['cp'] = ''.join(msg)
-    exported.timer.add('msgtimer', 
-                    {'func':self.showmessages, 'seconds':1, 'onetime':True})
-    
+         colors=self.variables['infocolor']))) 
+         
+    self.addmessage(''.join(msg))
+
   def compgq(self, args):
     """
     handle a gq completion
@@ -156,9 +179,7 @@ class Plugin(BasePlugin):
          fmin=True, colorn=self.variables['statcolor'], 
          colors=self.variables['infocolor'])))      
       
-    self.msgs['cp'] = ''.join(msg)
-    exported.timer.add('msgtimer', 
-                    {'func':self.showmessages, 'seconds':1, 'onetime':True})    
+    self.addmessage(''.join(msg))
     
   def levelgain(self, args):
     """
@@ -168,13 +189,13 @@ class Plugin(BasePlugin):
     msg = []
     msg.append('%sStatMonitor: Gained a %s:' % (self.variables['infocolor'], 
                 args['type']))
-    if 'hp' in args:
+    if args['type'] == 'level':
       msg.append(' %s%s%shp' % (self.variables['statcolor'], 
             args['hp'], self.variables['infocolor']))   
-    if 'mn' in args:
+    if args['type'] == 'level':
       msg.append(' %s%s%smn' % (self.variables['statcolor'], 
             args['mn'], self.variables['infocolor']))   
-    if 'mv' in args:
+    if args['type'] == 'level':
       msg.append(' %s%s%smv' % (self.variables['statcolor'], 
             args['mv'], self.variables['infocolor']))   
     if 'trains' in args:
@@ -191,8 +212,8 @@ class Plugin(BasePlugin):
       if trains != args['trains']:
         msg.append('%s=%s%d' % (self.variables['infocolor'], 
               self.variables['statcolor'], trains))
-      msg.append(' %strains' % self.variables['infocolor'])
-    if 'pracs' in args:
+      msg.append(' %strains ' % self.variables['infocolor'])
+    if args['type'] == 'level':
       msg.append(' %s%d %spracs ' % (self.variables['statcolor'], 
               args['pracs'], self.variables['infocolor']))
     stats = False
@@ -233,16 +254,165 @@ class Plugin(BasePlugin):
               expmin, self.variables['infocolor']))  
         msg.append(')')
               
-    self.msgs['level'] = ''.join(msg)
-    exported.timer.add('msgtimer',
-                {'func':self.showmessages, 'seconds':1, 'onetime':True})    
+    self.addmessage(''.join(msg))
+    
+  def addmessage(self, msg):
+    """
+    add a message to the out queue
+    """
+    self.msgs.append(msg)
+
+    exported.event.register('trigger_emptyline', self.showmessages)
+    
+    #exported.timer.add('msgtimer',
+                #{'func':self.showmessages, 'seconds':1, 'onetime':True,
+                 #'nodupe':True})    
     
   def showmessages(self, _=None):
     """
     show a message
     """
+    exported.event.unregister('trigger_emptyline', self.showmessages)     
     for i in self.msgs:
-      exported.sendtoclient(self.msgs[i], preamble=False)
-    self.msgs = {}
+       exported.sendtoclient(i, preamble=False)
+       
+    self.msgs = []
+
+  def statreport(self, tminutes=None):
+    """
+    return a report of stats for a # of minutes
+    """
+    if not exported.plugins.isinstalled('statdb'):
+      return []
+    
+    linelen = 50
+    msg = ['']
+    finishtime = time.time()
+    
+    emptystats = {'infocolor':self.variables['infocolor'],
+                  'statcolor':self.variables['statcolor'],
+                  'xp':0,
+                  'qp':0,
+                  'total':0,
+                  'gold':0,
+                  'tp':0}
+                  
+    queststats = copy.deepcopy(emptystats)
+    queststats['type'] = 'Quests'                 
+    cpstats = copy.deepcopy(emptystats)
+    cpstats['type'] = 'CPs'
+    gqstats = copy.deepcopy(emptystats)
+    gqstats['type'] = 'GQs'
+    mobstats = copy.deepcopy(emptystats)
+    mobstats['type'] = 'Mobs'
+    hourtotals = copy.deepcopy(emptystats)
+    hourtotals['type'] = 'Total'
+
+    minutes = tminutes or self.variables['reportminutes']
+    starttime = finishtime - (minutes * 60)
+    
+    timestr = '%s' % utils.timedeltatostring(starttime, 
+              finishtime, 
+              colorn=self.variables['statcolor'], 
+              colors=self.variables['infocolor'],
+              nosec=True)
+              
+    stmt = """SELECT COUNT(*) as total, 
+                     SUM(totqp) as qp, 
+                     SUM(gold) as gold, 
+                     SUM(tp) as tp 
+                     FROM quests where finishtime > %d""" % starttime
+    tst = exported.statdb.runselect(stmt)    
+    if tst[0]['total'] > 0:
+      queststats.update(tst[0])
+
+    stmt = """SELECT COUNT(*) as total, 
+                     SUM(qp) as qp, 
+                     SUM(gold) as gold, 
+                     SUM(tp) as tp
+                     FROM campaigns 
+                     where finishtime > %d and failed = 0""" % starttime
+    tst = exported.statdb.runselect(stmt)    
+    if tst[0]['total'] > 0:
+      cpstats.update(tst[0])    
+    
+    stmt = """SELECT COUNT(*) as total, 
+                     SUM(qp + qpmobs) as qp, 
+                     SUM(gold) as gold, 
+                     SUM(tp) as tp
+                     FROM gquests where finishtime > %d""" % starttime
+    tst = exported.statdb.runselect(stmt)    
+    if tst[0]['total'] > 0:
+      gqstats.update(tst[0])
       
+    stmt = """SELECT COUNT(*) as total, 
+                     SUM(totalxp) as xp, 
+                     SUM(gold) as gold, 
+                     SUM(tp) as tp
+                     FROM mobkills where time > %d""" % starttime
+    tst = exported.statdb.runselect(stmt)    
+    if tst[0]['total'] > 0:
+      mobstats.update(tst[0])
+
+    hourtotals['total'] = ""
+    hourtotals['xp'] = mobstats['xp'] + gqstats['xp'] + \
+                        cpstats['xp'] + queststats['xp']
+
+    hourtotals['qp'] = mobstats['qp'] + gqstats['qp'] + \
+                        cpstats['qp'] + queststats['qp']
+
+    hourtotals['tp'] = mobstats['tp'] + gqstats['tp'] + \
+                        cpstats['tp'] + queststats['tp']
+
+    hourtotals['gold'] = mobstats['gold'] + gqstats['gold'] + \
+                        cpstats['gold'] + queststats['gold']
+
+    namestr = "Stats for {timestr}".format(
+                  infocolor=self.variables['infocolor'],
+                  statcolor=self.variables['statcolor'],
+                  timestr=timestr)
+                  
+    msg.append(self.variables['infocolor'] + \
+                  utils.center(namestr, '-', linelen))
+    fstring = "{infocolor}{type:<10} | {total:>6} " \
+              "{xp:>6} {qp:>5} {tp:>5} {gold:>10}"
+    msg.append(fstring.format(type='Type',
+        total='Total', xp='XP', qp='QP', tp='TP', gold='Gold',
+        infocolor=self.variables['infocolor']))
+    msg.append(self.variables['infocolor'] + '-' * linelen)
+
+    fstring = "{statcolor}{type:<10} {infocolor}| {statcolor}" \
+              "{total:>6} {xp:>6} {qp:>5} {tp:>5} {gold:>10}"
+    
+    msg.append(fstring.format(**queststats))
       
+    msg.append(fstring.format(**cpstats))
+
+    msg.append(fstring.format(**gqstats))
+    
+    msg.append(fstring.format(**mobstats))
+
+    msg.append(self.variables['infocolor'] + '-' * linelen)
+    
+    msg.append(fstring.format(**hourtotals))
+    
+    msg.append('')
+    return msg
+
+  def cmd_rep(self, args):
+    """
+    do a cmd report
+    """
+    minutes = None
+    if len(args) > 0:
+      minutes = int(args[0])
+    else:
+      minutes = self.variables['reportminutes']
+      
+    msg = self.statreport(minutes)
+    
+    exported.sendtoclient('\n'.join(msg), preamble=False)
+      
+    return True, []
+  
+    
