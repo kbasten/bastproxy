@@ -7,9 +7,32 @@ $Id$
 import glob, os, sys
 
 from libs import exported
-from libs.utils import find_files, verify
+from libs.utils import find_files, verify, convert
 from libs.persistentdict import PersistentDict
 import inspect
+
+class PersistentDictEvent(PersistentDict):
+  """
+  a class to send events when a dictionary object is set
+  """
+  def __init__(self, plugin, filename, *args, **kwds):
+    """
+    init the class
+    """
+    self.plugin = plugin    
+    PersistentDict.__init__(self, filename, *args, **kwds)
+    
+  def __setitem__(self, key, val):
+    """
+    override setitem
+    """
+    key = convert(key)
+    val = convert(val)
+    dict.__setitem__(self, key, val)
+    eventname = '%s_%s' % (self.plugin, key)
+    exported.event.eraise(eventname, {'var':key, 
+                                        'newvalue':val})
+    
 
 def get_module_name(path, filename):
   """
@@ -20,6 +43,7 @@ def get_module_name(path, filename):
   tpath = path.split(os.sep)
   path = '.'.join(tpath)
   return path, os.path.splitext(filename)[0]
+
 
 def findplugin(name):
   """
@@ -38,6 +62,7 @@ def findplugin(name):
     return _module_list[0], basepath
   
   return False, ''
+
 
 class BasePlugin:
   """
@@ -68,7 +93,8 @@ class BasePlugin:
     
     self.cmds = {}
     self.defaultcmd = ''
-    self.variables = PersistentDict(self.savefile, 'c', format='json')
+    self.variables = PersistentDictEvent(self.sname, self.savefile, 
+                            'c', format='json')
     self.settings = {}
     self.events = {}
     self.timers = {}
@@ -77,7 +103,7 @@ class BasePlugin:
     self.cmdwatch = {}
     
     exported.LOGGER.adddtype(self.sname)
-    self.cmds['set'] = {'func':self.cmd_var, 'shelp':'Show/Set Variables'}
+    self.cmds['set'] = {'func':self.cmd_set, 'shelp':'Show/Set Variables'}
     
   def load(self):
     """
@@ -99,6 +125,8 @@ class BasePlugin:
     for i in self.events:
       event = self.events[i]
       exported.event.register(i, event['func'])
+      
+    self.variables.pload()
       
     # register all timers
     for i in self.timers:
@@ -154,7 +182,7 @@ class BasePlugin:
     """
     self.variables.sync()
   
-  def cmd_var(self, args):
+  def cmd_set(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
     List or set vars
