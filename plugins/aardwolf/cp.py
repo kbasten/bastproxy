@@ -6,8 +6,6 @@ from libs import exported, utils
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
 
-
-
 NAME = 'Aardwolf CP Events'
 SNAME = 'cp'
 PURPOSE = 'Events for Aardwolf CPs'
