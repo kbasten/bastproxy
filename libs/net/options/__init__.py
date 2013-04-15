@@ -4,7 +4,9 @@ $Id$
 This will manage Telnet Options
 """
 
-import glob, os, sys
+import glob
+import os
+import sys
 
 from libs import exported
 

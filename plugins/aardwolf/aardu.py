@@ -4,7 +4,6 @@ $Id$
 from libs import exported
 from plugins import BasePlugin
 import math
-import copy
 import re
 
 NAME = 'Aardwolf Utils'
@@ -36,7 +35,7 @@ REWARDTABLE = {
         'trivia':'tp',
         'practice':'pracs',
     }
-    
+
 DAMAGES = [
   'misses',
   'tickles',
@@ -95,12 +94,12 @@ DAMAGES = [
   'does UNIMAGINABLE things to',
   'does UNBELIEVABLE things to',
   'pimpslaps'
-]      
- 
+]
+
 DAMAGESREV = {}
 for i in DAMAGES:
   DAMAGESREV[i] = DAMAGES.index(i)
-  
+
 def parsedamageline(line):
   """
   parse a combat damage line
@@ -112,7 +111,7 @@ def parsedamageline(line):
   if thits:
     ddict['hits'] = int(thits.groupdict()['hits'])
     del tsplit[0]
-  
+
   if tsplit[0] == 'Your':
     del tsplit[0]
 
@@ -121,7 +120,7 @@ def parsedamageline(line):
   if tdam:
     ddict['damage'] = int(tdam.groupdict()['damage'])
     del tsplit[-1]
-    
+
   nline = ' '.join(tsplit)
   for i in DAMAGES:
     if i in nline:
@@ -134,14 +133,14 @@ def parsedamageline(line):
         break
 
   return ddict
-  
+
 def getactuallevel(level=None, remort=None, tier=None, redos=None):
   """
   get an actual level
   all arguments are optional, if an argument is not given, it will be
     gotten from gmcp
   level, remort, tier, redos
-  """  
+  """
   level = level or exported.GMCP.getv('char.status.level') or 0
   remort = remort or exported.GMCP.getv('char.base.remorts') or 0
   tier = tier or exported.GMCP.getv('char.base.tier') or 0
@@ -170,7 +169,8 @@ def convertlevel(level):
   if tier > 9:
     redos = tier - 9
     tier = 9
-  return {'tier':tier, 'redos':redos, 'remort':remort, 'level':alevel}
+  return {'tier':int(tier), 'redos':int(redos),
+          'remort':int(remort), 'level':int(alevel)}
 
 
 def classabb(rev=False):
@@ -187,16 +187,16 @@ def rewardtable():
   return the reward tables
   """
   return REWARDTABLE
-  
+
 class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
-  def __init__(self, name, sname, filename, directory, importloc):
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+  def __init__(self, *args, **kwargs):
+    BasePlugin.__init__(self, *args, **kwargs)
     self.exported['getactuallevel'] = {'func':getactuallevel}
     self.exported['convertlevel'] = {'func':convertlevel}
     self.exported['classabb'] = {'func':classabb}
     self.exported['rewardtable'] = {'func':rewardtable}
     self.exported['parsedamageline'] = {'func':parsedamageline}
-    
+

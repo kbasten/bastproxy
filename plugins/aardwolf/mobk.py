@@ -2,7 +2,8 @@
 $Id$
 #TODO: get weapon for vorpals
 """
-import time, copy
+import time
+import copy
 from libs import exported
 from libs.color import strip_ansi
 from plugins import BasePlugin
@@ -22,24 +23,27 @@ def damagedefault():
   tdamage = {}
   tdamage['hits'] = 0
   tdamage['misses'] = 0
-  tdamage['damage'] = 0 
-  return tdamage  
+  tdamage['damage'] = 0
+  return tdamage
 
 
 def addtodamage(tdam, damtable):
+  """
+  add damage to a damage table
+  """
   damtype = tdam['damtype']
   if not damtype:
     damtype = 'Unknown'
 
   if not (damtype in damtable):
     damtable[damtype] = damagedefault()
-  
+
   if tdam['damverb'] == 'misses':
     damtable[damtype]['misses'] = damtable[damtype]['misses'] + tdam['hits']
   else:
     damtable[damtype]['hits'] = damtable[damtype]['hits'] + tdam['hits']
     damtable[damtype]['damage'] = damtable[damtype]['damage'] + tdam['damage']
-    
+
   return damtable
 
 
@@ -47,30 +51,30 @@ class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.kill_info = {}
     self.reset_kill()
     self.mobdamcache = {}
-    self.addsetting('instatext', '@x0', 'color', 
+    self.addsetting('instatext', '@x0', 'color',
                       'the text color for an instakill')
-    self.addsetting('instaback', '@z10', 'color', 
+    self.addsetting('instaback', '@z10', 'color',
                       'the background color for an instakill')
     self.dependencies.append('aardu')
     self.triggers['mobxp'] = {
-      'regex':"^You receive (?P<xp>\d+(?:\+\d+)*) experience points?\.$"}    
+      'regex':"^You receive (?P<xp>\d+(?:\+\d+)*) experience points?\.$"}
     self.triggers['mobxpptless'] = {
-      'regex':"^That was a pointless no experience kill!$"}    
+      'regex':"^That was a pointless no experience kill!$"}
     self.triggers['mobswitch'] = {
       'regex':"^You switch targets and " \
-              "direct your attacks at (?P<name>.*).\.$"}    
+              "direct your attacks at (?P<name>.*).\.$"}
     self.triggers['mobflee'] = {
-      'regex':"^You flee from combat!$"}    
+      'regex':"^You flee from combat!$"}
     self.triggers['mobretreat'] = {
-      'regex':"^You retreat from the combat!$"}    
+      'regex':"^You retreat from the combat!$"}
     self.triggers['mobblessxp'] = {
       'regex':"^You receive (?P<blessxp>\d+) bonus " \
                           "experience points from your daily blessing.*$"}
@@ -109,12 +113,12 @@ class Plugin(BasePlugin):
       'regex':"^\[(.*)\] Your (.*) \[(.*)\]$"}
     self.triggers['mobdamage2'] = {
       'regex':"^Your (.*) \[(.*)\]$"}
-      
+
     self.events['trigger_mobxp'] = {'func':self.mobxp}
     self.events['trigger_mobxpptless'] = {'func':self.mobxpptless}
     self.events['trigger_mobswitch'] = {'func':self.mobswitch}
     self.events['trigger_mobflee'] = {'func':self.mobnone}
-    self.events['trigger_mobretreat'] = {'func':self.mobnone}    
+    self.events['trigger_mobretreat'] = {'func':self.mobnone}
     self.events['trigger_mobblessxp'] = {'func':self.mobblessxp}
     self.events['trigger_mobbonusxp'] = {'func':self.mobbonusxp}
     self.events['trigger_mobgold'] = {'func':self.mobgold}
@@ -124,16 +128,16 @@ class Plugin(BasePlugin):
     self.events['trigger_mobconsume'] = {'func':self.mobname}
     self.events['trigger_mobtrivia'] = {'func':self.mobtrivia}
     self.events['trigger_mobvorpal'] = {'func':self.mobvorpal}
-    self.events['trigger_mobassassin'] = {'func':self.mobassassin}    
+    self.events['trigger_mobassassin'] = {'func':self.mobassassin}
     self.events['trigger_mobdeathblow'] = {'func':self.mobdeathblow}
-    self.events['trigger_mobslit'] = {'func':self.mobslit}    
-    self.events['trigger_mobdisintegrate'] = {'func':self.mobdisintegrate}    
-    self.events['trigger_mobbanish'] = {'func':self.mobbanish}    
-    self.events['trigger_mobdamage'] = {'func':self.mobdamage} 
-    self.events['trigger_mobdamage2'] = {'func':self.mobdamage} 
-    
+    self.events['trigger_mobslit'] = {'func':self.mobslit}
+    self.events['trigger_mobdisintegrate'] = {'func':self.mobdisintegrate}
+    self.events['trigger_mobbanish'] = {'func':self.mobbanish}
+    self.events['trigger_mobdamage'] = {'func':self.mobdamage}
+    self.events['trigger_mobdamage2'] = {'func':self.mobdamage}
+
     self.events['GMCP:char.status'] = {'func':self.gmcpcharstatus}
-    
+
   def gmcpcharstatus(self, args):
     """
     do stuff when we see a gmcp char.status
@@ -142,7 +146,7 @@ class Plugin(BasePlugin):
     if status['enemy'] != "" and self.kill_info['name'] == "":
       self.kill_info['name'] = strip_ansi(status['enemy'])
       self.reset_damage()
-    
+
   def reset_kill(self):
     """
     reset a kill
@@ -169,7 +173,7 @@ class Plugin(BasePlugin):
     self.kill_info['room_id'] = -1
     self.kill_info['damage'] = {}
     self.kill_info['immunities'] = {}
-    self.kill_info['starttime'] = None    
+    self.kill_info['starttime'] = None
     self.kill_info['finishtime'] = None
 
   def reset_damage(self):
@@ -178,9 +182,9 @@ class Plugin(BasePlugin):
     """
     self.kill_info['damage'] = {}
     self.kill_info['immunities'] = {}
-    self.kill_info['starttime'] = None    
+    self.kill_info['starttime'] = None
     self.kill_info['finishtime'] = None
-    
+
 
   def mobnone(self, _=None):
     """
@@ -188,7 +192,7 @@ class Plugin(BasePlugin):
     """
     self.kill_info['name'] = ""
     self.reset_damage()
-    
+
   def mobname(self, args):
     """
     got a mob name
@@ -204,13 +208,13 @@ class Plugin(BasePlugin):
     """
     self.kill_info['xp'] = 0
     self.kill_info['raised'] = False
-    
+
   def mobblessxp(self, args):
     """
     add blessing xp
     """
     self.kill_info['blessingxp'] = int(args['blessxp'])
-    
+
   def mobbonusxp(self, args):
     """
     add bonus xp
@@ -230,10 +234,10 @@ class Plugin(BasePlugin):
         newxp = newxp + int(i)
     else:
       newxp = int(mxp)
-    
+
     self.kill_info['xp'] = newxp
     self.kill_info['raised'] = False
-    
+
   def mobswitch(self, args):
     """
     switch mobs
@@ -274,7 +278,7 @@ class Plugin(BasePlugin):
     self.kill_info['raised'] = False
     self.kill_info['time'] = time.time()
     self.raise_kill()
-    
+
   def mobbanish(self, args):
     """
     banished a mob
@@ -284,14 +288,14 @@ class Plugin(BasePlugin):
     self.kill_info['raised'] = False
     self.kill_info['time'] = time.time()
     self.raise_kill()
-    
+
   def mobdeathblow(self, args):
     """
     deathblowed a mob
     """
     self.kill_info['name'] = strip_ansi(args['name'])
-    self.kill_info['deathblow'] = 1  
-    
+    self.kill_info['deathblow'] = 1
+
   def mobgold(self, args):
     """
     get gold from the mobkill
@@ -300,22 +304,22 @@ class Plugin(BasePlugin):
     self.kill_info['gold'] = int(gold)
     if not self.kill_info['name']:
       self.kill_info['name'] = strip_ansi(args['name'])
-      
+
   def mobtrivia(self, _=None):
     """
     a trivia mob
     """
     self.kill_info['tp'] = 1
-    
+
   def raise_kill(self):
     """
     raise a kill
     """
     #exported.sendtoclient('raising a kill')
     self.kill_info['finishtime'] = time.time()
-    self.kill_info['room_id'] = exported.GMCP.getv('room.info.num')  
-    self.kill_info['level'] = exported.aardu.getactuallevel()    
-    self.kill_info['time'] = time.time()    
+    self.kill_info['room_id'] = exported.GMCP.getv('room.info.num')
+    self.kill_info['level'] = exported.aardu.getactuallevel()
+    self.kill_info['time'] = time.time()
     if not self.kill_info['raised']:
       if not self.kill_info['name']:
         self.kill_info['name'] = 'Unknown'
@@ -325,17 +329,17 @@ class Plugin(BasePlugin):
 
       exported.event.eraise('aard_mobkill', copy.deepcopy(self.kill_info))
 
-    self.reset_kill()    
-    
+    self.reset_kill()
+
   def incombat(self):
     """
     just saw an incombat backstab
     """
-    if not ('backstab' in kill_info['damage']):
-      kill_info['damage']['backstab'] = damagedefault()
+    if not ('backstab' in self.kill_info['damage']):
+      self.kill_info['damage']['backstab'] = damagedefault()
 
-    kill_info.damage['backstab']['incombat'] = true
-    
+    self.kill_info.damage['backstab']['incombat'] = True
+
   def immunity(self, args):
     """
     saw an immunity for the current mob
@@ -345,14 +349,13 @@ class Plugin(BasePlugin):
     if not (immunity in self.kill_info['immunities']) \
           and self.kill_info['name'] == mobname:
       self.kill_info['immunities'][immunity] = True
-   
+
   def mobdamage(self, args):
     """
     saw a damage line
     """
     tdam = exported.aardu.parsedamageline(args['line'])
-    damtype = tdam['damtype']
-    
+
     if not self.kill_info['starttime']:
       self.kill_info['starttime'] = time.time()
     if tdam['enemy'] \
@@ -362,9 +365,9 @@ class Plugin(BasePlugin):
         self.mobdamcache[tdam['enemy']] = {}
       addtodamage(tdam, self.mobdamcache[tdam['enemy']])
       return
-    
+
     if tdam['enemy'] in self.mobdamcache:
-        self.kill_info['damage'] = self.mobdamcache[tdam['enemy']]
-        del(self.mobdamcache[tdam['enemy']])
+      self.kill_info['damage'] = self.mobdamcache[tdam['enemy']]
+      del(self.mobdamcache[tdam['enemy']])
     addtodamage(tdam, self.kill_info['damage'])
 

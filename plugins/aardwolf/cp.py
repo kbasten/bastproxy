@@ -1,8 +1,12 @@
 """
 $Id$
 """
-import time, os, copy, re
-from libs import exported, utils
+import time
+import os
+import copy
+import re
+from libs import exported
+from libs import utils
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
 
@@ -18,11 +22,11 @@ class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.savecpfile = os.path.join(self.savedir, 'cp.txt')
     self.cpinfo = PersistentDict(self.savecpfile, 'c', format='json')    
     self.dependencies.append('aardu')    

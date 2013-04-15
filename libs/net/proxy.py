@@ -2,7 +2,6 @@
 $Id$
 
 This file holds the class that connects to the mud
-#TODO: if disconnected from mud, clear buffer that sends command to mud
 """
 import time
 from libs.net.telnetlib import Telnet
@@ -30,7 +29,7 @@ class Proxy(Telnet):
     self.password = None
     self.lastmsg = ''
     self.clients = []
-    self.ttype = 'Server'
+    self.ttype = 'BastProxy'
     self.banned = {}
     self.connectedtime = None
     exported.event.register('to_mud_event', self.addtooutbuffer, 99)
@@ -106,6 +105,7 @@ class Proxy(Telnet):
     """
     connect to the mud
     """
+    self.outbuffer = ''    
     self.doconnect()
     self.connectedtime = time.mktime(time.localtime())
     exported.msg('Connected to mud', 'net')    
@@ -119,7 +119,7 @@ class Proxy(Telnet):
     exported.event.eraise('to_client_event',
         {'todata':convertcolors('@R#BP@w: The mud closed the connection'), 
         'dtype':'fromproxy'})
-    TELOPTMGR.resetoptions(self, True)
+    TELOPTMGR.resetoptions(self, True)    
     Telnet.handle_close(self)
     exported.event.eraise('muddisconnect', {})  
 

@@ -1,10 +1,10 @@
 """
 $Id$
-
-#TODO: change load to be able to use example.timerex
 """
 
-import glob, os, sys
+import glob
+import os
+import sys
 
 from libs import exported
 from libs.utils import find_files, verify, convert
@@ -19,9 +19,9 @@ class PersistentDictEvent(PersistentDict):
     """
     init the class
     """
-    self.plugin = plugin    
+    self.plugin = plugin
     PersistentDict.__init__(self, filename, *args, **kwds)
-    
+
   def __setitem__(self, key, val):
     """
     override setitem
@@ -30,9 +30,9 @@ class PersistentDictEvent(PersistentDict):
     val = convert(val)
     dict.__setitem__(self, key, val)
     eventname = '%s_%s' % (self.plugin, key)
-    exported.event.eraise(eventname, {'var':key, 
+    exported.event.eraise(eventname, {'var':key,
                                         'newvalue':val})
-    
+
 
 def get_module_name(path, filename):
   """
@@ -54,13 +54,13 @@ def findplugin(name):
   if index == -1:
     basepath = "." + os.sep
   else:
-    basepath = __file__[:index]     
-  
+    basepath = __file__[:index]
+
   _module_list = find_files( basepath, name + ".py")
-  
+
   if len(_module_list) == 1:
     return _module_list[0], basepath
-  
+
   return False, ''
 
 
@@ -79,21 +79,21 @@ class BasePlugin:
     self.sname = sname
     self.dependencies = []
     self.canreload = True
-    self.savedir = os.path.join(exported.BASEPATH, 'data', 
+    self.savedir = os.path.join(exported.BASEPATH, 'data',
                                       'plugins', self.sname)
     try:
       os.makedirs(self.savedir)
     except OSError:
       pass
-    self.savefile = os.path.join(exported.BASEPATH, 'data', 
+    self.savefile = os.path.join(exported.BASEPATH, 'data',
                                     'plugins', self.sname, 'variables.txt')
     self.fullname = fullname
     self.basepath = basepath
     self.fullimploc = fullimploc
-    
+
     self.cmds = {}
     self.defaultcmd = ''
-    self.variables = PersistentDictEvent(self.sname, self.savefile, 
+    self.variables = PersistentDictEvent(self.sname, self.savefile,
                             'c', format='json')
     self.settings = {}
     self.events = {}
@@ -101,10 +101,10 @@ class BasePlugin:
     self.triggers = {}
     self.exported = {}
     self.cmdwatch = {}
-    
+
     exported.LOGGER.adddtype(self.sname)
     self.cmds['set'] = {'func':self.cmd_set, 'shelp':'Show/Set Variables'}
-    
+
   def load(self):
     """
     load stuff
@@ -116,33 +116,33 @@ class BasePlugin:
         cmd['lname'] = self.name
       exported.cmd.add(self.sname, i, cmd)
       #self.addCmd(i, cmd['func'], cmd['shelp'])
-      
+
     # if there is a default command, then set it
     if self.defaultcmd:
       exported.cmd.setdefault(self.defaultcmd)
-      
+
     # register all events
     for i in self.events:
       event = self.events[i]
       exported.event.register(i, event['func'])
-      
+
     self.variables.pload()
-      
+
     # register all timers
     for i in self.timers:
       tim = self.timers[i]
       exported.timer.add(i, tim)
-      
+
     for i in self.triggers:
       exported.trigger.add(i, self.triggers[i])
 
     for i in self.cmdwatch:
       exported.cmdwatch.add(i, self.watch[i])
-      
+
     if len(self.exported) > 0:
       for i in self.exported:
         exported.add(self.exported[i]['func'], self.sname, i)
-  
+
   def unload(self):
     """
     unload stuff
@@ -163,25 +163,25 @@ class BasePlugin:
 
     for i in self.cmdwatch:
       exported.cmdwatch.remove(i, self.watch[i])
-      
+
     #save the state
     self.savestate()
 
     if len(self.exported) > 0:
       exported.remove(None, self.sname)
-    
+
   def msg(self, msg):
     """
     an internal function to send msgs
     """
     exported.msg(msg, self.sname)
-    
+
   def savestate(self):
     """
     save the state
     """
     self.variables.sync()
-  
+
   def cmd_set(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
@@ -206,14 +206,14 @@ class BasePlugin:
           if self.settings[var]['nocolor']:
             tvar = tvar.replace('@', '@@')
           elif self.settings[var]['stype'] == 'color':
-            tvar = '%s%s@w' % (val, val.replace('@', '@@'))            
+            tvar = '%s%s@w' % (val, val.replace('@', '@@'))
           return True, ['set %s to %s' % (var, tvar)]
         except ValueError:
           msg = ['Cannot convert %s to %s' % \
-                                  (val, self.settings[var]['stype'])]        
+                                  (val, self.settings[var]['stype'])]
           return True, msg
     return False, {}
-      
+
   def listvars(self):
     """
     return a list of strings that list all variables
@@ -231,25 +231,25 @@ class BasePlugin:
           val = '%s%s@w' % (val, val.replace('@', '@@'))
         tmsg.append(tform % (i, val, self.settings[i]['help']))
     return tmsg
-  
+
   def addsetting(self, name, default, stype, shelp, nocolor=False):
     """
     add a setting
     """
     if not (name in self.variables):
       self.variables[name] = default
-    self.settings[name] = {'default':default, 'help':shelp, 
+    self.settings[name] = {'default':default, 'help':shelp,
                   'stype':stype, 'nocolor':nocolor}
-    
+
   def cmd_reset(self):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       reset the plugin
       @CUsage@w: reset
-    """     
+    """
     self.reset()
     return True, ['Plugin reset']
-  
+
   def reset(self):
     """
     internal function to reset data
@@ -258,7 +258,7 @@ class BasePlugin:
     for i in self.settings:
       self.variables[i] = self.settings[i]['default']
     self.variables.sync()
-    
+
 
 class PluginMgr:
   """
@@ -271,13 +271,13 @@ class PluginMgr:
     self.plugins = {}
     self.pluginl = {}
     self.pluginm = {}
-    self.savefile = os.path.join(exported.BASEPATH, 'data', 
-                                          'plugins', 'loadedplugins.txt')    
-    self.loadedplugins = PersistentDict(self.savefile, 'c', format='json')    
+    self.savefile = os.path.join(exported.BASEPATH, 'data',
+                                          'plugins', 'loadedplugins.txt')
+    self.loadedplugins = PersistentDict(self.savefile, 'c', format='json')
     self.sname = 'plugins'
     self.lname = 'Plugins'
     exported.LOGGER.adddtype(self.sname)
-    exported.LOGGER.cmd_console([self.sname])   
+    exported.LOGGER.cmd_console([self.sname])
     exported.add(self.isinstalled, self.sname)
 
   def isinstalled(self, pluginname):
@@ -299,7 +299,7 @@ class PluginMgr:
           pass
         else:
           load.append(i)
-                    
+
     for i in load:
       exported.msg('%s: loading depencency %s' % (pluginname, i), self.sname)
       name, path = findplugin(i)
@@ -317,7 +317,7 @@ class PluginMgr:
     if len(args) == 0:
       tmsg.append('Items available in exported')
       for i in dir(exported):
-        if not (i in ['sys', 'traceback', '__builtins__', '__doc__', 
+        if not (i in ['sys', 'traceback', '__builtins__', '__doc__',
                                 '__file__', '__name__', '__package__',]):
           if inspect.isfunction(exported.__dict__[i]):
             tmsg.append('Function: %s' % i)
@@ -332,12 +332,12 @@ class PluginMgr:
         elif isinstance(exported.__dict__[i], dict):
           tmsg = []
           for tfunc in exported.__dict__[i]:
-            tmsg = tmsg + self.printexported('%s.%s' % (i, tfunc), 
+            tmsg = tmsg + self.printexported('%s.%s' % (i, tfunc),
                                           exported.__dict__[i][tfunc])
       else:
         tmsg.append('Could not find function')
     return True, tmsg
-    
+
   def printexported(self, item, tfunction):
     """
     return a list of strings that describe a function
@@ -347,16 +347,16 @@ class PluginMgr:
     if tfunction.__doc__:
       tlist = tfunction.__doc__.strip().split('\n')
       for i in tlist:
-        tmsg.append('  %s' % i)    
+        tmsg.append('  %s' % i)
     return tmsg
-    
+
   def cmd_list(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       List plugins
       @CUsage@w: list
     """
-    msg = ['Plugins:']
+    msg = []
     if len(args) > 0:
       #TODO: check for the name here
       pass
@@ -369,7 +369,7 @@ class PluginMgr:
         msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                     (plugin, tpl.name, tpl.author, tpl.version, tpl.purpose))
     return True, msg
-    
+
   def cmd_load(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
@@ -385,15 +385,16 @@ class PluginMgr:
       if index == -1:
         basepath = "." + os.sep
       else:
-        basepath = __file__[:index]      
-        
-      _module_list = find_files( basepath, args[0] + ".py")
-      
+        basepath = __file__[:index]
+
+      fname = args[0].replace('.', os.sep)
+      _module_list = find_files( basepath, fname + ".py")
+
       if len(_module_list) > 1:
         tmsg.append('There is more than one module that matches: %s' % \
                                                               args[0])
       elif len(_module_list) == 0:
-        tmsg.append('There are no modules that match: %s' % args[0])        
+        tmsg.append('There are no modules that match: %s' % args[0])
       else:
         sname, reason = self.load_module(_module_list[0], basepath, True)
         if sname:
@@ -415,7 +416,7 @@ class PluginMgr:
       unload a plugin
       @CUsage@w: unload @Yplugin@w
         @Yplugin@w    = the shortname of the plugin to load
-    """    
+    """
     tmsg = []
     if len(args) == 1 and args[0] in self.plugins:
       if self.plugins[args[0]].canreload:
@@ -426,7 +427,7 @@ class PluginMgr:
       else:
         tmsg.append("That plugin can not be unloaded")
       return True, tmsg
-      
+
     return False
 
   def cmd_reload(self, args):
@@ -435,16 +436,16 @@ class PluginMgr:
       reload a plugin
       @CUsage@w: reload @Yplugin@w
         @Yplugin@w    = the shortname of the plugin to reload
-    """ 
+    """
     tmsg = []
     if len(args) == 0:
       return True, ['Please specify a plugin']
-    
+
     if args[0] and args[0] in self.plugins:
       if self.plugins[args[0]].canreload:
         tret, _ = self.reload_module(args[0], True)
         if tret and tret != True:
-          self.checkdependency(tret)          
+          self.checkdependency(tret)
           tmsg.append("Reload complete: %s" % self.plugins[tret].fullimploc)
           return True, tmsg
       else:
@@ -463,7 +464,7 @@ class PluginMgr:
       basepath = "." + os.sep
     else:
       basepath = __file__[:index]
-    
+
     _module_list = find_files( basepath, tfilter)
     _module_list.sort()
 
@@ -478,13 +479,13 @@ class PluginMgr:
     load a single module
     """
     imploc, modname = get_module_name(basepath, fullname)
-    
+
     if modname.startswith("_"):
       return False, 'dev'
 
     try:
       if imploc == '.':
-        fullimploc = "plugins" + imploc + modname          
+        fullimploc = "plugins" + imploc + modname
       else:
         fullimploc = "plugins" + imploc + '.' + modname
       if fullimploc in sys.modules:
@@ -496,11 +497,11 @@ class PluginMgr:
       load = True
 
       if 'AUTOLOAD' in _module.__dict__ and not force:
-        if not _module.AUTOLOAD: 
+        if not _module.AUTOLOAD:
           load = False
       elif not ('AUTOLOAD' in _module.__dict__):
         load = False
-      
+
       if load:
         if "Plugin" in _module.__dict__:
           self.add_plugin(_module, fullname, basepath, fullimploc)
@@ -511,42 +512,42 @@ class PluginMgr:
 
         _module.__dict__["proxy_import"] = 1
         exported.sendtoclient("load: loaded %s" % fullimploc)
-        
+
         return _module.SNAME, 'Loaded'
       else:
         if fullimploc in sys.modules:
           del sys.modules[fullimploc]
         exported.msg('Not loading %s (%s) because autoload is False' % \
-                                    (_module.NAME, fullimploc), self.sname) 
+                                    (_module.NAME, fullimploc), self.sname)
       return True, 'not autoloaded'
     except:
       if fullimploc in sys.modules:
         del sys.modules[fullimploc]
-      
+
       exported.write_traceback("Module '%s' refuses to load." % fullimploc)
       return False, 'error'
-     
+
   def unload_module(self, fullimploc):
     """
     unload a module
     """
     if fullimploc in sys.modules:
-      
+
       _module = sys.modules[fullimploc]
       _oldmodule = _module
       try:
         if "proxy_import" in _module.__dict__:
-          
+
           if "unload" in _module.__dict__:
             try:
               _module.unload()
             except:
               exported.write_traceback(
                     "unload: module %s didn't unload properly." % fullimploc)
-          
+
           if not self.remove_plugin(_module.SNAME):
             exported.sendtoclient('could not remove plugin %s' % fullimploc)
-          
+
         del sys.modules[fullimploc]
         exported.sendtoclient("unload: unloaded %s." % fullimploc)
 
@@ -556,7 +557,7 @@ class PluginMgr:
         return False
     else:
       _oldmodule = None
-      
+
     return True
 
   def reload_module(self, modname, force=False):
@@ -564,7 +565,7 @@ class PluginMgr:
     reload a module
     """
     if modname in self.plugins:
-      plugin = self.plugins[modname]  
+      plugin = self.plugins[modname]
       fullimploc = plugin.fullimploc
       basepath = plugin.basepath
       fullname = plugin.fullname
@@ -577,24 +578,24 @@ class PluginMgr:
 
     else:
       return False, ''
-  
+
   def add_plugin(self, module, fullname, basepath, fullimploc):
     """
     add a plugin to be managed
     """
-    module.__dict__["lyntin_import"] = 1    
-    plugin = module.Plugin(module.NAME, module.SNAME, 
+    module.__dict__["lyntin_import"] = 1
+    plugin = module.Plugin(module.NAME, module.SNAME,
                                     fullname, basepath, fullimploc)
     plugin.author = module.AUTHOR
     plugin.purpose = module.PURPOSE
-    plugin.version = module.VERSION    
+    plugin.version = module.VERSION
     if plugin.name in self.pluginl:
       exported.msg('Plugin %s already exists' % plugin.name, self.sname)
       return False
     if plugin.sname in self.plugins:
       exported.msg('Plugin %s already exists' % plugin.sname, self.sname)
       return False
-    
+
     plugin.load()
     self.pluginl[plugin.name] = plugin
     self.plugins[plugin.sname] = plugin
@@ -613,10 +614,10 @@ class PluginMgr:
       plugin.unload()
       del self.plugins[plugin.sname]
       del self.pluginl[plugin.name]
-      del self.pluginm[plugin.name]      
+      del self.pluginm[plugin.name]
       del self.loadedplugins[plugin.fullname]
       self.loadedplugins.sync()
-      plugin = None      
+      plugin = None
       return True
     else:
       return False
@@ -635,18 +636,17 @@ class PluginMgr:
     self.load_modules("*.py")
     for i in self.plugins.keys():
       self.checkdependency(i)
-    exported.cmd.add(self.sname, 'list', {'lname':'Plugin Manager', 
+    exported.cmd.add(self.sname, 'list', {'lname':'Plugin Manager',
                           'func':self.cmd_list, 'shelp':'List plugins'})
-    exported.cmd.add(self.sname, 'load', {'lname':'Plugin Manager', 
+    exported.cmd.add(self.sname, 'load', {'lname':'Plugin Manager',
                           'func':self.cmd_load, 'shelp':'Load a plugin'})
-    exported.cmd.add(self.sname, 'unload', {'lname':'Plugin Manager', 
+    exported.cmd.add(self.sname, 'unload', {'lname':'Plugin Manager',
                           'func':self.cmd_unload, 'shelp':'Unload a plugin'})
-    exported.cmd.add(self.sname, 'reload', {'lname':'Plugin Manager', 
+    exported.cmd.add(self.sname, 'reload', {'lname':'Plugin Manager',
                           'func':self.cmd_reload, 'shelp':'Reload a plugin'})
-    exported.cmd.add(self.sname, 'exported', {'lname':'Plugin Manager', 
-                          'func':self.cmd_exported, 
+    exported.cmd.add(self.sname, 'exported', {'lname':'Plugin Manager',
+                          'func':self.cmd_exported,
                           'shelp':'Examine the exported module'})
     exported.cmd.setdefault(self.sname, 'list')
     exported.event.register('savestate', self.savestate)
-    
-    
+

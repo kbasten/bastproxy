@@ -16,11 +16,11 @@ class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf quest events
   """  
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.dependencies.append('aardu')    
     self.dependencies.append('gq')    
     self.addsetting('email', '', str, 'the email to send the alerts', 

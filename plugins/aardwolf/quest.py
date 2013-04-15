@@ -17,7 +17,9 @@ $Id$
     u'action': u'comp', u'tierqp': 1, u'wait': 30}, 'module': 'comm.quest', 
     'server': <libs.net.proxy.Proxy connected aardmud.org:4000 at 0xb689f530>}
 """
-import time, copy, os
+import time
+import copy
+import os
 from libs import exported
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
@@ -34,11 +36,11 @@ class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf quest events
   """  
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
+    BasePlugin.__init__(self, *args, **kwargs) 
     self.savequestfile = os.path.join(self.savedir, 'quest.txt')
     self.queststuff = PersistentDict(self.savequestfile, 'c', format='json')    
     self.dependencies.append('aardu')    

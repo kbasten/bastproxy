@@ -17,11 +17,11 @@ class Plugin(BasePlugin):
   """
   a plugin to show how to use aard102 options
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
+    BasePlugin.__init__(self, *args, **kwargs) 
     self.events.append({'event':'A102', 'func':self.test})
     self.events.append({'event':'A102:101', 'func':self.test101})    
     

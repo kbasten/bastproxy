@@ -16,11 +16,11 @@ class Plugin(BasePlugin):
   """
   a plugin to show how to use triggers
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
+    BasePlugin.__init__(self, *args, **kwargs) 
     self.triggers['example_trigger'] = \
             {'regex':"^(?P<name>.*) flicks a (?P<insect>.*) off his bar\.$"}
     self.events['trigger_example_trigger'] = {'func':self.testtrigger}

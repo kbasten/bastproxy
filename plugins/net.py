@@ -1,7 +1,8 @@
 """
 $Id$
 """
-from libs import exported, utils
+from libs import exported
+from libs import utils
 from plugins import BasePlugin
 import time
 
@@ -20,11 +21,11 @@ class Plugin(BasePlugin):
   """
   a plugin to show connection information
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.cmds['list'] = {'func':self.cmd_list, 
                             'shelp':'list clients that are connected'}
 

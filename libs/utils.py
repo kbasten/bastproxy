@@ -5,6 +5,7 @@ import fnmatch
 import os
 import datetime
 import math
+import time
 from libs.color import iscolor, strip_ansi, convertcolors
 
 
@@ -19,20 +20,24 @@ class DotDict(dict):
     return self.get(attr, DotDict())
   __setattr__ = dict.__setitem__
   __delattr__ = dict.__delitem__
-    
+
 
 def find_files(directory, filematch):
   """
   find files in a directory that match a filter
   """
   matches = []
+  if os.sep in filematch:
+    tstuff = filematch.split(os.sep)
+    directory = os.path.join(directory, tstuff[0])
+    filematch = tstuff[-1]
   for root, _, filenames in os.walk(directory):
     for filename in fnmatch.filter(filenames, filematch):
       matches.append(os.path.join(root, filename))
-        
+
   return matches
 
-  
+
 def timedeltatostring(stime, etime, fmin=False, colorn='',
                        colors='', nosec=False):
   """
@@ -60,33 +65,33 @@ def timedeltatostring(stime, etime, fmin=False, colorn='',
     tmsg.append('%s%02d%sm' % (colorn, outar[2], colors))
   if not nosec:
     tmsg.append('%s%02d%ss' % (colorn, outar[3], colors))
-    
+
   out   = ":".join(tmsg)
   return out
 
 
-def ReadableNumber(num, places=2):
+def readablenumber(num, places=2):
   """
   convert a number to a shorter readable number
   """
   ret = ''
   nform = "%%00.0%sf" % places
   if not num:
-      return 0
+    return 0
   elif num >= 1000000000000:
-      ret = nform % (num / 1000000000000.0) + " T" # trillion
+    ret = nform % (num / 1000000000000.0) + " T" # trillion
   elif num >= 1000000000:
-      ret = nform % (num / 1000000000.0) + " B" # billion
+    ret = nform % (num / 1000000000.0) + " B" # billion
   elif num >= 1000000:
-      ret = nform % (num / 1000000.0) + " M" # million
+    ret = nform % (num / 1000000.0) + " M" # million
   elif num >= 1000:
-      ret = nform % (num / 1000.0) + " K" # thousand
+    ret = nform % (num / 1000.0) + " K" # thousand
   else:
-      ret = num # hundreds
+    ret = num # hundreds
   return ret
 
 
-def SecondsToDHMS(sseconds):
+def secondstodhms(sseconds):
   """
   convert seconds to years, days, hours, mins, secs
   """
@@ -95,27 +100,27 @@ def SecondsToDHMS(sseconds):
       'years' : 0,
       'days' : 0,
       'hours' : 0,
-      'minutes': 0,
-      'seconds': 0 
+      'mins': 0,
+      'secs': 0
       }
   if nseconds == 0:
     return dtime
-  
-  dtime['years'] = math.floor(nseconds/(3600 * 24 * 365))
-  dtime['days'] = math.floor(nseconds/(3600 * 24))
-  dtime['hours'] = math.floor(nseconds/3600 - (dtime['days'] * 24))
-  dtime['mins'] = math.floor(nseconds/60 - (dtime['hours'] * 60) \
-                                        - (dtime['days'] * 24 * 60))
-  dtime['secs'] = nseconds % 60
+
+  dtime['years'] = int(math.floor(nseconds/(3600 * 24 * 365)))
+  dtime['days'] = int(math.floor(nseconds/(3600 * 24)))
+  dtime['hours'] = int(math.floor(nseconds/3600 - (dtime['days'] * 24)))
+  dtime['mins'] = int(math.floor(nseconds/60 - (dtime['hours'] * 60) \
+                                        - (dtime['days'] * 24 * 60)))
+  dtime['secs'] = int(nseconds % 60)
   return dtime
-  
-  
+
+
 def format_time(length, nosec=False):
   """
   format a length of time into a string
   """
   msg = []
-  dtime = SecondsToDHMS(length)
+  dtime = secondstodhms(length)
   years = False
   days = False
   hours = False
@@ -142,10 +147,10 @@ def format_time(length, nosec=False):
     if years or days or hours or mins:
       msg.append(':')
     msg.append('%02ds' % (dtime['secs'] or 0))
-  
+
   return ''.join(msg)
 
-  
+
 def verify_bool(val):
   """
   convert a value to a bool, also converts some string and numbers
@@ -160,7 +165,7 @@ def verify_bool(val):
       return False
     elif val == 'true' or val == 'yes':
       return True
-  
+
   return bool(val)
 
 
@@ -170,10 +175,23 @@ def verify_color(val):
   """
   if iscolor(val):
     return val
-  
+
   raise ValueError
 
-  
+
+def verify_miltime(mtime):
+  """
+  verify a time like 0830 or 1850
+  """
+  try:
+    time.strptime(mtime, '%H%M')
+  except:
+    raise ValueError
+
+  return mtime
+
+
+
 def verify(val, vtype):
   """
   verify values
@@ -181,17 +199,18 @@ def verify(val, vtype):
   vtab = {}
   vtab[bool] = verify_bool
   vtab['color'] = verify_color
-  
+  vtab['miltime'] = verify_miltime
+
   if vtype in vtab:
     return vtab[vtype](val)
   else:
     return vtype(val)
-  
-  
+
+
 def convert(tinput):
   """
   converts input to ascii (utf-8)
-  """  
+  """
   if isinstance(tinput, dict):
     return {convert(key): convert(value) for key, value in tinput.iteritems()}
   elif isinstance(tinput, list):
@@ -200,8 +219,8 @@ def convert(tinput):
     return tinput.encode('utf-8')
   else:
     return tinput
-  
-  
+
+
 def center(tstr, fillerc, length):
   """
   center a string with color codes
@@ -210,15 +229,15 @@ def center(tstr, fillerc, length):
 
   tlen = len(nocolor) + 4
   tdiff = length - tlen
-  
+
   thalf = tdiff / 2
   tstr = "{filler}  {lstring}  {filler}".format(
         filler = fillerc * thalf,
         lstring = tstr)
-  
+
   newl = (thalf * 2) + tlen
 
   if newl < length:
     tstr = tstr + '-' * (length - newl)
-    
+
   return tstr

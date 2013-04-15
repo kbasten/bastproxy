@@ -3,17 +3,7 @@
 $Id$
 
 This is the beginnings of a Mud Proxy that can have triggers, aliases, gags
-
-TODO:
--- debug manager
-     - every debug message has a type
-     - on startup, plugins and other things register types
-     - command to enable/disable output of types
-     - can go to clients, logs, or both
--- general logging manager
--- triggers
-     - need to also be able to check colors
-  
+#TODO: create alias plugin
 """
 import asyncore
 import ConfigParser
@@ -39,7 +29,7 @@ def setuppaths():
   try:
     os.makedirs(os.path.join(exported.BASEPATH, 'data', 'logs'))
   except OSError:
-    pass  
+    pass
 
 setuppaths()
 
@@ -75,7 +65,7 @@ class Listener(asyncore.dispatcher):
   def __init__(self, listen_port, server_address, server_port):
     """
     init the class
-    
+
     required:
       listen_port - the port to listen on
       server_address - the address of the server
@@ -89,7 +79,7 @@ class Listener(asyncore.dispatcher):
     self.proxy = None
     self.server_address = server_address
     self.server_port = server_port
-    exported.msg("Forwarder bound on", listen_port)
+    exported.msg("Forwarder bound on: %s" % listen_port)
 
   def handle_error(self):
     """
@@ -116,9 +106,9 @@ class Listener(asyncore.dispatcher):
         exported.msg("Only 5 clients can be connected at the same time", 'net')
         client_connection.close()
       else:
-        exported.msg("Accepted connection from %s : %s" % 
+        exported.msg("Accepted connection from %s : %s" %
                                       (source_addr[0], source_addr[1]), 'net')
-                                      
+
         #Proxy client keeps up with itself
         ProxyClient(client_connection, source_addr[0], source_addr[1])
     except:
@@ -128,7 +118,7 @@ class Listener(asyncore.dispatcher):
 def start(listen_port, server_address, server_port):
   """
   start the proxy
-  
+
   we do a single asyncore.loop then we check timers
   """
   Listener(listen_port, server_address, server_port)
@@ -205,8 +195,7 @@ def main():
         print
       sys.exit(0)
 
-  
+
 if __name__ == "__main__":
   main()
-  
-  
+

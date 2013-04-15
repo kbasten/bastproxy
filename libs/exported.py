@@ -4,7 +4,8 @@ $Id$
 
 from __future__ import print_function
 
-import sys, traceback
+import sys
+import traceback
 from libs import color
 from libs.utils import DotDict
 

@@ -21,11 +21,11 @@ class Plugin(BasePlugin):
   """
   a plugin to do simple substitution
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.savesubfile = os.path.join(self.savedir, 'subs.txt')
     self._substitutes = PersistentDict(self.savesubfile, 'c', format='json')
     self.cmds['add'] = {'func':self.cmd_add, 'shelp':'Add a substitute'}

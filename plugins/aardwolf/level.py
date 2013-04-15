@@ -1,7 +1,10 @@
 """
 $Id$
 """
-import time, os, copy
+import time
+import os
+import copy
+import re
 from libs import exported
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
@@ -18,51 +21,90 @@ class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.savelevelfile = os.path.join(self.savedir, 'level.txt')
-    self.levelinfo = PersistentDict(self.savelevelfile, 'c', format='json')    
+    self.levelinfo = PersistentDict(self.savelevelfile, 'c', format='json')
     self.dependencies.append('aardu')
-    self.rewardtable = {
-        'quest':'qp',
-        'training':'trains',
-        'gold':'gold',
-        'trivia':'tp',
-        'practice':'pracs',
-    }
+
+    self.addsetting('preremort', False, bool, 'flag for pre remort')
+    self.addsetting('remortcomp', False, bool, 'flag for remort completion')
+    self.addsetting('tiering', False, bool, 'flag for tiering')
+    self.addsetting('seen2', False, bool, 'we saw a state 2 after tiering')
+
+    exported.watch.add('shloud', {
+            'regex':'^superhero loud$'})
+    exported.watch.add('shsilent', {
+            'regex':'^superhero silent$'})
+    exported.watch.add('shconfirm', {
+            'regex':'^superhero confirm$'})
+    exported.watch.add('shloudconfirm', {
+            'regex':'^superhero loud confirm$'})
+
     self.triggers['lvlpup'] = {
       'regex':"^Congratulations, hero. You have increased your powers!$"}
+    self.triggers['lvlpupbless'] = {
+      'regex':"^You gain a powerup\.$"}
     self.triggers['lvllevel'] = {
       'regex':"^You raise a level! You are now level (?P<level>\d*).$",
+      'argtypes':{'level':int}}
+    self.triggers['lvlsh'] = {
+      'regex':"^Congratulations! You are now a superhero!$",
       'argtypes':{'level':int}}
     self.triggers['lvlbless'] = {
       'regex':"^You gain a level - you are now level (?P<level>\d*).$",
       'argtypes':{'level':int}}
     self.triggers['lvlgains'] = {
-      'regex':"^You gain (?P<hp>\d*) hit points, (?P<mn>\d*) mana, "\
-          "(?P<mv>\d*) moves, (?P<pr>\d*) practices and (?P<tr>\d*) trains.$", 
+      'regex':"^You gain (?P<hp>\d*) hit points, (?P<mp>\d*) mana, "\
+          "(?P<mv>\d*) moves, (?P<pr>\d*) practices and (?P<tr>\d*) trains.$",
             'enabled':False, 'group':'linfo',
-            'argtypes':{'hp':int, 'mn':int, 'mv':int, 'pr':int, 'tr':int}}    
+            'argtypes':{'hp':int, 'mn':int, 'mv':int, 'pr':int, 'tr':int}}
     self.triggers['lvlblesstrain'] = {
       'regex':"^You gain (?P<tr>\d*) extra trains? daily blessing bonus.$",
       'enabled':False, 'group':'linfo',
       'argtypes':{'tr':int}}
     self.triggers['lvlpupgains'] = {
-      'regex':"^You gain (?P<tr>\d*) trains.$", 
+      'regex':"^You gain (?P<tr>\d*) trains.$",
       'enabled':False, 'group':'linfo',
       'argtypes':{'tr':int}}
     self.triggers['lvlbonustrains'] = {
-      'regex':"^Lucky! You gain an extra (?P<tr>\d*) training sessions?!$", 
+      'regex':"^Lucky! You gain an extra (?P<tr>\d*) training sessions?!$",
       'enabled':False, 'group':'linfo',
-      'argtypes':{'tr':int}}      
+      'argtypes':{'tr':int}}
     self.triggers['lvlbonusstat'] = {
-      'regex':"^You gain a bonus (?P<stat>.*) point!$", 
+      'regex':"^You gain a bonus (?P<stat>.*) point!$",
       'enabled':False, 'group':'linfo'}
 
+    self.triggers['lvlshbadstar'] = {
+      'regex':"^%s$" % re.escape("*******************************" \
+              "****************************************"),
+      'enabled':False, 'group':'superhero'}
+    self.triggers['lvlshbad'] = {
+      'regex':"^Use either: 'superhero loud'   - (?P<mins>.*) mins of " \
+              "double xp, (?P<qp>.*)qp and (?P<gold>.*) gold$",
+      'enabled':False, 'group':'superhero'}
+    self.triggers['lvlshnogold'] = {
+      'regex':"^You must be carrying at least 500,000 gold coins.$",
+      'enabled':False, 'group':'superhero'}
+    self.triggers['lvlshnoqp'] = {
+      'regex':"^You must have at least 1000 quest points.$",
+      'enabled':False, 'group':'superhero'}
+
+    self.triggers['lvlpreremort'] = {
+      'regex':"^You are now flagged as remorting.$",
+      'enabled':True, 'group':'remort'}
+    self.triggers['lvlremortcomp'] = {
+      'regex':"^\* Remort transformation complete!$",
+      'enabled':True, 'group':'remort'}
+    self.triggers['lvltier'] = {
+      'regex':"^## You have already remorted the max number of times.$",
+      'enabled':True, 'group':'remort'}
+
     self.events['trigger_lvlpup'] = {'func':self._lvl}
+    self.events['trigger_lvlpupbless'] = {'func':self._lvl}
     self.events['trigger_lvllevel'] = {'func':self._lvl}
     self.events['trigger_lvlbless'] = {'func':self._lvl}
     self.events['trigger_lvlgains'] = {'func':self._lvlgains}
@@ -70,8 +112,85 @@ class Plugin(BasePlugin):
     self.events['trigger_lvlblesstrain'] = {'func':self._lvlblesstrains}
     self.events['trigger_lvlbonustrains'] = {'func':self._lvlbonustrains}
     self.events['trigger_lvlbonusstat'] = {'func':self._lvlbonusstat}
-    
-    
+
+    self.events['trigger_lvlshbadstar'] = {'func':self._superherobad}
+    self.events['trigger_lvlshbad'] = {'func':self._superherobad}
+    self.events['trigger_lvlshnogold'] = {'func':self._superherobad}
+    self.events['trigger_lvlshnoqp'] = {'func':self._superherobad}
+
+    self.events['cmd_shloud'] = {'func':self.cmd_superhero}
+    self.events['cmd_shsilent'] = {'func':self.cmd_superhero}
+    self.events['cmd_shconfirm'] = {'func':self.cmd_superhero}
+    self.events['cmd_shloudconfirm'] = {'func':self.cmd_superhero}
+
+    self.events['trigger_lvlpreremort'] = {'func':self._preremort}
+    self.events['trigger_lvlremortcomp'] = {'func':self._remortcomp}
+    self.events['trigger_lvltier'] = {'func':self._tier}
+
+  def _gmcpstatus(self, _=None):
+    """
+    check gmcp status when tiering
+    """
+    state = exported.GMCP.getv('char.status.state')
+    if state == 2:
+      exported.sendtoclient('seen2')
+      self.variables['seen2'] = True
+      exported.event.unregister('GMCP:char.status', self._gmcpstatus)
+      exported.event.register('GMCP:char.base', self._gmcpbase)
+
+  def _gmcpbase(self, _=None):
+    """
+    look for a new base when we remort
+    """
+    exported.sendtoclient('called char.base')
+    state = exported.GMCP.getv('char.status.state')
+    if self.variables['tiering'] and self.variables['seen2'] and state == 3:
+      exported.sendtoclient('in char.base')
+      exported.event.unregister('GMCP:char.base', self._gmcpstatus)
+      self._lvl({'level':1})
+
+  def _tier(self, _=None):
+    """
+    about to tier
+    """
+    self.variables['tiering'] = True
+    exported.sendtoclient('tiering')
+    exported.event.register('GMCP:char.status', self._gmcpstatus)
+
+  def _remortcomp(self, _=None):
+    """
+    do stuff when a remort is complete
+    """
+    self.variables['preremort'] = False
+    self.variables['remortcomp'] = True
+    self._lvl({'level':1})
+
+  def _preremort(self, _=None):
+    """
+    set the preremort flag
+    """
+    self.variables['preremort'] = True
+    exported.event.eraise('aard_level_preremort', {})
+
+  def cmd_superhero(self, _=None):
+    """
+    figure out what is done when superhero is typed
+    """
+    exported.sendtoclient('superhero was typed')
+    print 'trying to got a sh'
+    exported.trigger.togglegroup('superhero', True)
+    self._lvl({'level':201})
+
+  def _superherobad(self, _=None):
+    """
+    undo things that we typed if we didn't really superhero
+    """
+    exported.sendtoclient('didn\'t sh though')
+    print 'didn\'t sh though'
+    exported.trigger.togglegroup('superhero', False)
+    exported.trigger.togglegroup('linfo', False)
+    exported.event.unregister('trigger_emptyline', self._finish)
+
   def resetlevel(self):
     """
     reset the level info, use the finishtime of the last level as
@@ -99,16 +218,17 @@ class Plugin(BasePlugin):
     self.levelinfo['bonustrains'] = 0
     self.levelinfo['blessingtrains'] = 0
     self.levelinfo['totallevels'] = 0
-    
+
   def _lvl(self, args=None):
     """
     trigger for leveling
-    """   
+    """
     if not args:
       return
-    
+
     self.resetlevel()
-    if args['triggername'] == 'lvlpup':
+    if 'triggername' in args and (args['triggername'] == 'lvlpup' \
+        or args['triggername'] == 'lvlpupbless'):
       self.levelinfo['level'] = exported.GMCP.getv('char.status.level')
       self.levelinfo['totallevels'] = exported.aardu.getactuallevel()
       self.levelinfo['type'] = 'pup'
@@ -117,60 +237,74 @@ class Plugin(BasePlugin):
       self.levelinfo['totallevels'] = exported.aardu.getactuallevel(
                                                             args['level'])
       self.levelinfo['type'] = 'level'
-      if self.levelinfo['level'] == 200:
-        exported.event.eraise('aard_level_hero', {})
-      elif self.levelinfo['level'] == 201:
-        exported.event.eraise('aard_level_superhero', {})
-        
-    self.levelinfo['finishtime'] = time.time()     
-    exported.trigger.togglegroup('linfo', True)  
-    exported.event.register('trigger_emptyline', self._finish)    
-    
-    
+
+    exported.trigger.togglegroup('linfo', True)
+    exported.event.register('trigger_emptyline', self._finish)
+
+
   def _lvlblesstrains(self, args):
     """
     trigger for blessing trains
     """
     self.levelinfo['blessingtrains'] = args['tr']
-    
+
   def _lvlbonustrains(self, args):
     """
     trigger for bonus trains
     """
     self.levelinfo['bonustrains'] = args['tr']
-    
+
   def _lvlbonusstat(self, args):
     """
     trigger for bonus stats
     """
     self.levelinfo[args['stat'][:3].lower()] = 1
-  
+
   def _lvlgains(self, args):
     """
     trigger for level gains
     """
     self.levelinfo['trains'] = args['tr']
-    
+
     if args['triggername'] == "lvlgains":
       self.levelinfo['hp'] = args['hp']
-      self.levelinfo['mn'] = args['mn']
+      self.levelinfo['mp'] = args['mp']
       self.levelinfo['mv'] = args['mv']
       self.levelinfo['pracs'] = args['pr']
-          
+
   def _finish(self, _):
     """
     finish up and raise the level event
     """
+    if self.levelinfo['trains'] == 0 and not (self.variables['remortcomp'] \
+            or self.variables['tiering']):
+      return
+    self.levelinfo['finishtime'] = time.time()
     self.levelinfo.sync()
-    exported.trigger.togglegroup('linfo', False)     
-    exported.event.unregister('trigger_emptyline', self._finish)    
+    exported.trigger.togglegroup('linfo', False)
+    exported.event.unregister('trigger_emptyline', self._finish)
     exported.event.eraise('aard_level_gain', copy.deepcopy(self.levelinfo))
-    
+    if self.levelinfo['level'] == 200:
+      print 'raising hero event'
+      exported.event.eraise('aard_level_hero', {})
+    elif self.levelinfo['level'] == 201:
+      print 'raising sh event'
+      exported.event.eraise('aard_level_superhero', {})
+    elif self.levelinfo['level'] == 1:
+      if self.variables['tiering']:
+        self.variables['tiering'] = False
+        self.variables['seen2'] = False
+        exported.event.eraise('aard_level_tier', {})
+      else:
+        print 'raising remort event'
+        self.variables['remortcomp'] = False
+        exported.event.eraise('aard_level_remort', {})
+
+
   def savestate(self):
     """
     save states
     """
     BasePlugin.savestate(self)
     self.levelinfo.sync()
-    
-    
+

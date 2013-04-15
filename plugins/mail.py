@@ -1,9 +1,8 @@
 """
 $Id$
-
-TODO: test this extensively because of the fork.
 """
-import smtplib, os
+import smtplib
+import os
 from datetime import datetime
 from plugins import BasePlugin
 from libs import exported
@@ -24,11 +23,11 @@ class Plugin(BasePlugin):
   """
   a plugin to send email
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.password = ''
     self.events['client_connected'] = {'func':self.checkpassword}
     self.cmds['password'] = {'func':self.cmd_pw, 'shelp':'set the password'}
@@ -38,15 +37,15 @@ class Plugin(BasePlugin):
     self.exported['send'] = {'func':self.send}
     self.addsetting('server', '', str, 'the smtp server to send mail through')
     self.addsetting('port', '', int, 'the port to use when sending mail')
-    self.addsetting('username', '', str, 'the username to connect as', 
+    self.addsetting('username', '', str, 'the username to connect as',
                   nocolor=True)
-    self.addsetting('to', '', str, 'the address to send mail to', 
+    self.addsetting('to', '', str, 'the address to send mail to',
                   nocolor=True)
-    self.addsetting('from', '', str, 'the address to send mail from', 
+    self.addsetting('from', '', str, 'the address to send mail from',
                   nocolor=True)
-    self.addsetting('ssl', '', bool, 
+    self.addsetting('ssl', '', bool,
                           'set this to True if the connection will use ssl')
-    
+
   def check(self):
     """
     check to make sure all data need to send mail is available
@@ -58,15 +57,15 @@ class Plugin(BasePlugin):
        not self.variables['from'] or \
        not self.variables['to']:
       return False
-    
+
     return True
-    
+
   def send(self, subject, msg, mailto=None):
     """
     send an email
       argument 1: the name of the event
       argument 2: the argument list
-    """    
+    """
     if self.check():
       senddate = datetime.strftime(datetime.now(), '%Y-%m-%d')
       if not mailto:
@@ -77,12 +76,12 @@ To: %s
 Subject: %s
 X-Mailer: My-Mail
 
-%s""" % (senddate, 
+%s""" % (senddate,
           self.variables['from'], mailto, subject, msg)
       try:
         pid = os.fork()
         if pid == 0:
-          server = '%s:%s' % (self.variables['server'], 
+          server = '%s:%s' % (self.variables['server'],
                                     self.variables['port'])
           server = smtplib.SMTP(server)
           if 'ssl' in self.variables and self.variables['ssl']:
@@ -99,7 +98,7 @@ X-Mailer: My-Mail
         server.login(self.variables['username'], self.password)
         server.sendmail(self.variables['from'], mailto, mhead)
         server.quit()
-      
+
   def checkpassword(self, _):
     """
     check the password
@@ -109,19 +108,19 @@ X-Mailer: My-Mail
         exported.sendtoclient(
                       '@CPlease set the email password for account: @M%s@w' \
                              % self.variables['username'].replace('@', '@@'))
-        
+
   def cmd_pw(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
     Set the password for the smtp server
     @CUsage@w: pw @Y<password>@w
       @Ypassword@w    = the password for the smtp server
-    """    
+    """
     if len(args) == 1:
       self.password = args[0]
       return True, ['Password is set']
-    
-  def cmd_check(self, args):
+
+  def cmd_check(self, _=None):
     """
     check for all settings to be correct
     """
@@ -153,7 +152,7 @@ X-Mailer: My-Mail
     BasePlugin.load(self)
     if self.variables['username'] != '':
       exported.sendtoclient('Please set the mail password')
-      
+
   def cmd_test(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
@@ -161,17 +160,16 @@ X-Mailer: My-Mail
     @CUsage@w: test @YSubject@x @Ymessage@x
       @Ysubject@w    = the subject of the email
       @Ymessage@w    = the message to put in the email
-    """      
+    """
     if len(args) == 2:
       subject = args[0]
       msg = args[1]
       if self.check():
         self.send(subject, msg)
-        return True, ['Attempted to send test message', 
+        return True, ['Attempted to send test message',
                                 'Please check your email']
       else:
         msg = []
         msg.append('There is not enough information to send mail')
         msg.append('Please check all info')
         return True, msg
-    

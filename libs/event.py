@@ -1,13 +1,17 @@
 """
 $Id$
 
-TODO: add the ability to specify a specific time for a timer
-          Ex: goes off at 0000 or 1600 or 930
+#TODO: add cmd to show stats
+  number of triggers, aliases, events, etc..
+#TODO: add cmd to show info for specific timers, triggers, etc..
+#TODO: triggers need to also be able to check colors
 """
 import time
+import datetime
 import re
 from libs import exported
 from libs.timing import timeit
+from libs.utils import secondstodhms
 
 class Event:
   """
@@ -39,30 +43,65 @@ class TimerEvent(Event):
   def __init__(self, name, args):
     """
     init the class
+
+    time should be military time, "1430"
+
     """
     Event.__init__(self, name)
     self.func = args['func']
     self.seconds = args['seconds']
     self.onetime = False
+
+    if 'seconds' in args:
+      self.seconds = int(args['seconds'])
+    else:
+      self.seconds = 60*60*24
+
+    if 'time' in args:
+      self.time = args['time']
+    else:
+      self.time = None
+
+    self.nextcall = self.getnext()
+
     if 'onetime' in args:
       self.onetime = args['onetime']
-    self.nextcall = int(time.time()) + self.seconds
     self.enabled = True
     if 'enabled' in args:
       self.enabled = args['enabled']
 
-  def execute(self):
+  def getnext(self):
     """
-    execute the event
+    get the next time to call this timer
     """
-    #exported.msg('timer %s fired' % self.name)
-    Event.execute(self)
-    
+    if self.time:
+      now = datetime.datetime(2012, 1, 1)
+      now = now.now()
+      ttime = time.strptime(self.time, '%H%M')
+      tnext = now.replace(hour=ttime.tm_hour, minute=ttime.tm_min, second=0)
+      diff = tnext - now
+      while diff.days < 0:
+        tstuff = secondstodhms(self.seconds)
+        tnext = tnext + datetime.timedelta(days=tstuff['days'],
+                                          hours=tstuff['hours'],
+                                          minutes=tstuff['mins'],
+                                          seconds=tstuff['secs'])
+        diff = tnext - now
+
+      nextt = time.mktime(tnext.timetuple())
+
+    else:
+      nextt = int(time.time()) + self.seconds
+
+    return nextt
+
+
   def timerstring(self):
     """
     return a string representation of the timer
     """
-    return '%s : %d : %s' % (self.name, self.seconds, self.enabled)
+    return '%s : %d : %s : %d' % (self.name, self.seconds,
+                                  self.enabled, self.nextcall)
 
 
 class EventMgr:
@@ -78,20 +117,20 @@ class EventMgr:
     self.regexlookup = {}
     self.events = {}
     self.timerevents = {}
-    self.watchcmds = {}    
+    self.watchcmds = {}
     self.timerlookup = {}
     self.triggergroups = {}
     self.lasttime = int(time.time())
     self.registerevent('from_mud_event', self.checktrigger, 1)
     self.registerevent('from_client_event', self.checkcmd)
     exported.msg('lasttime:  %s' % self.lasttime, 'events')
-    
+
     exported.add(self.addtrigger, 'trigger', 'add')
     exported.add(self.removetrigger, 'trigger', 'remove')
     exported.add(self.toggletrigger, 'trigger', 'toggle')
     exported.add(self.toggletriggergroup, 'trigger', 'togglegroup')
     exported.add(self.toggletriggeromit, 'trigger', 'toggleomit')
-    
+
     exported.add(self.registerevent, 'event', 'register')
     exported.add(self.unregisterevent, 'event', 'unregister')
     exported.add(self.raiseevent, 'event', 'eraise')
@@ -100,7 +139,7 @@ class EventMgr:
     exported.add(self.removetimer, 'timer', 'remove')
     exported.add(self.toggletimer, 'timer', 'toggle')
 
-    exported.add(self.addwatch, 'watch', 'add')    
+    exported.add(self.addwatch, 'watch', 'add')
     exported.add(self.removewatch, 'watch', 'remove')
 
   def addwatch(self, cmdname, args):
@@ -114,7 +153,7 @@ class EventMgr:
       exported.msg(
           'cmdwatch %s tried to add a regex that already existed for %s' % \
                       (cmdname, self.regexlookup[args['regex']]), 'cmds')
-      return    
+      return
     try:
       self.watchcmds[cmdname] = args
       self.watchcmds[cmdname]['compiled'] = re.compile(args['regex'])
@@ -122,7 +161,7 @@ class EventMgr:
     except:
       exported.write_traceback(
           'Could not compile regex for cmd watch: %s : %s' % \
-                (cmdname, args['regex']))    
+                (cmdname, args['regex']))
 
   def removewatch(self, cmdname):
     """
@@ -142,12 +181,14 @@ class EventMgr:
     for i in self.watchcmds:
       cmdre = self.watchcmds[i]['compiled']
       mat = cmdre.match(tdat)
-      if mat:          
+      if mat:
         targs = mat.groupdict()
+        targs['cmdname'] = 'cmd_' + i
+        exported.msg('raising %s' % targs['cmdname'], 'cmds')
         tdata = exported.event.eraise('cmd_' + i, targs)
         if 'changed' in tdata:
           data['nfromdata'] = tdata['changed']
-        
+
     if 'nfromdata' in data:
       data['fromdata'] = data['nfromdata']
     return data
@@ -162,7 +203,7 @@ class EventMgr:
       omit: (optional) whether to omit the line, default is False
     """
     if not ('regex' in args):
-      exported.msg('trigger %s has no regex, not adding' % triggername, 
+      exported.msg('trigger %s has no regex, not adding' % triggername,
                             'events')
       return
     if args['regex'] in self.regexlookup:
@@ -190,7 +231,7 @@ class EventMgr:
       exported.write_traceback(
               'Could not compile regex for trigger: %s : %s' % \
                       (triggername, args['regex']))
-      
+
   def removetrigger(self, triggername):
     """
     remove a trigger
@@ -215,32 +256,32 @@ class EventMgr:
   def toggletriggeromit(self, triggername, flag):
     """
     toggle a trigger
-    """    
+    """
     if triggername in self.triggers:
       self.triggers[triggername]['omit'] = flag
     else:
       exported.msg('toggletriggeromit: trigger %s does not exist' % \
                         triggername, 'events')
-      
+
   def toggletriggergroup(self, triggroup, flag):
     """
     toggle a trigger group
-    """    
+    """
     exported.msg('toggletriggergroup: %s to %s' % (triggroup, flag), 'events')
     if triggroup in self.triggergroups:
       for i in self.triggergroups[triggroup]:
         self.toggletrigger(i, flag)
-     
+
   @timeit
   def checktrigger(self, args):
     """
     check a line of text from the mud
     the is called whenever the from_mud_event is raised
-    """    
+    """
     data = args['nocolordata']
     if data == '':
-      self.raiseevent('trigger_emptyline', 
-                          {'line':'', 'triggername':'emptyline'})      
+      self.raiseevent('trigger_emptyline',
+                          {'line':'', 'triggername':'emptyline'})
     else:
       for i in self.triggers:
         if self.triggers[i]['enabled']:
@@ -258,13 +299,13 @@ class EventMgr:
             if self.triggers[i]['omit']:
               args['fromdata'] = ''
 
-    self.raiseevent('trigger_all', 
-                        {'line':data, 'triggername':'all'})      
-       
-       
-          
+    self.raiseevent('trigger_all',
+                        {'line':data, 'triggername':'all'})
+
+
+
     return args
-        
+
   def registerevent(self, eventname, func, prio=50):
     """
     register a function with an event
@@ -328,13 +369,13 @@ class EventMgr:
       return
     if not ('func' in args):
       exported.msg('timer %s has no function, not adding' % name, 'events')
-      return      
-      
+      return
+
     if 'nodupe' in args and args['nodupe']:
       if name in self.timerlookup:
         exported.msg('trying to add duplicate timer: %s' % name)
         return
-      
+
     tevent = TimerEvent(name, args)
     exported.msg('adding', tevent)
     self._addtimer(tevent)
@@ -343,7 +384,7 @@ class EventMgr:
   def removetimer(self, name):
     """
     remove a timer
-    """    
+    """
     try:
       tevent = self.timerlookup[name]
       if tevent:
@@ -357,14 +398,14 @@ class EventMgr:
   def toggletimer(self, name, flag):
     """
     toggle a timer
-    """    
+    """
     if name in self.timerlookup:
       self.timerlookup[name].enabled = flag
 
   def _addtimer(self, timer):
     """
     internally add a timer
-    """    
+    """
     nexttime = timer.nextcall
     if not (nexttime in self.timerevents):
       self.timerevents[nexttime] = []
@@ -374,11 +415,10 @@ class EventMgr:
   def checktimerevents(self):
     """
     check all timers
-    """        
+    """
     ntime = int(time.time())
     if ntime - self.lasttime > 1:
       exported.msg('timer had to check multiple seconds', 'events')
-    #exported.msg('checking timers', self.lasttime, ntime)
     for i in range(self.lasttime + 1, ntime + 1):
       if i in self.timerevents and len(self.timerevents[i]) > 0:
         for timer in self.timerevents[i]:
@@ -402,16 +442,15 @@ class EventMgr:
   def load(self):
     """
     load the module
-    """    
+    """
     exported.LOGGER.adddtype(self.sname)
     exported.LOGGER.cmd_console(self.sname)
 
   def unload(self):
     """
     unload the module
-    """    
+    """
     exported.remove('event')
     exported.remove('trigger')
     exported.remove('timer')
 
-  

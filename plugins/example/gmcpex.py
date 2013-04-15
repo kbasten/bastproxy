@@ -17,15 +17,14 @@ class Plugin(BasePlugin):
   """
   a plugin to show gmcp usage
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc) 
-    self.events.append({'event':'GMCP', 'func':self.test})
-    self.events.append({'event':'GMCP:char', 'func':self.testchar})
-    self.events.append({'event':'GMCP:char.status', 
-                                'func':self.testcharstatus})
+    BasePlugin.__init__(self, *args, **kwargs) 
+    self.events['GMCP'] = {'func':self.test}
+    self.events['GMCP:char'] = {'func':self.testchar}
+    self.events['GMCP:char.status'] = {'func':self.testcharstatus}
     self.cmds['get'] = {'func':self.cmd_get, 
                         'shelp':'print what is in the gmcp cache'}
     self.defaultcmd = 'get'

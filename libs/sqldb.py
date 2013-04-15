@@ -4,11 +4,14 @@ $Id$
 import sqlite3
 import os
 import shutil
+import inspect
+import time
 
 from libs import exported
 exported.LOGGER.adddtype('sqlite')
 exported.LOGGER.cmd_file(['sqlite'])
 exported.LOGGER.cmd_console(['sqlite'])
+
 
 def dict_factory(cursor, row):
   """
@@ -33,25 +36,24 @@ def fixsql(tstr, like=False):
     return 'NULL'
   
 
-class Sqldb:
+class Sqldb(object):
   """
   a class to manage sqlite3 databases
   """
-  def __init__(self, dbname=None, dbdir=None):
+  def __init__(self, plugin, dbname=None, dbdir=None):
     """
     initialize the class
     """
-    self.dbname = dbname or "\\sqlite.sqlite"
+    self.dbconn = None
+    self.plugin = plugin
+    self.dbname = dbname or "db"
+    self.backupform = '%s_%%s.sqlite' % self.dbname
     self.dbdir = dbdir or os.path.join(exported.BASEPATH, 'data', 'db')
     try:
       os.makedirs(self.dbdir)
     except OSError:
       pass
-    self.dbfile = os.path.join(self.dbdir, self.dbname)
-    self.dbconn = sqlite3.connect(self.dbfile)
-    self.dbconn.row_factory = dict_factory
-    # only return byte strings so is easier to send to a client or the mud
-    self.dbconn.text_factory = str
+    self.dbfile = os.path.join(self.dbdir, self.dbname + '.sqlite')
     self.turnonpragmas()    
     self.conns = 0
     self.version = 1
@@ -59,10 +61,97 @@ class Sqldb:
     self.tableids = {}
     self.tables = {}
 
+  def close(self):
+    """
+    close the database
+    """
+    exported.msg('close: called by - %s' % inspect.stack()[1][3], 'sqlite')
+    try:
+      self.dbconn.close()
+    except:
+      pass
+    self.dbconn = None
+    
+  def open(self):
+    """
+    open the database
+    """
+    funcname = inspect.stack()[1][3]
+    if funcname == '__getattribute__':
+      funcname = inspect.stack()[2][3]
+    exported.msg('open: called by - %s' % funcname, 'sqlite')
+    self.dbconn = sqlite3.connect(self.dbfile)    
+    self.dbconn.row_factory = dict_factory
+    # only return byte strings so is easier to send to a client or the mud
+    self.dbconn.text_factory = str
+      
+  def __getattribute__(self, name):
+    """
+    override getattribute to make sure the database is open
+    """
+    badfuncs = ['open']
+    attr = object.__getattribute__(self, name)
+    if inspect.ismethod(attr) and name[0] != '_' and \
+            not (name in badfuncs):
+      if not self.dbconn:
+        self.open()
+    return attr
+
+  def addcmds(self):
+    """
+    add commands to the plugin to use the database
+    """
+    self.plugin.cmds['dbbackup'] = {'func':self.cmd_backup, 
+              'shelp':'backup the database'}  
+    self.plugin.cmds['dbclose'] = {'func':self.cmd_close, 
+              'shelp':'close the database'}  
+    self.plugin.cmds['dbvac'] = {'func':self.cmd_vac, 
+              'shelp':'vacuum the database'}                
+
+  def cmd_vac(self, _):
+    """
+    vacuum the database
+    """
+    msg = []
+    self.dbcomm.execute('VACUUM')
+    msg.append('Database Vacuumed')
+    return True, msg
+              
+  def cmd_close(self, _):
+    """
+    backup the database
+    """
+    msg = []
+    self.close()
+    msg.append('Database %s was closed' % (self.dbname))
+      
+    return True, msg
+              
+  def cmd_backup(self, args):
+    """
+    backup the database
+    """
+    msg = []
+    if args:
+      name = args[0]
+    else:
+      name = time.strftime('%a-%b-%d-%Y-%H-%M', time.localtime())
+
+    newname = self.backupform % name
+    if self.backupdb(name):
+      msg.append('backed up %s with name %s' % (self.dbname, 
+                    newname))
+    else:
+      msg.append('could not back up %s with name %s' % (self.dbname, 
+                    newname))
+      
+    return True, msg
+                
   def postinit(self):
     """
     do post init stuff, checks and upgrades the database, creates tables
     """
+    self.addcmds()
     self.checkversion()
     
     for i in self.tables:
@@ -229,7 +318,7 @@ class Sqldb:
     """
     exported.msg('updating %s from version %s to %s' % (self.dbfile, 
                                             oldversion, newversion), 'sqlite')
-    #self.backupdb('v%s' % oldversion)
+    self.backupdb(oldversion)
     for i in range(oldversion + 1, newversion + 1):
       try:
         self.versionfuncs[i]()
@@ -283,9 +372,11 @@ class Sqldb:
     colid = self.tables[ttable]['keyfield']
     tstring = ''
     if where:
-      tstring = "SELECT * FROM %s WHERE %s ORDER by %s desc limit %d" % (ttable, where, colid, num)
+      tstring = "SELECT * FROM %s WHERE %s ORDER by %s desc limit %d" % \
+                        (ttable, where, colid, num)
     else:
-      tstring = "SELECT * FROM %s ORDER by %s desc limit %d" % (ttable, colid, num)
+      tstring = "SELECT * FROM %s ORDER by %s desc limit %d" % \
+                        (ttable, colid, num)
       
     results = self.runselect(tstring)
     
@@ -303,12 +394,13 @@ class Sqldb:
     
     return last
 
-  def backupdb(self, name):
+  def backupdb(self, postname):
     """
     backup the database
     """
-    exported.msg('backing up database', 'sqlite')
-    integrity = True
+    success = False
+    exported.msg('backing up database %s' % self.dbname, 'sqlite')
+    integrity = True    
     cur = self.dbconn.cursor()
     cur.execute('PRAGMA integrity_check')
     ret = cur.fetchone()
@@ -318,17 +410,19 @@ class Sqldb:
     if not integrity:
       exported.msg('Integrity check failed, aborting backup', 'sqlite')
       return
-    self.dbconn.close()
+    self.close()
     try:
       os.makedirs(os.path.join(self.dbdir, 'backup'))
     except OSError:
       pass
-    backupfile = os.path.join(self.dbdir, 'backup', self.dbname + '.' + name)
+    backupfile = os.path.join(self.dbdir, 'backup', 
+                                self.backupform % postname)
     try:
       shutil.copy(self.dbfile, backupfile)
       exported.msg('%s was backed up to %s' % (self.dbfile, backupfile), 
                                           'sqlite')
+      success = True
     except IOError:
-      exported.msg('backup failed, could not copy file', 'sqlite')      
-    self.dbconn = sqlite3.connect(self.dbfile)
-    
+      exported.msg('backup failed, could not copy file', 'sqlite') 
+      
+    return success

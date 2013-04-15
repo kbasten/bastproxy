@@ -18,11 +18,11 @@ class Plugin(BasePlugin):
   """
   a plugins to show colors
   """
-  def __init__(self, name, sname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, name, sname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.cmds['show'] = {'func':self.show, 'shelp':'Show colors'}
     self.cmds['example'] = {'func':self.example, 'shelp':'Show colors'}
     

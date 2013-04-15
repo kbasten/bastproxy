@@ -1,6 +1,8 @@
 """
 $Id$
 
+#BUG: errors when decoding ansi data when rawcolors is off
+
 This module handles all things GMCP
 
 SERVER handles all GMCP communication to and from the MUD
@@ -18,7 +20,7 @@ The args for the event will look like
  'module': 'char.base'}
 
 It adds the following functions to exported
-#TODO Test These
+
 gmcp.get(module) - get data that is in cache for the specified gmcp module
 gmcp.sendpacket(what) - send a gmcp packet to 
                 the mud with the specified contents
@@ -48,7 +50,7 @@ VERSION = 1
 AUTOLOAD = True
 
     
-#IAC SB GMCP <atcp message text> IAC SE
+#IAC SB GMCP <gmcp message text> IAC SE
 def gmcpsendpacket(what):
   """
   send a gmcp packet
@@ -96,7 +98,8 @@ class SERVER(TelnetOption):
       try:
         import json
         newdata = json.loads(data.decode('utf-8','ignore'), object_hook=convert)
-      except UnicodeDecodeError:
+      except (UnicodeDecodeError, ValueError) as e:
+        newdata = {}
         exported.write_traceback('Could not decode: %s' % data)
       self.telnetobj.msg(modname, data, level=2, mtype='GMCP')
       self.telnetobj.msg(type(newdata), newdata, level=2, mtype='GMCP')
@@ -144,7 +147,7 @@ class Plugin(BasePlugin):
   """
   a plugin to handle external gmcp actions
   """
-  def __init__(self, tname, tsname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     Iniitialize the class
     
@@ -155,9 +158,10 @@ class Plugin(BasePlugin):
     self.gmcpmodqueue - the queue of gmcp modules that were enabled by 
               the client before connected to the server
     """
-    BasePlugin.__init__(self, tname, tsname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
     self.exported['getv'] = {'func':self.gmcpget}
     self.exported['togglemodule'] = {'func':self.gmcptogglemodule}
+    self.exported['sendmodule'] = {'func':self.sendmoduletoclients}
     self.exported['sendpacket'] = {'func':gmcpsendpacket}
     self.events['GMCP_raw'] = {'func':self.gmcpfromserver}
     self.events['GMCP_from_client'] = {'func':self.gmcpfromclient}
@@ -222,6 +226,19 @@ class Plugin(BasePlugin):
       
     return currenttable
     
+  def sendmoduletoclients(self, modname):
+    """
+    send a gmcp module
+    """
+    data = self.gmcpget(modname)
+    if data:
+      import json
+      tdata = json.dumps(data)
+      tpack = '%s %s' % (modname, tdata)
+      exported.event.eraise('to_client_event', {'todata':'%s%s%s%s%s%s' % \
+              (IAC, SB, GMCP, tpack.replace(IAC, IAC+IAC), IAC, SE), 
+              'raw':True, 'dtype':GMCP})
+    
   def gmcpfromserver(self, args):
     """
     handle gmcp data from the server
@@ -269,6 +286,7 @@ class Plugin(BasePlugin):
     if not self.reconnecting:
       for i in self.gmcpmodqueue:
         self.gmcptogglemodule(i['modname'], i['toggle'])
+      self.gmcpmodqueue = []
     else:
       self.reconnecting = False
       for i in self.modstates:
@@ -279,12 +297,14 @@ class Plugin(BasePlugin):
           gmcpsendpacket(cmd)        
         
     for i in self.gmcpqueue:
-      gmcpsendpacket(i)    
+      gmcpsendpacket(i)
+    self.gmcpqueue = []
   
   def gmcpfromclient(self, args):
     """
     handle gmcp data from the client
     """
+    #print 'gmcpfromclient', args
     data = args['data']
     if 'core.supports.set' in data.lower():
       mods = data[data.find("[")+1:data.find("]")].split(',')
@@ -301,9 +321,14 @@ class Plugin(BasePlugin):
           self.gmcpmodqueue.append({'modname':modname, 'toggle':toggle})
         else:
           self.gmcptogglemodule(modname, toggle)
+    elif 'rawcolor' in data.lower() or 'group' in data.lower():
+      #we only support rawcolor on right now, the json parser doesn't like
+      #ascii codes, we also turn on group and leave it on
+      return          
     else:
       if not exported.CONNECTED:
-        self.gmcpqueue.append(data)
+        if not (data in self.gmcpqueue):
+          self.gmcpqueue.append(data)
       else:
         gmcpsendpacket(data)  
    
