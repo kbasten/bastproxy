@@ -284,19 +284,20 @@ class Plugin(BasePlugin):
     exported.trigger.togglegroup('linfo', False)
     exported.event.unregister('trigger_emptyline', self._finish)
     exported.event.eraise('aard_level_gain', copy.deepcopy(self.levelinfo))
-    if self.levelinfo['level'] == 200:
-      print 'raising hero event'
+    if self.levelinfo['level'] == 200 and self.levelinfo['type'] == 'level':
+      exported.msg('raising hero event', 'level')
       exported.event.eraise('aard_level_hero', {})
-    elif self.levelinfo['level'] == 201:
-      print 'raising sh event'
+    elif self.levelinfo['level'] == 201 and self.levelinfo['type'] == 'level':
+      exported.msg('raising superhero event', 'level')
       exported.event.eraise('aard_level_superhero', {})
     elif self.levelinfo['level'] == 1:
       if self.variables['tiering']:
+        exported.msg('raising tier event', 'level')
         self.variables['tiering'] = False
         self.variables['seen2'] = False
         exported.event.eraise('aard_level_tier', {})
       else:
-        print 'raising remort event'
+        exported.msg('raising remort event', 'level')
         self.variables['remortcomp'] = False
         exported.event.eraise('aard_level_remort', {})
 
