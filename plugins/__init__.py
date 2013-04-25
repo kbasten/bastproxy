@@ -31,8 +31,9 @@ class PersistentDictEvent(PersistentDict):
     key = convert(key)
     val = convert(val)
     dict.__setitem__(self, key, val)
-    eventname = '%s_%s' % (self.plugin, key)
-    exported.event.eraise(eventname, {'var':key,
+    eventname = '%s_%s' % (self.plugin.sname, key)
+    if not self.plugin.resetflag:
+      exported.event.eraise(eventname, {'var':key,
                                         'newvalue':val})
 
 
@@ -81,6 +82,7 @@ class BasePlugin:
     self.sname = sname
     self.dependencies = []
     self.canreload = True
+    self.resetflag = False
     self.savedir = os.path.join(exported.BASEPATH, 'data',
                                       'plugins', self.sname)
     try:
@@ -95,7 +97,7 @@ class BasePlugin:
 
     self.cmds = {}
     self.defaultcmd = ''
-    self.variables = PersistentDictEvent(self.sname, self.savefile,
+    self.variables = PersistentDictEvent(self, self.savefile,
                             'c', format='json')
     self.settings = {}
     self.events = {}
@@ -107,6 +109,7 @@ class BasePlugin:
     exported.LOGGER.adddtype(self.sname)
     self.cmds['set'] = {'func':self.cmd_set, 'shelp':'Show/Set Variables'}
     self.cmds['reset'] = {'func':self.cmd_reset, 'shelp':'reset the plugin'}
+    exported.event.register('firstactive', self.firstactive)
 
   def load(self):
     """
@@ -145,6 +148,11 @@ class BasePlugin:
     if len(self.exported) > 0:
       for i in self.exported:
         exported.add(self.exported[i]['func'], self.sname, i)
+
+    if exported.PROXY and exported.PROXY.connected:
+      if exported.aardu.firstactive():
+        exported.event.unregister('firstactive', self.firstactive)
+        self.firstactive()
 
   def unload(self):
     """
@@ -201,20 +209,27 @@ class BasePlugin:
       var = args[0]
       val = args[1]
       if var in self.settings:
-        try:
-          val = verify(val, self.settings[var]['stype'])
-          self.variables[var] = val
-          self.variables.sync()
-          tvar = self.variables[var]
-          if self.settings[var]['nocolor']:
-            tvar = tvar.replace('@', '@@')
-          elif self.settings[var]['stype'] == 'color':
-            tvar = '%s%s@w' % (val, val.replace('@', '@@'))
-          return True, ['set %s to %s' % (var, tvar)]
-        except ValueError:
-          msg = ['Cannot convert %s to %s' % \
-                                  (val, self.settings[var]['stype'])]
-          return True, msg
+        if 'readonly' in self.settings[var] \
+              and self.settings[var]['readonly']:
+          return True, ['%s is a readonly setting' % var]
+        else:
+          if val == 'default':
+            val = self.settings[var]['default']
+          try:
+            val = verify(val, self.settings[var]['stype'])
+            self.variables[var] = val
+            self.variables.sync()
+            tvar = self.variables[var]
+            if self.settings[var]['nocolor']:
+              tvar = tvar.replace('@', '@@')
+            elif self.settings[var]['stype'] == 'color':
+              tvar = '%s%s@w' % (val, val.replace('@', '@@'))
+            return True, ['set %s to %s' % (var, tvar)]
+          except ValueError:
+            msg = ['Cannot convert %s to %s' % \
+                                    (val, self.settings[var]['stype'])]
+            return True, msg
+        return True, self.listvars()
     return False, {}
 
   def listvars(self):
@@ -235,14 +250,22 @@ class BasePlugin:
         tmsg.append(tform % (i, val, self.settings[i]['help']))
     return tmsg
 
-  def addsetting(self, name, default, stype, shelp, nocolor=False):
+  def addsetting(self, name, default, stype, shelp, **kwargs):
     """
     add a setting
     """
+    if 'nocolor' in kwargs:
+      nocolor = kwargs['nocolor']
+    else:
+      nocolor = False
+    if 'readonly' in kwargs:
+      readonly = kwargs['readonly']
+    else:
+      readonly = False
     if not (name in self.variables):
       self.variables[name] = default
     self.settings[name] = {'default':default, 'help':shelp,
-                  'stype':stype, 'nocolor':nocolor}
+                  'stype':stype, 'nocolor':nocolor, 'readonly':readonly}
 
   def cmd_reset(self, _=None):
     """
@@ -257,10 +280,18 @@ class BasePlugin:
     """
     internal function to reset data
     """
+    self.resetflag = True
     self.variables.clear()
     for i in self.settings:
       self.variables[i] = self.settings[i]['default']
     self.variables.sync()
+    self.resetflag = False
+
+  def firstactive(self, _=None):
+    """
+    if we are connected do
+    """
+    exported.event.unregister('firstactive', self.firstactive)
 
 
 class PluginMgr:

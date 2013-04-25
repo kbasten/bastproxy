@@ -1,5 +1,6 @@
 """
 $Id$
+#TODO: add % of total damage to each damtype
 """
 from libs import exported
 from libs import utils

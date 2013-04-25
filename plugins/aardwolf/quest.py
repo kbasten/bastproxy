@@ -1,21 +1,5 @@
 """
 $Id$
-
-#BP: quest: {'eventname': 'GMCP:comm.quest', 'data': {u'action': u'ready'}, 
-    'module': 'comm.quest', 
-    'server': <libs.net.proxy.Proxy connected aardmud.org:4000 at 0xb689f530>}
-#BP: quest: {'eventname': 'GMCP:comm.quest', 'data': {u'action': u'start', 
-    u'targ': u'A Blood Ring soldier', u'room': u'In the village', 
-    u'timer': 55, u'area': u'The Desert Prison'}, 'module': 'comm.quest', 
-    'server': <libs.net.proxy.Proxy connected aardmud.org:4000 at 0xb689f530>}
-#BP: quest: {'eventname': 'GMCP:comm.quest', 'data': {u'action': u'killed', 
-    u'time': 55}, 'module': 'comm.quest', 
-    'server': <libs.net.proxy.Proxy connected aardmud.org:4000 at 0xb689f530>}
-#BP: quest: {'eventname': 'GMCP:comm.quest', 'data': {u'qp': 11, u'mccp': 2, 
-    u'gold': 3430, u'double': 0, u'completed': 14867, u'totqp': 14, 
-    u'lucky': 0, u'tp': 0, u'pracs': 0, u'daily': 0, u'trains': 0, 
-    u'action': u'comp', u'tierqp': 1, u'wait': 30}, 'module': 'comm.quest', 
-    'server': <libs.net.proxy.Proxy connected aardmud.org:4000 at 0xb689f530>}
 """
 import time
 import copy
@@ -35,17 +19,17 @@ AUTOLOAD = False
 class Plugin(BasePlugin):
   """
   a plugin to handle aardwolf quest events
-  """  
+  """
   def __init__(self, *args, **kwargs):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs) 
+    BasePlugin.__init__(self, *args, **kwargs)
     self.savequestfile = os.path.join(self.savedir, 'quest.txt')
-    self.queststuff = PersistentDict(self.savequestfile, 'c', format='json')    
-    self.dependencies.append('aardu')    
+    self.queststuff = PersistentDict(self.savequestfile, 'c', format='json')
+    self.dependencies.append('aardu')
     self.events['GMCP:comm.quest'] = {'func':self.quest}
-    
+
   def resetquest(self):
     """
     reset the quest info
@@ -69,8 +53,8 @@ class Plugin(BasePlugin):
                             exported.GMCP.getv('char.status.level'))
     self.queststuff['trains'] = 0
     self.queststuff['pracs'] = 0
-    self.queststuff['failed'] = 0    
-    
+    self.queststuff['failed'] = 0
+
   def quest(self, args):
     """
     process the quest event
@@ -104,9 +88,9 @@ class Plugin(BasePlugin):
       self.queststuff['gold'] = questi['gold']
       exported.event.eraise('aard_quest_comp', copy.deepcopy(self.queststuff))
     elif questi['action'] == 'fail':
-      self.queststuff['finishtime'] = time.time()   
+      self.queststuff['finishtime'] = time.time()
       self.queststuff['failed'] = 1
-      exported.event.eraise('aard_quest_failed', 
+      exported.event.eraise('aard_quest_failed',
                               copy.deepcopy(self.queststuff))
     elif questi['action'] == 'status':
       exported.event.eraise('aard_quest_status', questi)
@@ -116,12 +100,12 @@ class Plugin(BasePlugin):
       #update_timer()
       exported.event.eraise('aard_quest_reset', {})
     self.queststuff.sync()
-    
+
   def savestate(self):
     """
     save states
     """
     BasePlugin.savestate(self)
-    self.queststuff.sync()    
-      
+    self.queststuff.sync()
+
 

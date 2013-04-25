@@ -10,6 +10,20 @@ import shutil
 from libs.utils import convert
 #from libs import exported
 
+def convertkeystoint(tdict):
+  new = {}
+  for i in tdict:
+    nkey = i
+    try:
+      nkey = int(i)
+    except ValueError:
+      pass
+    ndata = tdict[i]
+    if isinstance(tdict[i], dict):
+      ndata = convertkeystoint(tdict[i])
+    new[nkey] = ndata
+  return new
+
 class PersistentDict(dict):
   ''' Persistent dictionary with an API compatible with shelve and anydbm.
 
@@ -104,14 +118,16 @@ class PersistentDict(dict):
       fileobj.seek(0)
       try:
         if loader == json.load:
-          return self.update(loader(fileobj, object_hook=convert))
+          tstuff = loader(fileobj, object_hook=convert)
+          nstuff = convertkeystoint(tstuff)
+          return self.update(nstuff)
         else:
           return self.update(loader(fileobj))
       except:
         #if not ('log' in self.filename):
-          #exported.write_traceback("Error when loading %s" % loader)
+        #  exported.write_traceback("Error when loading %s" % loader)
         #else:
-          #pass
+        #  pass
         pass
     raise ValueError('File not in a supported format')
 

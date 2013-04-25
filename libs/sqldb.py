@@ -1,5 +1,9 @@
 """
 $Id$
+
+#TODO: load the db into memory and then when adding something, fork and save
+  it to disk?
+  
 """
 import sqlite3
 import os
@@ -22,7 +26,7 @@ def dict_factory(cursor, row):
     tdict[col[0]] = row[idx]
   return tdict
 
-  
+
 def fixsql(tstr, like=False):
   """
   Fix quotes in a item that will be passed into a sql statement
@@ -34,7 +38,7 @@ def fixsql(tstr, like=False):
       return "'" + tstr.replace("'", "''") + "'"
   else:
     return 'NULL'
-  
+
 
 class Sqldb(object):
   """
@@ -54,7 +58,7 @@ class Sqldb(object):
     except OSError:
       pass
     self.dbfile = os.path.join(self.dbdir, self.dbname + '.sqlite')
-    self.turnonpragmas()    
+    self.turnonpragmas()
     self.conns = 0
     self.version = 1
     self.versionfuncs = {}
@@ -71,7 +75,7 @@ class Sqldb(object):
     except:
       pass
     self.dbconn = None
-    
+
   def open(self):
     """
     open the database
@@ -80,11 +84,11 @@ class Sqldb(object):
     if funcname == '__getattribute__':
       funcname = inspect.stack()[2][3]
     exported.msg('open: called by - %s' % funcname, 'sqlite')
-    self.dbconn = sqlite3.connect(self.dbfile)    
+    self.dbconn = sqlite3.connect(self.dbfile)
     self.dbconn.row_factory = dict_factory
     # only return byte strings so is easier to send to a client or the mud
     self.dbconn.text_factory = str
-      
+
   def __getattribute__(self, name):
     """
     override getattribute to make sure the database is open
@@ -101,12 +105,12 @@ class Sqldb(object):
     """
     add commands to the plugin to use the database
     """
-    self.plugin.cmds['dbbackup'] = {'func':self.cmd_backup, 
-              'shelp':'backup the database'}  
-    self.plugin.cmds['dbclose'] = {'func':self.cmd_close, 
-              'shelp':'close the database'}  
-    self.plugin.cmds['dbvac'] = {'func':self.cmd_vac, 
-              'shelp':'vacuum the database'}                
+    self.plugin.cmds['dbbackup'] = {'func':self.cmd_backup,
+              'shelp':'backup the database'}
+    self.plugin.cmds['dbclose'] = {'func':self.cmd_close,
+              'shelp':'close the database'}
+    self.plugin.cmds['dbvac'] = {'func':self.cmd_vac,
+              'shelp':'vacuum the database'}
 
   def cmd_vac(self, _):
     """
@@ -116,7 +120,7 @@ class Sqldb(object):
     self.dbcomm.execute('VACUUM')
     msg.append('Database Vacuumed')
     return True, msg
-              
+
   def cmd_close(self, _):
     """
     backup the database
@@ -124,9 +128,9 @@ class Sqldb(object):
     msg = []
     self.close()
     msg.append('Database %s was closed' % (self.dbname))
-      
+
     return True, msg
-              
+
   def cmd_backup(self, args):
     """
     backup the database
@@ -139,21 +143,21 @@ class Sqldb(object):
 
     newname = self.backupform % name
     if self.backupdb(name):
-      msg.append('backed up %s with name %s' % (self.dbname, 
+      msg.append('backed up %s with name %s' % (self.dbname,
                     newname))
     else:
-      msg.append('could not back up %s with name %s' % (self.dbname, 
+      msg.append('could not back up %s with name %s' % (self.dbname,
                     newname))
-      
+
     return True, msg
-                
+
   def postinit(self):
     """
     do post init stuff, checks and upgrades the database, creates tables
     """
     self.addcmds()
     self.checkversion()
-    
+
     for i in self.tables:
       self.checktable(i)
 
@@ -169,16 +173,16 @@ class Sqldb(object):
     """
     if args == None:
       args = {}
-    
+
     if not ('precreate' in args):
       args['precreate'] = None
     if not ('postcreate' in args):
       args['postcreate'] = None
     if not ('keyfield' in args):
       args['keyfield'] = None
-      
+
     args['createsql'] = sql
-    
+
     self.tables[tablename] = args
     col, colbykeys = self.getcolumnsfromsql(tablename)
     self.tables[tablename]['columns'] = col
@@ -198,9 +202,9 @@ class Sqldb(object):
           ilist = i.split(' ')
           columns.append(ilist[0])
           columnsbykeys[ilist[0]] = True
-          
+
     return columns, columnsbykeys
-  
+
   def converttoinsert(self, tablename, keynull=False, replace=False):
     """
     create an insert statement based on the columns of a table
@@ -228,9 +232,9 @@ class Sqldb(object):
     if table in self.tables:
       if columnname in self.tables[table]['columnsbykeys']:
         return True
-      
+
     return False
-  
+
   def converttoupdate(self, tablename, wherekey='', nokey=None):
     """
     create an update statement based on the columns of a table
@@ -247,10 +251,10 @@ class Sqldb(object):
         else:
           sqlstr.append(i + ' = :' + i)
       colstring = ','.join(sqlstr)
-      execstr = "UPDATE %s SET %s WHERE %s = :%s;" % (tablename, colstring, 
+      execstr = "UPDATE %s SET %s WHERE %s = :%s;" % (tablename, colstring,
                                           wherekey, wherekey)
     return execstr
-        
+
   def getversion(self):
     """
     get the version of the database
@@ -262,7 +266,7 @@ class Sqldb(object):
     version = ret['user_version']
     cur.close()
     return version
-    
+
   def checktable(self, tablename):
     """
     check to see if a table exists, if not create it
@@ -278,7 +282,7 @@ class Sqldb(object):
         if self.tables[tablename]['postcreate']:
           self.tables[tablename]['postcreate']()
     return True
-    
+
   def checktableexists(self, tablename):
     """
     query the database master table to see if a table exists
@@ -286,13 +290,13 @@ class Sqldb(object):
     retv = False
     cur = self.dbconn.cursor()
     for row in cur.execute(
-         'SELECT * FROM sqlite_master WHERE name = "%s" AND type = "table";' 
+         'SELECT * FROM sqlite_master WHERE name = "%s" AND type = "table";'
                         % tablename):
       if row['name'] == tablename:
         retv = True
     cur.close()
     return retv
-  
+
   def checkversion(self):
     """
     checks the version of the database, upgrades if neccessary
@@ -302,7 +306,7 @@ class Sqldb(object):
       self.setversion(self.version)
     elif self.version > dbversion:
       self.updateversion(dbversion, self.version)
-      
+
   def setversion(self, version):
     """
     set the version of the database
@@ -311,12 +315,12 @@ class Sqldb(object):
     cur.execute('PRAGMA user_version=%s;' % version)
     self.dbconn.commit()
     cur.close()
-      
+
   def updateversion(self, oldversion, newversion):
     """
     update a database from oldversion to newversion
     """
-    exported.msg('updating %s from version %s to %s' % (self.dbfile, 
+    exported.msg('updating %s from version %s to %s' % (self.dbfile,
                                             oldversion, newversion), 'sqlite')
     self.backupdb(oldversion)
     for i in range(oldversion + 1, newversion + 1):
@@ -328,7 +332,7 @@ class Sqldb(object):
         return
     self.setversion(newversion)
     exported.msg('Done upgrading!', 'sqlite')
-    
+
   def runselect(self, selectstmt):
     """
     run a select statement against the database, returns a list
@@ -343,7 +347,7 @@ class Sqldb(object):
                             selectstmt)
     cur.close()
     return result
-  
+
   def runselectbykeyword(self, selectstmt, keyword):
     """
     run a select statement against the database, return a dictionary
@@ -368,7 +372,7 @@ class Sqldb(object):
     if not (ttable in self.tables):
       exported.msg('table %s does not exist in getlast' % ttable)
       return
-    
+
     colid = self.tables[ttable]['keyfield']
     tstring = ''
     if where:
@@ -377,11 +381,11 @@ class Sqldb(object):
     else:
       tstring = "SELECT * FROM %s ORDER by %s desc limit %d" % \
                         (ttable, colid, num)
-      
+
     results = self.runselect(tstring)
-    
+
     return results
-  
+
   def getlastrowid(self, ttable):
     """
     return the id of the last row in a table
@@ -391,7 +395,7 @@ class Sqldb(object):
     rows = self.runselect("SELECT MAX(%s) AS MAX FROM %s" % (colid, ttable))
     if len(rows) > 0:
       last = rows[0]['MAX']
-    
+
     return last
 
   def backupdb(self, postname):
@@ -400,13 +404,13 @@ class Sqldb(object):
     """
     success = False
     exported.msg('backing up database %s' % self.dbname, 'sqlite')
-    integrity = True    
+    integrity = True
     cur = self.dbconn.cursor()
     cur.execute('PRAGMA integrity_check')
     ret = cur.fetchone()
     if ret['integrity_check'] != 'ok':
       integrity = False
-        
+
     if not integrity:
       exported.msg('Integrity check failed, aborting backup', 'sqlite')
       return
@@ -415,14 +419,14 @@ class Sqldb(object):
       os.makedirs(os.path.join(self.dbdir, 'backup'))
     except OSError:
       pass
-    backupfile = os.path.join(self.dbdir, 'backup', 
+    backupfile = os.path.join(self.dbdir, 'backup',
                                 self.backupform % postname)
     try:
       shutil.copy(self.dbfile, backupfile)
-      exported.msg('%s was backed up to %s' % (self.dbfile, backupfile), 
+      exported.msg('%s was backed up to %s' % (self.dbfile, backupfile),
                                           'sqlite')
       success = True
     except IOError:
-      exported.msg('backup failed, could not copy file', 'sqlite') 
-      
+      exported.msg('backup failed, could not copy file', 'sqlite')
+
     return success

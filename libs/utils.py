@@ -191,7 +191,6 @@ def verify_miltime(mtime):
   return mtime
 
 
-
 def verify(val, vtype):
   """
   verify values
@@ -241,3 +240,30 @@ def center(tstr, fillerc, length):
     tstr = tstr + '-' * (length - newl)
 
   return tstr
+
+
+def checklistformatch(arg, tlist):
+  """
+  check a list for a match of arg
+  """
+  arg = str(arg)
+  tdict = {}
+  match = arg + '*'
+  tdict['part'] = []
+  tdict['front'] = []
+
+  for i in tlist:
+    if i == arg:
+      return [i]
+    elif fnmatch.fnmatch(i, match):
+      tdict['front'].append(i)
+    elif arg in i:
+      tdict['part'].append(i)
+
+  if tdict['front']:
+    return tdict['front']
+  else:
+    return tdict['part']
+
+  return tdict
+

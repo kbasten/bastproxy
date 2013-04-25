@@ -1,5 +1,8 @@
 """
 $Id$
+
+#TODO: use fnmatch to match commands
+  count them so that ambiguous commands are not run
 """
 from libs import exported
 import shlex
@@ -18,15 +21,15 @@ class CmdMgr:
     self.lastcmd = ''
     self.addcmd('help', 'list', {'lname':'Help', 'func':self.listcmds})
     self.addcmd('help', 'default', {'lname':'Help', 'func':self.listcmds})
-    
-    #exported.add(self.addwatch, 'cmdwatch', 'add')    
+
+    #exported.add(self.addwatch, 'cmdwatch', 'add')
     #exported.add(self.removewatch, 'cmdwatch', 'remove')
-    
-    exported.add(self.addcmd, 'cmd', 'add')    
+
+    exported.add(self.addcmd, 'cmd', 'add')
     exported.add(self.removecmd, 'cmd', 'remove')
     exported.add(self.setdefault, 'cmd', 'default')
     exported.add(self.resetcmds, 'cmd', 'reset')
-    
+
   def formatretmsg(self, msg, sname, stcmd):
     """
     format a return message
@@ -34,7 +37,7 @@ class CmdMgr:
     msg.insert(0, '')
     msg.insert(1, '#bp.%s.%s' % (sname, stcmd))
     msg.insert(2, '@G' + '-' * 60 + '@w')
-    msg.append('@G' + '-' * 60 + '@w')                  
+    msg.append('@G' + '-' * 60 + '@w')
     msg.append('')
     return msg
 
@@ -43,22 +46,22 @@ class CmdMgr:
     run a command
     """
     retvalue = tfunction(targs)
-      
+
     if isinstance(retvalue, tuple):
       retval = retvalue[0]
       msg = retvalue[1]
     else:
       retval = retvalue
       msg = []
-      
+
     if retval:
       if msg and isinstance(msg, list):
         exported.sendtoclient('\n'.join(self.formatretmsg(msg, sname, stcmd)))
         return True
     else:
-      _, msg = self.listcmds([sname, scmd])    
+      _, msg = self.listcmds([sname, scmd])
       exported.sendtoclient('\n'.join(self.formatretmsg(
-                                                  msg, 'plugins', 'help'))) 
+                                                  msg, 'plugins', 'help')))
     return retval
 
   def chkcmd(self, data):
@@ -77,7 +80,7 @@ class CmdMgr:
       except IndexError:
         sname = None
       try:
-        scmd = tst[2].strip()        
+        scmd = tst[2].strip()
       except IndexError:
         scmd = None
       if scmd:
@@ -91,12 +94,12 @@ class CmdMgr:
         except ValueError:
           pass
         try:
-          del targs[targs.index('help')]            
+          del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.listcmds(targs)    
+        _, msg = self.listcmds(targs)
         exported.sendtoclient('\n'.join(self.formatretmsg(
-                                              msg, 'plugins', 'help'))) 
+                                              msg, 'plugins', 'help')))
       elif sname and scmd:
         if sname in self.cmds:
           stcmd = None
@@ -109,16 +112,16 @@ class CmdMgr:
           except ValueError:
             pass
           try:
-            del targs[targs.index(sname)]            
+            del targs[targs.index(sname)]
           except ValueError:
             pass
           if not stcmd:
             exported.sendtoclient("@R%s.%s@W is not a command" % \
                                                         (sname, scmd))
           else:
-            self.runcmd(self.cmds[sname][stcmd]['func'], targs, 
+            self.runcmd(self.cmds[sname][stcmd]['func'], targs,
                                                   sname, stcmd, scmd)
-        else:  
+        else:
           exported.sendtoclient("@R%s.%s@W is not a command." % \
                                                   (sname, scmd))
       else:
@@ -127,13 +130,13 @@ class CmdMgr:
         except ValueError:
           pass
         try:
-          del targs[targs.index('help')]            
+          del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.listcmds(targs)    
+        _, msg = self.listcmds(targs)
         exported.sendtoclient('\n'.join(self.formatretmsg(
-                                                msg, 'plugins', 'help'))) 
-        
+                                                msg, 'plugins', 'help')))
+
       return {'fromdata':''}
     else:
       if tdat.strip() == self.lastcmd:
@@ -142,7 +145,7 @@ class CmdMgr:
       self.lastcmd = tdat.strip()
 
       return data
-    
+
   def addcmd(self, sname, cmdname, args):
     """
     add a command
@@ -152,15 +155,15 @@ class CmdMgr:
     if not ('lname' in args):
       exported.msg('cmd %s.%s has no long name, not adding' % \
                                                 (sname, cmdname), 'cmd')
-      return    
+      return
     if not ('func' in args):
       exported.msg('cmd %s.%s has no function, not adding' % \
                                                 (sname, cmdname), 'cmd')
-      return     
+      return
     if not (sname in self.cmds):
       self.cmds[sname] = {}
     self.cmds[sname][cmdname] = args
-    
+
   def removecmd(self, sname, cmdname):
     """
     remove a command
@@ -169,8 +172,8 @@ class CmdMgr:
       del self.cmds[sname][cmdname]
     else:
       exported.msg('removecmd: cmd %s.%s does not exist' % \
-                                                (sname, cmdname), 'cmd') 
-      
+                                                (sname, cmdname), 'cmd')
+
   def setdefault(self, sname, cmd):
     """
     set the default command for a plugin or commandset
@@ -185,8 +188,8 @@ class CmdMgr:
     if sname in self.cmds:
       del self.cmds[sname]
     else:
-      exported.msg('resetcmds: cmd %s does not exist' % sname, 'cmd')      
-    
+      exported.msg('resetcmds: cmd %s does not exist' % sname, 'cmd')
+
   def listcmds(self, args):
     """
     list commands
@@ -219,7 +222,7 @@ class CmdMgr:
       for i in self.cmds:
         tmsg.append('  %s' % i)
     return True, tmsg
-      
+
   def load(self):
     """
     load external stuff
@@ -227,6 +230,5 @@ class CmdMgr:
     exported.event.register('from_client_event', self.chkcmd, 1)
     exported.LOGGER.adddtype('cmds')
     exported.LOGGER.cmd_console(['cmds'])
-    
-    
-    
+
+

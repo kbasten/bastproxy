@@ -301,7 +301,6 @@ class Plugin(BasePlugin):
         self.variables['remortcomp'] = False
         exported.event.eraise('aard_level_remort', {})
 
-
   def savestate(self):
     """
     save states

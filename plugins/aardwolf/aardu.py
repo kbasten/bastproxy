@@ -194,9 +194,50 @@ class Plugin(BasePlugin):
   """
   def __init__(self, *args, **kwargs):
     BasePlugin.__init__(self, *args, **kwargs)
+
+    self.connected = False
+    self.firstactive = False
+
     self.exported['getactuallevel'] = {'func':getactuallevel}
     self.exported['convertlevel'] = {'func':convertlevel}
     self.exported['classabb'] = {'func':classabb}
     self.exported['rewardtable'] = {'func':rewardtable}
     self.exported['parsedamageline'] = {'func':parsedamageline}
+    self.exported['firstactive'] = {'func':self._firstactive}
+
+    self.events['mudconnect'] = {'func':self._mudconnect}
+    self.events['muddisconnect'] = {'func':self._muddisconnect}
+    self.events['GMCP:char.status'] = {'func':self._charstatus}
+
+  def _firstactive(self):
+    """
+    return the first active flag
+    """
+    return self.firstactive
+
+  def _mudconnect(self, _=None):
+    """
+    set a flag for connect
+    """
+    self.connected = True
+
+  def _muddisconnect(self, _None):
+    """
+    reset for next connection
+    """
+    self.connected = False
+    exported.event.unregister('GMCP:char.status', self._charstatus)
+    exported.event.register('GMCP:char.status', self._charstatus)
+
+  def _charstatus(self, args=None):
+    """
+    check status for 3
+    """
+    state = exported.GMCP.getv('char.status.state')
+    if state == 3 and exported.PROXY and exported.PROXY.connected:
+      exported.event.unregister('GMCP:char.status', self._charstatus)
+      self.connected = True
+      self.firstactive = True
+      exported.sendtoclient('sending first active')
+      exported.event.eraise('aardwolf_firstactive', {})
 
