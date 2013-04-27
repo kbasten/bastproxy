@@ -286,7 +286,7 @@ class Plugin(BasePlugin):
       return msg
 
     if spell['sn'] in self.spellups['sorder']:
-      msg.append('%-20s: already activated' % spell['name'])
+      msg.append('%-30s: already activated' % spell['name'])
       return msg
 
     self.spellups['self'][spell['sn']] = {'enabled':True}
@@ -358,12 +358,12 @@ class Plugin(BasePlugin):
     msg = []
     if len(self.spellups['sorder']) > 0:
       #P  B  D  NP  NL
-      msg.append('%-3s - %-20s : %2s %2s %2s %2s  %-2s  %-2s' % (
+      msg.append('%-3s - %-30s : %2s %2s %2s %2s  %-2s  %-2s' % (
               'Num', 'Name', 'A', 'P', 'B', 'D', 'NP', 'NL'))
       msg.append('@B' + '-'* 60)
       for i in self.spellups['sorder']:
         skill = exported.skills.gets(i)
-        msg.append('%-3s - %-20s : %2s %2s %2s %2s  %-2s  %-2s' % (
+        msg.append('%-3s - %-30s : %2s %2s %2s %2s  %-2s  %-2s' % (
                       self.spellups['sorder'].index(i),
                       skill['name'],
                       'A' if exported.skills.isaffected(i) else '',
