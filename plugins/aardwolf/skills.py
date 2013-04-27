@@ -509,7 +509,7 @@ class Plugin(BasePlugin):
     """
     return a list of spellup spells
     """
-    sus = [x for x in self.skills if self.skills[x]['spellup']]
+    sus = [x for x in self.skills.values() if x['spellup']]
     return sus
 
   def savestate(self):
