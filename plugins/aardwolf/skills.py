@@ -12,6 +12,7 @@ from libs import exported
 from plugins import BasePlugin
 from libs.persistentdict import PersistentDict
 from libs import utils
+from libs.timing import timeit
 import fnmatch
 
 NAME = 'Aardwolf Skills'
@@ -406,10 +407,12 @@ class Plugin(BasePlugin):
     exported.event.eraise(evname, {})
     self.current = ''
 
+  @timeit
   def getskill(self, tsn):
     """
     get a skill
     """
+    exported.msg('looking for %s' % tsn, 'skills')
     sn = -1
     name = tsn
     try:
@@ -419,20 +422,23 @@ class Plugin(BasePlugin):
 
     tskill = None
     if sn >= 1:
-      #exported.sendtoclient('%s >= 0' % sn)
+      exported.msg('%s >= 0' % sn, 'skills')
       if sn in self.skills:
-        #exported.sendtoclient('found sn')
+        exported.msg('found sn', 'skills')
         tskill = copy.deepcopy(self.skills[sn])
+        #tskill = self.skills[sn]
+      else:
+        exported.msg('did not find skill for int', 'skill')
 
-    if name:
-      #exported.sendtoclient('trying name')
+    if not tskill and name:
+      exported.msg('trying name', 'skills')
       tlist = utils.checklistformatch(name, self.skillsnamelookup.keys())
       if len(tlist) == 1:
         tskill = copy.deepcopy(self.skills[self.skillsnamelookup[tlist[0]]])
 
     if tskill:
-      if tskill['recovery'] != -1:
-        tskill['recovery'] = self.recoveries[tskill['recovery']]
+      if tskill['recovery'] and tskill['recovery'] != -1:
+        tskill['recovery'] = copy.deepcopy(self.recoveries[tskill['recovery']])
       else:
         tskill['recovery'] = None
 

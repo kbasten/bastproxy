@@ -3,13 +3,14 @@ $Id$
 
 #TODO: load the db into memory and then when adding something, fork and save
   it to disk?
-  
+
 """
 import sqlite3
 import os
 import shutil
 import inspect
 import time
+import zipfile
 
 from libs import exported
 exported.LOGGER.adddtype('sqlite')
@@ -112,12 +113,12 @@ class Sqldb(object):
     self.plugin.cmds['dbvac'] = {'func':self.cmd_vac,
               'shelp':'vacuum the database'}
 
-  def cmd_vac(self, _):
+  def cmd_vac(self, _=None):
     """
     vacuum the database
     """
     msg = []
-    self.dbcomm.execute('VACUUM')
+    self.dbconn.execute('VACUUM')
     msg.append('Database Vacuumed')
     return True, msg
 
@@ -141,7 +142,7 @@ class Sqldb(object):
     else:
       name = time.strftime('%a-%b-%d-%Y-%H-%M', time.localtime())
 
-    newname = self.backupform % name
+    newname = self.backupform % name + '.zip'
     if self.backupdb(name):
       msg.append('backed up %s with name %s' % (self.dbname,
                     newname))
@@ -403,6 +404,7 @@ class Sqldb(object):
     backup the database
     """
     success = False
+    #self.cmd_vac()
     exported.msg('backing up database %s' % self.dbname, 'sqlite')
     integrity = True
     cur = self.dbconn.cursor()
@@ -416,17 +418,30 @@ class Sqldb(object):
       return
     self.close()
     try:
-      os.makedirs(os.path.join(self.dbdir, 'backup'))
+      os.makedirs(os.path.join(self.dbdir, 'archive'))
     except OSError:
       pass
-    backupfile = os.path.join(self.dbdir, 'backup',
+
+    backupzipfile = os.path.join(self.dbdir, 'archive',
+                            self.backupform % postname + '.zip')
+    backupfile = os.path.join(self.dbdir, 'archive',
                                 self.backupform % postname)
+
     try:
       shutil.copy(self.dbfile, backupfile)
-      exported.msg('%s was backed up to %s' % (self.dbfile, backupfile),
-                                          'sqlite')
-      success = True
     except IOError:
       exported.msg('backup failed, could not copy file', 'sqlite')
+      return success
+
+    try:
+      with zipfile.ZipFile(backupzipfile, 'w', zipfile.ZIP_DEFLATED) as myzip:
+        myzip.write(backupfile)
+      os.remove(backupfile)
+      success = True
+      exported.msg('%s was backed up to %s' % (self.dbfile, backupzipfile),
+                                          'sqlite')
+    except IOError:
+      exported.msg('could not zip backupfile', 'sqlite')
+      return success
 
     return success

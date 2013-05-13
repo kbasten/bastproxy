@@ -7,6 +7,7 @@ import datetime
 import math
 import time
 from libs.color import iscolor, strip_ansi, convertcolors
+from libs.timing import timeit
 
 
 class DotDict(dict):
@@ -241,23 +242,24 @@ def center(tstr, fillerc, length):
 
   return tstr
 
-
+#TODO: This is slow, how can we speed it up?
 def checklistformatch(arg, tlist):
   """
   check a list for a match of arg
   """
-  arg = str(arg)
+  sarg = str(arg)
   tdict = {}
-  match = arg + '*'
+  match = sarg + '*'
   tdict['part'] = []
   tdict['front'] = []
 
+  if arg in tlist or sarg in tlist:
+    return [arg]
+
   for i in tlist:
-    if i == arg:
-      return [i]
-    elif fnmatch.fnmatch(i, match):
+    if fnmatch.fnmatch(i, match):
       tdict['front'].append(i)
-    elif arg in i:
+    elif isinstance(i, basestring) and sarg in i:
       tdict['part'].append(i)
 
   if tdict['front']:

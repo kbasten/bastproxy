@@ -109,6 +109,7 @@ class BasePlugin:
     exported.LOGGER.adddtype(self.sname)
     self.cmds['set'] = {'func':self.cmd_set, 'shelp':'Show/Set Variables'}
     self.cmds['reset'] = {'func':self.cmd_reset, 'shelp':'reset the plugin'}
+    self.cmds['save'] = {'func':self.cmd_save, 'shelp':'save plugin state'}
     exported.event.register('firstactive', self.firstactive)
 
   def load(self):
@@ -231,6 +232,15 @@ class BasePlugin:
             return True, msg
         return True, self.listvars()
     return False, {}
+
+  def cmd_save(self, args):
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+    save plugin state
+    @CUsage@w: save
+    """
+    self.savestate()
+    return True, ['Plugin settings saved']
 
   def listvars(self):
     """

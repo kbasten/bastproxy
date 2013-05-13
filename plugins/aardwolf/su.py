@@ -11,6 +11,7 @@ import time
 import os
 from plugins import BasePlugin
 from libs import exported
+from libs.timing import timeit
 from libs.persistentdict import PersistentDict
 
 NAME = 'Spellup'
@@ -96,7 +97,7 @@ class Plugin(BasePlugin):
     """
     check skills when we gain them
     """
-    if args['sn'] in self.sorder and args['percent'] > 50:
+    if args['sn'] in self.spellups['sorder'] and args['percent'] > 50:
       self.nextspell()
 
   def initspellups(self):
@@ -154,7 +155,7 @@ class Plugin(BasePlugin):
       self.variables['nocast'] = True
       self.variables['nocastrooms'][self.variables['currentroom']] = True
     elif args['reason'] == 'fighting' or args['reason'] == 'notactive':
-      self.args['waiting'] = -1
+      self.variables['waiting'] = -1
     elif args['reason'] == 'nomoves':
       self.variables['waiting'] = -1
       self.variables['nomoves'] = True
@@ -229,6 +230,7 @@ class Plugin(BasePlugin):
     if status == 3 and exported.skills.isuptodate():
       self.nextspell()
 
+  @timeit
   def check(self, _=None):
     """
     check to cast the next spell
@@ -249,6 +251,7 @@ class Plugin(BasePlugin):
     self.msg('checked returned True')
     return True
 
+  @timeit
   def nextspell(self, _=None):
     """
     try to cast the next spell

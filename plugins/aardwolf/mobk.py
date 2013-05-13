@@ -77,9 +77,9 @@ class Plugin(BasePlugin):
       'regex':"^You retreat from the combat!$"}
     self.triggers['mobblessxp'] = {
       'regex':"^You receive (?P<blessxp>\d+) bonus " \
-                          "experience points from your daily blessing.*$"}
+                          "experience points from your daily blessing.$"}
     self.triggers['mobbonusxp'] = {
-      'regex':"^You receive (?P<bonxp>\d+) bonus experience points.*$"}
+      'regex':"^You receive (?P<bonxp>\d+) bonus experience points.$"}
     self.triggers['mobgold'] = {
       'regex':"^You get (?P<gold>.+) gold coins " \
               "from .+ corpse of (?P<name>.+)\.$"}
