@@ -25,8 +25,8 @@ argument 1: the message to send
 argument 2: (optional) the data type, the default is 'default"""
   if LOGGER:
     LOGGER.msg({'msg':tmsg}, dtype)
-   
-   
+
+
 def write_traceback(message=""):
   """write a traceback through the LOGGER
 argument 1: (optional) the message to show with the traceback"""
@@ -58,7 +58,7 @@ argument 2: (optional) if this argument is True, do
              not convert color codes"""
   if isinstance(text, basestring):
     text = text.split('\n')
-  
+
   if not raw:
     test = []
     for i in text:
@@ -66,9 +66,12 @@ argument 2: (optional) if this argument is True, do
         i = '@R#BP@w: ' + i
       test.append(color.convertcolors(i))
     text = test
- 
-  event.eraise('to_client_event', {'todata':'\n'.join(text), 
+
+  try:
+    event.eraise('to_client_event', {'todata':'\n'.join(text),
                                     'raw':raw, 'dtype':'fromproxy'})
+  except NameError:
+    print("couldn't send msg to client: %s" % '\n'.join(text))
 
 
 def execute(cmd):
@@ -86,12 +89,12 @@ argument 1: the cmd to execute
 
   if data:
     event.eraise('to_mud_event', {'data':data, 'dtype':'fromclient'})
-  
-  
+
+
 def add(func, subname=None, funcname=None):
   """add a function to exported
 argument 1: the function
-argument 2: the subgroup to put the function in"""  
+argument 2: the subgroup to put the function in"""
   if not funcname:
     funcname = func.func_name
   if subname:
@@ -100,22 +103,21 @@ argument 2: the subgroup to put the function in"""
     globals()[subname][funcname] = func
   else:
     globals()[funcname] = func
-    
-    
+
+
 def remove(func=None, subname=None):
   """remove a function or subgroup from exported
 argument 1: the function
-argument 2: the subgroup"""   
+argument 2: the subgroup"""
   if subname:
     try:
       del globals()[subname]
     except KeyError:
-      msg('exported has no subsection named %s' % subname, 'default')      
+      msg('exported has no subsection named %s' % subname, 'default')
   else:
     try:
       del globals()[func.func_name]
     except KeyError:
       msg('exported has no function named %s' % \
-                                                func.func_name, 'default')      
-    
-    
+                                                func.func_name, 'default')
+
