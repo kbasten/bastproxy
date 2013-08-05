@@ -171,18 +171,21 @@ class Plugin(BasePlugin):
                                   skill['name'])
         if sn in self.spellups['self']:
           self.spellups['self'][sn]['enabled'] = False
-        if sn in self.spellups['other']:
-          self.spellups['other'][sn]['enabled'] = False
+        #if sn in self.spellups['other']:
+          #self.spellups['other'][sn]['enabled'] = False
         self.nextspell()
       elif args['reason'] == 'recblock':
         # do stuff when blocked by a recovery
-        pass
+        self.variables['waiting'] = -1
+        self.nextspell()
       elif args['reason'] == 'dontknow':
         # do stuff when spell/skill isn't learned
-        pass
+        self.variables['waiting'] = -1
+        self.nextspell()
       elif args['reason'] == 'wrongtarget':
         # do stuff when a wrong target
-        pass
+        self.variables['waiting'] = -1
+        self.nextspell()
       elif args['reason'] == 'disabled':
         self.variables['waiting'] = -1
         skill = exported.skills.gets(sn)
@@ -257,7 +260,6 @@ class Plugin(BasePlugin):
     try to cast the next spell
     """
     self.msg('nextspell')
-    self.msg('self: %s' % self.spellups['self'])
     if self.check():
       for i in self.spellups['sorder']:
         if self.spellups['self'][i]['enabled']:
@@ -374,7 +376,7 @@ class Plugin(BasePlugin):
                       'B' if exported.skills.isblockedbyrecovery(i) else '',
                       'D' if not self.spellups['self'][i]['enabled'] else '',
                       'NP' if skill['percent'] == 1 else '',
-                      'NL' if skill['percent'] == -1 else '',))
+                      'NL' if skill['percent'] == 0 else '',))
     else:
       msg.append('There are no spellups')
     return True, msg
