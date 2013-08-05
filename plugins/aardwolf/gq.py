@@ -5,6 +5,7 @@ import os
 import time
 import copy
 from libs import exported
+from libs.color import strip_ansi
 from libs.persistentdict import PersistentDict
 from plugins import BasePlugin
 
@@ -167,7 +168,6 @@ class Plugin(BasePlugin):
     if self.variables['joined']:
       self.gqinfo['starttime'] = time.time()
       exported.trigger.togglegroup("gqin", True)
-      exported.event.register('aard_mobkill', self._mobkillevent)
       exported.execute("gq check")
 
   def _gqitem(self, args):
@@ -180,7 +180,7 @@ class Plugin(BasePlugin):
     if not name or not location or not num:
       exported.sendtoclient("error parsing line: %s" % args['line'])
     else:
-      self.mobsleft.append({'name':name,
+      self.mobsleft.append({'name':name, 'nocolorname':strip_ansi(name),
             'location':location, 'num':int(num)})
 
   def _notstarted(self, _=None):
@@ -202,43 +202,44 @@ class Plugin(BasePlugin):
     exported.trigger.togglegroup('gqcheck', False)
     exported.event.unregister('trigger_emptyline', self._emptyline)
     exported.event.eraise('aard_gq_mobsleft',
-                {'mobs':copy.deepcopy(self.mobsleft)})
+                {'mobsleft':copy.deepcopy(self.mobsleft)})
 
   def _gqmobdead(self, _=None):
     """
     called when a gq mob is killed
     """
     self.gqinfo['qpmobs'] = self.gqinfo['qpmobs'] + 3
+    self.eventregister('aard_mobkill', self._mobkillevent)
     self.nextdeath = True
 
   def _mobkillevent(self, args):
     """
     this will be registered to the mobkill hook
     """
-    if self.nextdeath:
-      self.nextdeath = False
-      exported.msg('checking kill %s' % args['name'], 'gq')
+    exported.msg('checking kill %s' % args['name'], 'gq')
+    self.eventregister('aard_mobkill', self._mobkillevent)
 
-      found = False
-      removeitem = None
-      for i in range(len(self.mobsleft)):
-        tmob = self.mobsleft[i]
-        if tmob['name'] == args['name']:
-          found = True
-          if tmob['num'] == 1:
-            removeitem = i
-          else:
-            tmob['num'] = tmob['num'] - 1
+    found = False
+    removeitem = None
+    for i in range(len(self.mobsleft)):
+      tmob = self.mobsleft[i]
+      if tmob['name'] == args['name']:
+        self.msg('found %s' % tmob['name'])
+        found = True
+        if tmob['num'] == 1:
+          removeitem = i
+        else:
+          tmob['num'] = tmob['num'] - 1
 
-      if removeitem:
-        del(self.mobsleft[removeitem])
+    if removeitem:
+      del(self.mobsleft[removeitem])
 
-      if found:
-        exported.event.eraise('aard_gq_mobsleft',
-                          copy.deepcopy(self.mobsleft))
-      else:
-        exported.msg("GQ: could not find mob: %s" % args['name'], 'gq')
-        exported.execute("gq check")
+    if found:
+      exported.event.eraise('aard_gq_mobsleft',
+                        copy.deepcopy({'mobsleft':self.mobsleft}))
+    else:
+      exported.msg("GQ: could not find mob: %s" % args['name'], 'gq')
+      exported.execute("gq check")
 
   def _gqwon(self, _=None):
     """
