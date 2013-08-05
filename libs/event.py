@@ -10,6 +10,7 @@ import time
 import datetime
 import re
 from libs import exported
+from libs.color import convertcolors
 from libs.timing import timeit
 from libs.utils import secondstodhms
 
@@ -184,6 +185,7 @@ class EventMgr:
       if mat:
         targs = mat.groupdict()
         targs['cmdname'] = 'cmd_' + i
+        targs['data'] = tdat
         exported.msg('raising %s' % targs['cmdname'], 'cmds')
         tdata = exported.event.eraise('cmd_' + i, targs)
         if 'changed' in tdata:
@@ -280,12 +282,11 @@ class EventMgr:
     """
     data = args['nocolordata']
 
-    self.raiseevent('trigger_beall',
-                  {'line':data, 'triggername':'all'})
+    self.raisetrigger('beall', {'line':data, 'triggername':'all'}, args)
 
     if data == '':
-      self.raiseevent('trigger_emptyline',
-                          {'line':'', 'triggername':'emptyline'})
+      self.raisetrigger('emptyline',
+                        {'line':'', 'triggername':'emptyline'}, args)
     else:
       for i in self.triggers:
         if self.triggers[i]['enabled']:
@@ -299,15 +300,24 @@ class EventMgr:
                   targs[arg] = self.triggers[i]['argtypes'][arg](targs[arg])
             targs['line'] = data
             targs['triggername'] = i
-            self.raiseevent('trigger_' + i, targs)
-            if self.triggers[i]['omit']:
-              args['fromdata'] = ''
+            args = self.raisetrigger(i, targs, args)
 
-      self.raiseevent('trigger_all',
-                        {'line':data, 'triggername':'all'})
-
+    self.raisetrigger('all', {'line':data, 'triggername':'all'}, args)
 
     return args
+
+  def raisetrigger(self, triggername, args, origargs):
+    """
+    raise a trigger event
+    """
+    tdat = self.raiseevent('trigger_' + triggername, args)
+    exported.msg('trigger raiseevent returned: %s' % tdat, 'events')
+    if tdat and 'newline' in tdat:
+      exported.msg('changing line from trigger', 'events')
+      origargs['fromdata'] = convertcolors(tdat['newline'])
+    if triggername in self.triggers and self.triggers[triggername]['omit']:
+      origargs['fromdata'] = ''
+    return
 
   def registerevent(self, eventname, func, prio=50):
     """
@@ -348,6 +358,7 @@ class EventMgr:
           for i in self.events[eventname][k]:
             try:
               tnargs = i(nargs)
+              #exported.msg('%s: returned %s' % (eventname, tnargs), 'events')
               if tnargs:
                 nargs = tnargs
             except:
