@@ -100,6 +100,22 @@ class Logger:
     if 'default' in self.sendtofile:
       self.logtofile(timestampmsg, 'default')
 
+  def archivelog(self, dtype):
+    """
+    archive the previous log
+    """
+    tfile = os.path.split(self.currentlogs[dtype])[-1]
+    self.openlogs[self.currentlogs[dtype]].close()
+    curfile = self.currentlogs[dtype]
+    backupfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
+                          tfile)
+    backupzipfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
+                          tfile + '.zip')
+    with zipfile.ZipFile(backupzipfile, 'w', zipfile.ZIP_DEFLATED) as myzip:
+      myzip.write(backupfile, arcname=self.currentlogs[dtype])
+    os.remove(backupfile)
+    del self.openlogs[self.currentlogs[dtype]]
+
   def logtofile(self, msg, dtype):
     """
     send a message to a log file
@@ -109,24 +125,13 @@ class Logger:
                   time.strftime(self.sendtofile[dtype]['file'],
                   time.localtime()))
     if not os.path.exists(self.sendtofile[dtype]['logdir']):
-      os.makedirs(self.sendtofile[dtype]['logdir'])
       os.makedirs(os.path.join(self.sendtofile[dtype]['logdir'], 'archive'))
     if (not (dtype in self.currentlogs)) or \
        (dtype in self.currentlogs and not self.currentlogs[dtype]):
       self.currentlogs[dtype] = tfile
     elif tfile != self.currentlogs[dtype]:
-      self.openlogs[self.currentlogs[dtype]].close()
-      backupfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
-                            self.currentlogs[dtype])
-      backupzipfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
-                            self.currentlogs[dtype] + '.zip')
-      shutil.move(self.currentlogs[dtype], backupfile)
-      with zipfile.ZipFile(backupzipfile, 'w', zipfile.ZIP_DEFLATED) as myzip:
-        myzip.write(backupfile)
-      os.remove(backupfile)
-      del self.openlogs[self.currentlogs[dtype]]
+      self.archivelog(dtype)
       self.currentlogs[dtype] = tfile
-
     if not (self.currentlogs[dtype] in self.openlogs):
       self.openlogs[self.currentlogs[dtype]] = \
                       open(self.currentlogs[dtype], 'a')
@@ -234,6 +239,25 @@ class Logger:
              (i, self.sendtofile[i]['file'], self.sendtofile[i]['timestamp']))
       return True, tmsg
 
+  def cmd_archive(self, args):
+    """@G%(name)s@w - @B%(cmdname)s@w
+  archive a log file
+  @CUsage@w: show @Y<datatype>@w
+    @Ydatatype@w  = the type to toggle, can be multiple
+    if no arguments, list types that are sent to client"""
+    tmsg = []
+    if len(args) > 0:
+      for i in args:
+        if i in self.dtypes:
+          self.archivelog(i)
+        else:
+          tmsg.append('%s does not exist' % i)
+      return True, tmsg
+    else:
+      tmsg = self.cmd_types()
+      return True, tmsg
+
+
   def cmd_types(self, _=None):
     """@G%(name)s@w - @B%(cmdname)s@w
   show data types
@@ -273,5 +297,8 @@ class Logger:
     exported.cmd.add('log', 'types',
                         {'lname':'Logger', 'func':self.cmd_types,
                         'shelp':'Show data types'})
+    #exported.cmd.add('log', 'archive',
+                        #{'lname':'Logger', 'func':self.cmd_archive,
+                        #'shelp':'archive a dtype'})
     exported.event.register('from_mud_event', self.logmud)
     exported.event.register('to_mud_event', self.logmud)
