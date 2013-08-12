@@ -135,8 +135,8 @@ class Plugin(BasePlugin):
     if state == 2:
       exported.sendtoclient('seen2')
       self.variables['seen2'] = True
-      exported.event.unregister('GMCP:char.status', self._gmcpstatus)
-      exported.event.register('GMCP:char.base', self._gmcpbase)
+      self.eventunregister('GMCP:char.status', self._gmcpstatus)
+      self.eventregister('GMCP:char.base', self._gmcpbase)
 
   def _gmcpbase(self, _=None):
     """
@@ -146,7 +146,7 @@ class Plugin(BasePlugin):
     state = exported.GMCP.getv('char.status.state')
     if self.variables['tiering'] and self.variables['seen2'] and state == 3:
       exported.sendtoclient('in char.base')
-      exported.event.unregister('GMCP:char.base', self._gmcpstatus)
+      self.eventunregister('GMCP:char.base', self._gmcpstatus)
       self._lvl({'level':1})
 
   def _tier(self, _=None):
@@ -155,7 +155,7 @@ class Plugin(BasePlugin):
     """
     self.variables['tiering'] = True
     exported.sendtoclient('tiering')
-    exported.event.register('GMCP:char.status', self._gmcpstatus)
+    self.eventregister('GMCP:char.status', self._gmcpstatus)
 
   def _remortcomp(self, _=None):
     """
@@ -189,7 +189,7 @@ class Plugin(BasePlugin):
     print 'didn\'t sh though'
     exported.trigger.togglegroup('superhero', False)
     exported.trigger.togglegroup('linfo', False)
-    exported.event.unregister('trigger_emptyline', self._finish)
+    self.eventunregister('trigger_emptyline', self._finish)
 
   def resetlevel(self):
     """
@@ -239,7 +239,7 @@ class Plugin(BasePlugin):
       self.levelinfo['type'] = 'level'
 
     exported.trigger.togglegroup('linfo', True)
-    exported.event.register('trigger_emptyline', self._finish)
+    self.eventregister('trigger_emptyline', self._finish)
 
 
   def _lvlblesstrains(self, args):
@@ -282,7 +282,7 @@ class Plugin(BasePlugin):
     self.levelinfo['finishtime'] = time.time()
     self.levelinfo.sync()
     exported.trigger.togglegroup('linfo', False)
-    exported.event.unregister('trigger_emptyline', self._finish)
+    self.eventunregister('trigger_emptyline', self._finish)
     exported.event.eraise('aard_level_gain', copy.deepcopy(self.levelinfo))
     if self.levelinfo['level'] == 200 and self.levelinfo['type'] == 'level':
       exported.msg('raising hero event', 'level')
