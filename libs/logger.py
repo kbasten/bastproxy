@@ -107,7 +107,7 @@ class Logger:
     tfile = os.path.split(self.currentlogs[dtype])[-1]
     self.openlogs[self.currentlogs[dtype]].close()
     curfile = self.currentlogs[dtype]
-    backupfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
+    backupfile = os.path.join(self.sendtofile[dtype]['logdir'],
                           tfile)
     backupzipfile = os.path.join(self.sendtofile[dtype]['logdir'], 'archive',
                           tfile + '.zip')
