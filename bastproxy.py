@@ -10,8 +10,11 @@ import ConfigParser
 import os
 import sys
 import socket
+import signal
 
 from libs import exported
+
+signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
 def setuppaths():
   """
