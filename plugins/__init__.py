@@ -106,10 +106,13 @@ class BasePlugin:
     self.variables = PersistentDictEvent(self, self.savefile,
                             'c', format='json')
     self.settings = {}
-    self.events = {}
-    self.event = DotDict()
+    try:
+      self.event
+    except:
+      self.event = DotDict()
     self.event.register = self.eventregister
     self.event.unregister = self.eventunregister
+    self.event.eraise = exported.event.eraise
     self.timers = {}
     self.triggers = {}
     self.exported = {}
@@ -159,6 +162,8 @@ class BasePlugin:
         self.event.unregister('firstactive', self.firstactive)
         self.firstactive()
 
+    self.event.eraise('event_plugin_unload', {'plugin':self.sname})
+
   def unload(self):
     """
     unload stuff
@@ -185,6 +190,9 @@ class BasePlugin:
 
     if len(self.exported) > 0:
       exported.remove(None, self.sname)
+
+    self.event.eraise('event_plugin_unload', {'plugin':self.sname})
+
 
   def msg(self, msg):
     """
