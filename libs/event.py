@@ -1,11 +1,12 @@
 """
 $Id$
 
-#TODO: add cmd to show stats
-  number of triggers, aliases, events, etc..
-#TODO: add cmd to show info for specific timers, triggers, etc..
-#TODO: triggers need to also be able to check colors
-#TODO: add onetime flag to registering events
+This plugin handles events.
+  You can register/unregister with events, raise events
+  Manipulate timers
+  Manipulate triggers
+  Watch for specific commands
+
 """
 import time
 import datetime
