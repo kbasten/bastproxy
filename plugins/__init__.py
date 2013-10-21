@@ -1,7 +1,6 @@
 """
 $Id$
 
-#TODO: sort the plugins list
 #TODO: make initialized events use the same syntax as runtime added events
   make an addevent function to the plugin baseclass
   same with commands and all other items that can be added at runtime
@@ -429,10 +428,12 @@ class PluginMgr(object):
       #TODO: check for the name here
       pass
     else:
+      tkeys = self.plugins.keys()
+      tkeys.sort()
       msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                           ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
       msg.append('-' * 75)
-      for plugin in self.plugins:
+      for plugin in tkeys:
         tpl = self.plugins[plugin]
         msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                     (plugin, tpl.name, tpl.author, tpl.version, tpl.purpose))
