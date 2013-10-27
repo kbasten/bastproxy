@@ -111,7 +111,7 @@ def start(listen_port, server_address, server_port):
 
       asyncore.loop(timeout=.25, count=1)
      # check our timer event
-      api.get('managers.getm')('events').checktimerevents()
+      api.get('events.eraise')('global_timer', {})
 
   except KeyboardInterrupt:
     pass
