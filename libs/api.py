@@ -40,7 +40,9 @@ class API(object):
     @Yname@w  = the name of the api
     @Yfunction@w  = the function
 
-    the function is added as ptype.name into the api"""
+    the function is added as ptype.name into the api
+
+    this function returns no values"""
     if not (ptype in API.api):
       API.api[ptype] = {}
 
@@ -54,7 +56,9 @@ class API(object):
     @Yname@w  = the name of the api
     @Yfunction@w  = the function
 
-    the function is added as ptype.name into the overloaded api"""
+    the function is added as ptype.name into the overloaded api
+
+    this function returns no values"""
     try:
       ofunc = self.get(ptype + '.' + name)
       function.__doc__ = ofunc.__doc__
@@ -69,7 +73,9 @@ class API(object):
   # get a manager
   def getmanager(self, name):
     """  get a manager
-    @Yname@w  = the name of the manager to get"""
+    @Yname@w  = the name of the manager to get
+
+    this function returns the manager instance"""
     if name in self.MANAGERS:
       return self.MANAGERS[name]
     else:
@@ -79,13 +85,17 @@ class API(object):
   def addmanager(self, name, manager):
     """  add a manager
     @Yname@w  = the name of the manager
-    @Ymanager@w  = the manager instance"""
+    @Ymanager@w  = the manager instance
+
+    this function returns no values"""
     self.MANAGERS[name] = manager
 
   # remove a toplevel api
   def remove(self, ptype):
     """  remove a toplevel api
-    @Yptype@w  = the base of the api to remove"""
+    @Yptype@w  = the base of the api to remove
+
+    this function returns no values"""
     if ptype in API.api:
       del API.api[ptype]
 

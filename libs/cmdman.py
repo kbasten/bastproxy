@@ -159,7 +159,9 @@ class CmdMgr(object):
 
       The command will be added as sname.cmdname
 
-      sname is gotten from the class the function belongs to"""
+      sname is gotten from the class the function belongs to
+
+    this function returns no values"""
 
     #lname, cmd, tfunction, shelp="", lhelp=""
     #{'func':tfunction, 'lname':lname, 'lhelp':lhelp, 'shelp':shelp}
@@ -191,7 +193,9 @@ class CmdMgr(object):
   def removecmd(self, sname, cmdname):
     """  remove a command
     @Ysname@w    = the top level of the command
-    @Ycmdname@w  = the name of the command"""
+    @Ycmdname@w  = the name of the command
+
+    this function returns no values"""
     if sname in self.cmds and cmdname in self.cmds[sname]:
       del self.cmds[sname][cmdname]
     else:
@@ -202,14 +206,21 @@ class CmdMgr(object):
   def setdefault(self, sname, cmd):
     """  set the default command for a plugin
     @Ysname@w    = the plugin of the command
-    @Ycmdname@w  = the name of the command"""
+    @Ycmdname@w  = the name of the command
+
+    this function returns True if the command exists, False if it doesn't"""
     if sname in self.cmds and cmd in self.cmds[sname]:
       self.cmds[sname]['default'] = self.cmds[sname][cmd]
+      return True
+
+    return False
 
   # remove all commands for a plugin
   def removeplugin(self, sname):
     """  remove all commands for a plugin
-    @Ysname@w    = the plugin to remove commands for"""
+    @Ysname@w    = the plugin to remove commands for
+
+    this function returns no values"""
     if sname in self.cmds:
       del self.cmds[sname]
     else:

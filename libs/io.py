@@ -13,7 +13,9 @@ from libs import color
 def msg(tmsg, datatype='default'):
   """  send a message through the logger
     @Ymsg@w        = This message to send
-    @Ydatatype@w   = the type to toggle"""
+    @Ydatatype@w   = the datatype of the message (default: 'default')
+
+  this function returns no values"""
   try:
     api.get('logger.msg')({'msg':tmsg}, datatype)
   except AttributeError: #%s - %-10s :
@@ -23,7 +25,9 @@ def msg(tmsg, datatype='default'):
 # write and format a traceback
 def write_traceback(message=""):
   """  handle a traceback
-    @Ymessage@w  = the message to put into the traceback"""
+    @Ymessage@w  = the message to put into the traceback
+
+  this function returns no values"""
   exc = "".join(traceback.format_exception(sys.exc_info()[0],
                     sys.exc_info()[1], sys.exc_info()[2]))
 
@@ -36,7 +40,9 @@ def write_traceback(message=""):
 # write and format an error
 def write_error(text):
   """  handle an error
-    @Ytext@w  = The error to handle"""
+    @Ytext@w  = The error to handle
+
+  this function returns no values"""
   text = str(text)
   test = []
   for i in text.split('\n'):
@@ -53,7 +59,9 @@ def sendtoclient(text, raw=False, preamble=True):
   """  handle a traceback
     @Ytext@w      = The text to send to the clients
     @Yraw@w       = if True, don't convert colors
-    @Ypreamble@w  = if True, send the preamble"""
+    @Ypreamble@w  = if True, send the preamble
+
+  this function returns no values"""
   if isinstance(text, basestring):
     text = text.split('\n')
 
@@ -76,7 +84,9 @@ def execute(cmd):
   """  execute a command through the interpreter
   It will first check to see if it is an internal command, and then
   sent to the mud if not.
-    @Ycmd@w      = the command to send through the interpreter"""
+    @Ycmd@w      = the command to send through the interpreter
+
+  this function returns no values"""
   data = None
   if cmd[-1] != '\n':
     cmd = cmd + '\n'

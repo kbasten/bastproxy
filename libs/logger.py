@@ -68,7 +68,8 @@ class Logger(object):
   def adddtype(self, datatype):
     """  add a datatype
     @Ydatatype@w  = the datatype to add
-    """
+
+    this function returns no values"""
     if not (datatype in self.dtypes):
       self.dtypes[datatype] = True
       self.sendtoclient[datatype] = False
@@ -78,7 +79,9 @@ class Logger(object):
   def msg(self, args, dtype='default'):
     """  send a message
     @Ymsg@w        = This message to send
-    @Ydatatype@w   = the type to toggle"""
+    @Ydatatype@w   = the type to toggle
+
+    this function returns no values"""
     if 'dtype' in args:
       dtype = args['dtype']
 
@@ -155,7 +158,9 @@ class Logger(object):
   def toggletoclient(self, datatype, flag=True):
     """  toggle a data type to show to clients
     @Ydatatype@w  = the type to toggle, can be multiple (list)
-    @Yflag@w      = True to send to clients, false otherwise (default: True)"""
+    @Yflag@w      = True to send to clients, false otherwise (default: True)
+
+    this function returns no values"""
     if datatype in self.sendtoclient and datatype != 'frommud':
       self.sendtoclient[datatype] = flag
 
@@ -193,7 +198,9 @@ class Logger(object):
   def toggletoconsole(self, datatype, flag=True):
     """  toggle a data type to show to console
     @Ydatatype@w  = the type to toggle
-    @Yflag@w      = True to send to console, false otherwise (default: True)"""
+    @Yflag@w      = True to send to console, false otherwise (default: True)
+
+    this function returns no values"""
     if datatype in self.sendtoconsole and datatype != 'frommud':
       self.sendtoconsole[datatype] = flag
 
@@ -231,7 +238,9 @@ class Logger(object):
   def toggletofile(self, datatype, flag=True):
     """  toggle a data type to show to file
     @Ydatatype@w  = the type to toggle
-    @Yflag@w      = True to send to file, false otherwise (default: True)"""
+    @Yflag@w      = True to send to file, false otherwise (default: True)
+
+    this function returns no values"""
     if datatype in self.sendtofile:
       del self.sendtofile[datatype]
     else:
