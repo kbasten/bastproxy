@@ -3,7 +3,7 @@ $Id$
 
 This plugin runs gmcp commands after connecting to aardwolf
 """
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'GMCP Aardwolf'
 SNAME = 'agmcp'
@@ -11,9 +11,9 @@ PURPOSE = 'Do things for Aardwolf GMCP'
 AUTHOR = 'Bast'
 VERSION = 1
 
-AUTOLOAD = False
+AUTOLOAD = True
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to show gmcp usage
   """
@@ -21,7 +21,7 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.api.get('events.register')('GMCP:server-enabled', self.enablemods)
     self.api.get('events.register')('client_connected', self.clientconnected)
 
@@ -43,8 +43,16 @@ class Plugin(BasePlugin):
     """
     proxy = self.api.get('managers.getm')('proxy')
     if proxy.connected:
-      self.api.get('input.execute')('protocols gmcp sendchar')
-      self.api.get('GMCP.sendmodule')('comm.quest')
       self.api.get('GMCP.sendmodule')('room.info')
+      self.api.get('GMCP.sendpacket')("request quest")
+      self.api.get('GMCP.sendpacket')("request char")
+
+  def load(self):
+    AardwolfBasePlugin.load(self)
+    state = self.api.get('GMCP.getv')('char.status.state')
+    proxy = self.api.get('managers.getm')('proxy')
+    if state == 3 and proxy and proxy.connected:
+      self.enablemods()
+      self.clientconnected()
 
 

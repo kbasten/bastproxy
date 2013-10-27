@@ -4,11 +4,11 @@ $Id$
 This plugin is a utility plugin for aardwolf functions
 It adds functions to exported.aardu
 """
-from plugins import BasePlugin
+from plugins._baseplugin import BasePlugin
 
 NAME = 'Aardwolf Base Plugin'
-SNAME = 'aardu'
-PURPOSE = 'Aard related functions to use in the api'
+SNAME = 'abase'
+PURPOSE = 'The Aardwolf BasePlugin'
 AUTHOR = 'Bast'
 VERSION = 1
 

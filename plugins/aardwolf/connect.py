@@ -4,7 +4,7 @@ $Id$
 This plugin is a utility plugin for aardwolf functions
 It adds functions to exported.aardu
 """
-from plugins import BasePlugin
+from plugins._baseplugin import BasePlugin
 import math
 import re
 
@@ -36,7 +36,7 @@ class Plugin(BasePlugin):
   # returns the firstactive flag
   def _firstactive(self):
     """  return the firstactive flag
-      returns a bool"""
+    this function returns True or False"""
     return self.firstactive
 
   def _mudconnect(self, _=None):

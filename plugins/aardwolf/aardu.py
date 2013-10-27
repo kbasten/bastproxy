@@ -110,7 +110,14 @@ for i in DAMAGES:
 # parse an Aardwolf damage line
 def parsedamageline(line):
   """  parse an Aardwolf damage line from combat
-  @Yline@w  = the line to parse"""
+  @Yline@w  = the line to parse
+
+  this function returns a dictionary with keys:
+     damage  = the amount of damage
+     hits    = the # of hits
+     damtype = the damage type
+     damverb = the verb of the damage
+     enemy   = the enemy"""
   ddict = {}
   tsplit = line.split(' ')
   ddict['hits'] = 1
@@ -144,7 +151,13 @@ def parsedamageline(line):
 # convert a level to redos, tier, remort, level
 def convertlevel(level):
   """  convert a level to redos, tier, remort, level
-  @Ylevel@w  = the level to convert"""
+  @Ylevel@w  = the level to convert
+
+  this function returns a dictionary with keys:
+    level   = the level
+    remort  = the # of remorts
+    tier    = the # of tiers
+    redo    = the # of redos"""
   if not level or level < 1:
     return {'tier':-1, 'redos':-1, 'remort':-1, 'level':-1}
   tier = math.floor(level / (7 * 201))
@@ -165,7 +178,14 @@ def convertlevel(level):
 # get the Class abbreviations table
 def classabb(rev=False):
   """  get the class abbreviations
-  @Yrev@w  = if True, return the reversed table"""
+  @Yrev@w  = if True, return the reversed table
+
+  this function returns a dictionary
+    original dictionary example:
+      'mag' : 'mage'
+
+    reversed dictionary example:
+       'mage' : 'mag'"""
   if rev:
     return CLASSABB
   else:
@@ -174,7 +194,9 @@ def classabb(rev=False):
 # get the reward table
 def rewardtable():
   """  get the reward table
-  @Yrev@w  = if True, return the reversed table"""
+  @Yrev@w  = if True, return the reversed table
+
+  this function returns a dictionary of rewards"""
   return REWARDTABLE
 
 class Plugin(AardwolfBasePlugin):
@@ -196,7 +218,9 @@ class Plugin(AardwolfBasePlugin):
     @Ylevel@w  = the level, defaults to GMCP value
     @Yremort@w  = the # of remorts, default to GMCP value
     @Ytier@w  = the # of tiers, default to GMCP value
-    @Yredos@w  = the # of redos, default to GMCP value"""
+    @Yredos@w  = the # of redos, default to GMCP value
+
+    this function returns the total levels"""
     level = level or self.api.get('GMCP.getv')('char.status.level') or 0
     remort = remort or self.api.get('GMCP.getv')('char.base.remorts') or 0
     tier = tier or self.api.get('GMCP.getv')('char.base.tier') or 0
