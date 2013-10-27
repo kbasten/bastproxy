@@ -137,7 +137,9 @@ class BasePlugin(object):
   # get the vaule of a setting
   def getsetting(self, setting):
     """  get the value of a setting
-    @Ysetting@w = the setting value to get"""
+    @Ysetting@w = the setting value to get
+
+    this function returns the value of the setting, None if not found"""
     try:
       return self.settingvalues[setting]
     except KeyError:
@@ -146,7 +148,9 @@ class BasePlugin(object):
   # add a plugin dependency
   def adddependency(self, dependency):
     """  add a depencency
-    @Ydependency@w    = the name of the plugin that will be a dependency"""
+    @Ydependency@w    = the name of the plugin that will be a dependency
+
+    this function returns no values"""
     if not (dependency in self.dependencies):
       self.dependencies.append(dependency)
 
@@ -162,10 +166,10 @@ class BasePlugin(object):
     # register all timers
     for i in self.timers:
       tim = self.timers[i]
-      self.api.get('timer.add')(i, tim)
+      self.api.get('timers.add')(i, tim)
 
     for i in self.triggers:
-      self.api.get('trigger.add')(i, self.triggers[i])
+      self.api.get('triggers.add')(i, self.triggers[i])
 
     for i in self.cmdwatch:
       self.api.get('cmdwatch.add')(i, self.watch[i])
@@ -198,10 +202,10 @@ class BasePlugin(object):
 
     # delete all timers
     for i in self.timers:
-      self.api.get('timer.remove')(i)
+      self.api.get('timers.remove')(i)
 
     for i in self.triggers:
-      self.api.get('trigger.remove')(i)
+      self.api.get('triggers.remove')(i)
 
     for i in self.cmdwatch:
       self.api.get('cmdwatch.remove')(i, self.watch[i])
@@ -302,7 +306,9 @@ class BasePlugin(object):
     @Yshelp@w    = the help associated with the setting
     Keyword Arguments
       @Ynocolor@w    = if True, don't parse colors when showing value
-      @Yreadonly@w   = if True, can't be changed by a client"""
+      @Yreadonly@w   = if True, can't be changed by a client
+
+    this function returns no values"""
 
     if 'nocolor' in kwargs:
       nocolor = kwargs['nocolor']
