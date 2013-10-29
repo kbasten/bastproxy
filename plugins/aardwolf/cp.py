@@ -285,7 +285,7 @@ class Plugin(AardwolfBasePlugin):
       del(self.mobsleft[removeitem])
 
     if found:
-      self.api.get('event.eraise')('aard_cp_mobsleft',
+      self.api.get('events.eraise')('aard_cp_mobsleft',
                         copy.deepcopy({'mobsleft':self.mobsleft}))
     else:
       self.api.get('output.msg')("CP: could not find mob: %s" % args['name'])
