@@ -49,14 +49,14 @@ class Logger(object):
     self.openlogs = {}
     self.currentlogs = {}
     self.colors = {}
-    self.adddtype('default')
-    self.adddtype('frommud')
+    self.api_adddtype('default')
+    self.api_adddtype('frommud')
     self.sendtoconsole['default'] = True
     self.sendtofile['default'] = {
                                 'logdir':os.path.join(self.logdir, 'default'),
                                 'file':'%a-%b-%d-%Y.log', 'timestamp':True
                                   }
-    self.adddtype('error')
+    self.api_adddtype('error')
     self.sendtoconsole['error'] = True
     self.sendtoclient['error'] = True
     self.colors['error'] = '@x136'
@@ -65,7 +65,7 @@ class Logger(object):
     self.sendtofile.sync()
 
   # add a datatype to the logger
-  def adddtype(self, datatype):
+  def api_adddtype(self, datatype):
     """  add a datatype
     @Ydatatype@w  = the datatype to add
 
@@ -76,7 +76,7 @@ class Logger(object):
       self.sendtoconsole[datatype] = False
 
   # process a message, use output.msg instead for the api
-  def msg(self, args, dtype='default'):
+  def api_msg(self, args, dtype='default'):
     """  send a message
     @Ymsg@w        = This message to send
     @Ydatatype@w   = the type to toggle
@@ -155,7 +155,7 @@ class Logger(object):
     self.openlogs[self.currentlogs[dtype]].flush()
 
   # toggle logging a datatype to the clients
-  def toggletoclient(self, datatype, flag=True):
+  def api_toggletoclient(self, datatype, flag=True):
     """  toggle a data type to show to clients
     @Ydatatype@w  = the type to toggle, can be multiple (list)
     @Yflag@w      = True to send to clients, false otherwise (default: True)
@@ -163,6 +163,9 @@ class Logger(object):
     this function returns no values"""
     if datatype in self.sendtoclient and datatype != 'frommud':
       self.sendtoclient[datatype] = flag
+
+    self.api.get('output.msg')('setting %s to log to client' % \
+                      datatype, self.sname)
 
     self.sendtoclient.sync()
 
@@ -195,7 +198,7 @@ class Logger(object):
       return True, tmsg
 
   # toggle logging a datatype to the console
-  def toggletoconsole(self, datatype, flag=True):
+  def api_toggletoconsole(self, datatype, flag=True):
     """  toggle a data type to show to console
     @Ydatatype@w  = the type to toggle
     @Yflag@w      = True to send to console, false otherwise (default: True)
@@ -203,6 +206,9 @@ class Logger(object):
     this function returns no values"""
     if datatype in self.sendtoconsole and datatype != 'frommud':
       self.sendtoconsole[datatype] = flag
+
+    self.api.get('output.msg')('setting %s to log to console' % \
+                      datatype, self.sname)
 
     self.sendtoconsole.sync()
 
@@ -235,7 +241,7 @@ class Logger(object):
       return True, tmsg
 
   # toggle logging a datatype to a file
-  def toggletofile(self, datatype, flag=True):
+  def api_toggletofile(self, datatype, flag=True):
     """  toggle a data type to show to file
     @Ydatatype@w  = the type to toggle
     @Yflag@w      = True to send to file, false otherwise (default: True)
@@ -248,9 +254,9 @@ class Logger(object):
 
       self.sendtofile[datatype] = {'file':tfile,
                                 'logdir':os.path.join(self.logdir, datatype),
-                                'timestamp':self.api.timestamp}
-      tmsg.append('setting %s to log to %s' % \
-                      (datatype, self.sendtofile[datatype]['file']))
+                                'timestamp':self.api.timestring}
+      self.api.get('output.msg')('setting %s to log to %s' % \
+                      (datatype, self.sendtofile[datatype]['file']), self.sname)
       self.sendtofile.sync()
 
   # toggle logging datatypes to a file
@@ -343,17 +349,17 @@ class Logger(object):
     """
     initialize commands
     """
-    self.api.get('commands.add')('client',
-                        {'lname':'Logger', 'func':self.cmd_client,
+    self.api.get('commands.add')('client', self.cmd_client,
+                        {'lname':'Logger',
                          'shelp':'Send message of a type to clients'})
-    self.api.get('commands.add')('file',
-                        {'lname':'Logger', 'func':self.cmd_file,
+    self.api.get('commands.add')('file', self.cmd_file,
+                        {'lname':'Logger',
                         'shelp':'Send message of a type to a file'})
-    self.api.get('commands.add')('console',
-                        {'lname':'Logger', 'func':self.cmd_console,
+    self.api.get('commands.add')('console', self.cmd_console,
+                        {'lname':'Logger',
                         'shelp':'Send message of a type to console'})
-    self.api.get('commands.add')('types',
-                        {'lname':'Logger', 'func':self.cmd_types,
+    self.api.get('commands.add')('types', self.cmd_types,
+                        {'lname':'Logger',
                         'shelp':'Show data types'})
     #self.api.get('command.add')('log', 'archive',
                         #{'lname':'Logger', 'func':self.cmd_archive,
@@ -365,11 +371,11 @@ class Logger(object):
     """
     #print('logger api before adding', self.api.api)
     self.api.get('managers.add')('logger', self)
-    self.api.add('logger', 'msg', self.msg)
-    self.api.add('logger', 'adddtype', self.adddtype)
-    self.api.add('logger', 'console', self.toggletoconsole)
-    self.api.add('logger', 'file', self.toggletofile)
-    self.api.add('logger', 'client', self.toggletoclient)
+    self.api.add('logger', 'msg', self.api_msg)
+    self.api.add('logger', 'adddtype', self.api_adddtype)
+    self.api.add('logger', 'console', self.api_toggletoconsole)
+    self.api.add('logger', 'file', self.api_toggletofile)
+    self.api.add('logger', 'client', self.api_toggletoclient)
     #print('logger api after adding', self.api.api)
     self.api.get('events.register')('from_mud_event', self.logmud, plugin='log')
     self.api.get('events.register')('to_mud_event', self.logmud, plugin='log')

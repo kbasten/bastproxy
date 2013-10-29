@@ -4,7 +4,7 @@ $Id$
 This plugin holds a afk plugin
 """
 from libs import utils
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 import time
 import re
 import copy
@@ -24,7 +24,7 @@ titlere = re.compile(titlematch)
 titlesetmatch = 'Title now set to: (?P<title>.*)$'
 titleset = re.compile(titlesetmatch)
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to show connection information
   """
@@ -32,41 +32,42 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
-    self.addsetting('afktitle', 'is AFK.', str,
+    self.api.get('setting.add')('afktitle', 'is AFK.', str,
                         'the title when afk mode is enabled')
-    self.addsetting('lasttitle', '', str,
+    self.api.get('setting.add')('lasttitle', '', str,
                         'the title before afk mode is enabled')
-    self.addsetting('queue', [], list, 'the tell queue', readonly=True)
-    self.addsetting('isafk', False, bool, 'AFK flag', readonly=True)
+    self.api.get('setting.add')('queue', [], list, 'the tell queue', readonly=True)
+    self.api.get('setting.add')('isafk', False, bool, 'AFK flag', readonly=True)
 
     self.api.get('events.register')('client_connected', self.clientconnected)
     self.api.get('events.register')('client_disconnected', self.clientdisconnected)
-    self.api.get('events.register')('aardwolf_firstactive', self.afkfirstactive)
+    self.api.get('events.register')('firstactive', self.afkfirstactive)
 
-    self.cmds['show'] = {'func':self.cmd_showqueue,
-                                  'shelp':'Show the afk comm queue'}
-    self.cmds['clear'] = {'func':self.cmd_clear,
-                                  'shelp':'Clear the afk comm queue'}
-    self.cmds['toggle'] = {'func':self.cmd_toggle,
-                                  'shelp':'toggle afk'}
+    self.api.get('commands.add')('show', self.cmd_show,
+                                  {'shelp':'Show the afk comm queue'})
+    self.api.get('commands.add')('clear', self.cmd_clear,
+                                  {'shelp':'Clear the afk comm queue'})
+    self.api.get('commands.add')('toggle', self.cmd_toggle,
+                                  {'shelp':'toggle afk'})
 
     self.temptitle = ''
 
     self.api.get('watch.add')('titleset', {
       'regex':'^(tit|titl|title) (?P<title>.*)$'})
 
-    self.api.get('events.register')('cmd_titleset', self._titlesetcmd)
+    self.api.get('events.register')('cmd_titleset', self._titlesetevent)
 
   def afkfirstactive(self, args):
     """
     set the title when we first connect
     """
-    if self.variables['lasttitle']:
-      self.api.get('input.execute')('title %s' % self.variables['lasttitle'])
+    if self.api.get('setting.gets')('lasttitle'):
+      title = self.api.get('setting.gets')('lasttitle')
+      self.api.get('input.execute')('title %s' % lasttitle)
 
-  def _titlesetcmd(self, args):
+  def _titlesetevent(self, args):
     """
     check for stuff when the title command is seen
     """
@@ -83,25 +84,26 @@ class Plugin(BasePlugin):
     if line:
       if tmatch:
         newtitle = tmatch.groupdict()['title']
-        if newtitle != self.variables['afktitle']:
-          self.variables['lasttitle'] = self.temptitle
-          self.api.get('output.msg')('lasttitle is "%s"' % self.variables['lasttitle'])
+        if newtitle != self.api.get('setting.gets')('afktitle'):
+          self.api.get('setting.change')('lasttitle', self.temptitle)
+          self.api.get('output.msg')('lasttitle is "%s"' % self.temptitle)
       else:
-        self.msg('unregistering trigger_all from titlesetline')
+        self.api.get('output.msg')('unregistering trigger_all from titlesetline')
         self.api.get('events.unregister')('trigger_all', self.titlesetline)
 
-  def cmd_showqueue(self, _=None):
+  def cmd_show(self, _=None):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       show the tell queue
       @CUsage@w: show
     """
     msg = []
-    if len(self.variables['queue']) == 0:
+    queue = self.api.get('setting.gets')('queue')
+    if len(queue) == 0:
       msg.append('The queue is empty')
     else:
       msg.append('Tells received while afk')
-      for i in self.variables['queue']:
+      for i in queue:
         msg.append('%25s - %s' % (i['timestamp'], i['msg']))
 
     return True, msg
@@ -114,7 +116,7 @@ class Plugin(BasePlugin):
     """
     msg = []
     msg.append('AFK comm queue cleared')
-    self.variables['queue'] = []
+    self.api.get('setting.change')('lasttitle', [])
     self.savestate()
     return True, msg
 
@@ -125,8 +127,9 @@ class Plugin(BasePlugin):
       @CUsage@w: toggle
     """
     msg = []
-    self.variables['isafk'] = not self.variables['isafk']
-    if self.variables['isafk']:
+    newafk = not self.api.get('setting.gets')('isafk')
+    self.api.get('setting.change')('isafk', newafk)
+    if newafk:
       self.enableafk()
       msg.append('AFK mode is enabled')
     else:
@@ -143,32 +146,37 @@ class Plugin(BasePlugin):
       tdata = copy.deepcopy(args['data'])
       tdata['timestamp'] = \
               time.strftime('%a %b %d %Y %H:%M:%S', time.localtime())
-      self.variables['queue'].append(tdata)
+      queue = self.api.get('setting.gets')('queue')
+      queue.append(tdata)
       self.savestate()
 
   def enableafk(self):
     """
     enable afk mode
     """
-    self.variables['isafk'] = True
-    self.api.get('event.register')('GMCP:comm.channel', self.checkfortell)
-    self.api.get('input.execute')('title %s' % self.variables['afktitle'])
+    afktitle = self.api.get('setting.gets')('afktitle')
+    self.api.get('setting.change')('isafk', True)
+    self.api.get('events.register')('GMCP:comm.channel', self.checkfortell)
+    self.api.get('input.execute')('title %s' % afktitle)
 
   def disableafk(self):
     """
     disable afk mode
     """
-    self.variables['isafk'] = False
-    self.api.get('input.execute')('title %s' % self.variables['lasttitle'])
+    self.api.get('setting.change')('isafk', False)
+    lasttitle = self.api.get('setting.gets')('lasttitle')
+    self.api.get('input.execute')('title %s' % lasttitle)
     try:
       self.api.get('events.unregister')('GMCP:comm.channel', self.checkfortell)
     except KeyError:
       pass
 
-    if len(self.variables['queue']) > 0:
+    queue = self.api.get('setting.gets')('queue')
+
+    if len(queue) > 0:
       self.api.get('output.client')("@BAFK Queue")
       self.api.get('output.client')("@BYou have %s tells in the queue" % \
-                len(self.variables['queue']))
+                len(queue))
 
 
   def clientconnected(self, _):

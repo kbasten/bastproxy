@@ -152,3 +152,26 @@ class PersistentDict(dict):
     for k, val in dict(*args, **kwargs).iteritems():
       self[k] = val
 
+class PersistentDictEvent(PersistentDict):
+  """
+  a class to send events when a dictionary object is set
+  """
+  def __init__(self, plugin, filename, *args, **kwds):
+    """
+    init the class
+    """
+    self.plugin = plugin
+    self.api = API()
+    PersistentDict.__init__(self, filename, *args, **kwds)
+
+  def __setitem__(self, key, val):
+    """
+    override setitem
+    """
+    key = convert(key)
+    val = convert(val)
+    dict.__setitem__(self, key, val)
+    eventname = '%s_%s' % (self.plugin.sname, key)
+    if not self.plugin.resetflag:
+      self.api.get('events.eraise')(eventname, {'var':key,
+                                        'newvalue':val})

@@ -6,7 +6,7 @@ This plugin handles slist from Aardwolf
 import time
 import os
 import copy
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.persistentdict import PersistentDict
 from libs import utils
 from libs.timing import timeit
@@ -48,7 +48,7 @@ STYPE[2] = 'skill'
 FAILTARG = {0:'self', 1:'other'}
 
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin manage info about spells and skills
   """
@@ -56,7 +56,7 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.saveskillfile = os.path.join(self.savedir, 'skills.txt')
     self.skills = PersistentDict(self.saveskillfile, 'c', format='json')
     self.skillsnamelookup = {}
@@ -128,26 +128,26 @@ class Plugin(BasePlugin):
 
     self.api.get('events.register')('GMCP:char.status', self.checkskills)
 
-    self.cmds['refresh'] = {'func':self.cmd_refresh,
-              'shelp':'refresh skills and spells'}
-    self.cmds['lu'] = {'func':self.cmd_lu,
-              'shelp':'lookup skill by name or sn'}
+    self.api.get('commands.add')('refresh', self.cmd_refresh,
+                                 {'shelp':'refresh skills and spells'})
+    self.api.get('commands.add')('lu', self.cmd_lu,
+                                 {'shelp':'lookup skill by name or sn'})
 
-    self.api.get('api.add')('gets', {'func':self.getskill})
-    self.api.get('api.add')('isspellup', {'func':self.isspellup})
-    self.api.get('api.add')('getspellups', {'func':self.getspellups})
-    self.api.get('api.add')('sendcmd', {'func':self.sendcmd})
-    self.api.get('api.add')('isaffected', {'func':self.isaffected})
-    self.api.get('api.add')('isblockedbyrecovery', {'func':self.isblockedbyrecovery})
-    self.api.get('api.add')('ispracticed', {'func':self.ispracticed})
-    self.api.get('api.add')('canuse', {'func':self.canuse})
-    self.api.get('api.add')('isuptodate', {'func':self.isuptodate})
+    self.api.get('api.add')('gets', self.getskill)
+    self.api.get('api.add')('isspellup', self.isspellup)
+    self.api.get('api.add')('getspellups', self.getspellups)
+    self.api.get('api.add')('sendcmd', self.sendcmd)
+    self.api.get('api.add')('isaffected', self.isaffected)
+    self.api.get('api.add')('isblockedbyrecovery', self.isblockedbyrecovery)
+    self.api.get('api.add')('ispracticed', self.ispracticed)
+    self.api.get('api.add')('canuse', self.canuse)
+    self.api.get('api.add')('isuptodate', self.isuptodate)
 
   def firstactive(self):
     """
     do something on connect
     """
-    BasePlugin.firstactive(self)
+    AardwolfBasePlugin.firstactive(self)
     self.checkskills()
 
   def isuptodate(self):
@@ -279,7 +279,7 @@ class Plugin(BasePlugin):
       self.current = 'affected'
     else:
       self.current = ''
-    self.api.get('trigger.togglegroup')('recoveries', True)
+    self.api.get('triggers.togglegroup')('recoveries', True)
 
   def recovline(self, args):
     """
@@ -305,7 +305,7 @@ class Plugin(BasePlugin):
     """
     reset current when seeing a spellheaders ending
     """
-    self.api.get('trigger.togglegroup')('recoveries', False)
+    self.api.get('triggers.togglegroup')('recoveries', False)
     if self.current == '' or self.current == 'affected':
       self.isuptodatef = True
       self.api.get('output.msg')('sending skills_affected_update')
@@ -347,7 +347,7 @@ class Plugin(BasePlugin):
       self.current = 'affected'
     else:
       self.current = ''
-    self.api.get('trigger.togglegroup')('spellhead', True)
+    self.api.get('triggers.togglegroup')('spellhead', True)
 
   def skillline(self, args):
     """
@@ -385,7 +385,7 @@ class Plugin(BasePlugin):
     """
     reset current when seeing a spellheaders ending
     """
-    self.api.get('trigger.togglegroup')('spellhead', False)
+    self.api.get('triggers.togglegroup')('spellhead', False)
     self.savestate()
     if self.current:
       evname = 'aard_skill_ref_%s' % self.current
@@ -399,7 +399,7 @@ class Plugin(BasePlugin):
     """
     get a skill
     """
-    self.api.get('output.msg')('looking for %s' % tsn, 'skills')
+    self.api.get('output.msg')('looking for %s' % tsn)
     sn = -1
     name = tsn
     try:
@@ -409,16 +409,16 @@ class Plugin(BasePlugin):
 
     tskill = None
     if sn >= 1:
-      self.api.get('output.msg')('%s >= 0' % sn, 'skills')
+      self.api.get('output.msg')('%s >= 0' % sn)
       if sn in self.skills:
-        self.api.get('output.msg')('found sn', 'skills')
+        self.api.get('output.msg')('found sn')
         tskill = copy.deepcopy(self.skills[sn])
         #tskill = self.skills[sn]
       else:
-        self.api.get('output.msg')('did not find skill for int', 'skill')
+        self.api.get('output.msg')('did not find skill for int')
 
     if not tskill and name:
-      self.api.get('output.msg')('trying name', 'skills')
+      self.api.get('output.msg')('trying name')
       tlist = utils.checklistformatch(name, self.skillsnamelookup.keys())
       if len(tlist) == 1:
         tskill = copy.deepcopy(self.skills[self.skillsnamelookup[tlist[0]]])
@@ -509,7 +509,10 @@ class Plugin(BasePlugin):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.skills.sync()
     self.recoveries.sync()
 
+  def load(self):
+    AardwolfBasePlugin.load(self)
+    self.checkskills()

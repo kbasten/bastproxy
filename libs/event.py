@@ -50,13 +50,13 @@ class EventMgr(object):
     self.events = {}
     self.watchcmds = {}
     self.pluginlookup = {}
+    self.regexlookup = {}
     self.api = API()
-    self.registerevent('from_client_event', self.checkcmd)
 
-    self.api.add(self.sname, 'register', self.registerevent)
-    self.api.add(self.sname, 'unregister', self.unregisterevent)
-    self.api.add(self.sname, 'eraise', self.raiseevent)
-    self.api.add(self.sname, 'removeplugin', self.removeplugin)
+    self.api.add(self.sname, 'register', self.api_register)
+    self.api.add(self.sname, 'unregister', self.api_unregister)
+    self.api.add(self.sname, 'eraise', self.api_eraise)
+    self.api.add(self.sname, 'removeplugin', self.api_removeplugin)
 
     self.api.add('watch', 'add', self.addwatch)
     self.api.add('watch', 'remove', self.removewatch)
@@ -110,7 +110,7 @@ class EventMgr(object):
         targs['cmdname'] = 'cmd_' + i
         targs['data'] = tdat
         self.api.get('output.msg')('raising %s' % targs['cmdname'], 'cmds')
-        tdata = self.raiseevent('cmd_' + i, targs)
+        tdata = self.api.get('events.eraise')('cmd_' + i, targs)
         if 'changed' in tdata:
           data['nfromdata'] = tdata['changed']
 
@@ -120,7 +120,7 @@ class EventMgr(object):
 
 
   # register a function with an event
-  def registerevent(self, eventname, func,  **kwargs):
+  def api_register(self, eventname, func,  **kwargs):
     """  register a function with an event
     @Yeventname@w   = The event to register with
     @Yfunc@w        = The function to register
@@ -153,7 +153,7 @@ class EventMgr(object):
                             {'eventname':eventname, 'prio':prio}
 
   # unregister a function from an event
-  def unregisterevent(self, eventname, func, **kwargs):
+  def api_unregister(self, eventname, func, **kwargs):
     """  unregister a function with an event
     @Yeventname@w   = The event to unregister with
     @Yfunc@w        = The function to unregister
@@ -181,7 +181,7 @@ class EventMgr(object):
           del(self.pluginlookup[plugin]['events'][func])
 
   # remove all registered functions that are specific to a plugin
-  def removeplugin(self, plugin):
+  def api_removeplugin(self, plugin):
     """  remove all registered functions that are specific to a plugin
     @Yplugin@w   = The plugin to remove events for
     this function returns no values"""
@@ -190,16 +190,16 @@ class EventMgr(object):
       tkeys = self.pluginlookup[plugin]['events'].keys()
       for i in tkeys:
         event = self.pluginlookup[plugin]['events'][i]
-        self.unregisterevent(event['eventname'], i)
+        self.api.get('events.unregister')(event['eventname'], i)
 
       self.pluginlookup[plugin]['events'] = {}
 
   # raise an event, args vary
-  def raiseevent(self, eventname, args):
+  def api_eraise(self, eventname, args):
     """  raise an event with args
     @Yeventname@w   = The event to raise
     @Yargs@w        = A table of arguments
-    
+
     this function returns no values"""
     self.api.get('output.msg')('raiseevent %s' % eventname, self.sname)
     nargs = args.copy()
@@ -237,7 +237,8 @@ class EventMgr(object):
     load the module
     """
     self.api.get('managers.add')(self.sname, self)
-    self.registerevent('plugin_logger_loaded', self.loggerloaded)
-    self.raiseevent('plugin_event_loaded', {})
+    self.api.get('events.register')('plugin_logger_loaded', self.loggerloaded)
+    self.api.get('events.register')('from_client_event', self.checkcmd)
+    self.api.get('events.eraise')('plugin_event_loaded', {})
 
 

@@ -6,7 +6,7 @@ This plugin highlights cp/gq/quest mobs in scan
 import time
 import os
 import copy
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.persistentdict import PersistentDict
 from libs import utils
 from libs.timing import timeit
@@ -20,7 +20,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin manage info about spells and skills
   """
@@ -28,23 +28,23 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
-    self.addsetting('cpbackcolor', '@z14', 'color',
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
+    self.api.get('setting.add')('cpbackcolor', '@z14', 'color',
                         'the background color for cp mobs')
-    self.addsetting('gqbackcolor', '@z9', 'color',
+    self.api.get('setting.add')('gqbackcolor', '@z9', 'color',
                         'the background color for gq mobs')
-    self.addsetting('questbackcolor', '@z13', 'color',
+    self.api.get('setting.add')('questbackcolor', '@z13', 'color',
                         'the background color for quest mobs')
-    self.addsetting('cptextcolor', '@x0', 'color',
+    self.api.get('setting.add')('cptextcolor', '@x0', 'color',
                         'the background color for cp mobs')
-    self.addsetting('gqtextcolor', '@x0', 'color',
+    self.api.get('setting.add')('gqtextcolor', '@x0', 'color',
                         'the background color for gq mobs')
-    self.addsetting('questtextcolor', '@x0', 'color',
+    self.api.get('setting.add')('questtextcolor', '@x0', 'color',
                         'the background color for quest mobs')
 
-    self.dependencies.append('quest')
-    self.dependencies.append('cp')
-    self.dependencies.append('gq')
+    self.api.get('dependency.add')('quest')
+    self.api.get('dependency.add')('cp')
+    self.api.get('dependency.add')('gq')
 
     self.triggers['scanstart'] = \
             {'regex':"^\{scan\}$"}
@@ -71,8 +71,8 @@ class Plugin(BasePlugin):
     """
     show that the trigger fired
     """
-    self.msg('found {scan}')
-    self.api.get('trigger.togglegroup')('scan', True)
+    self.api.get('output.msg')('found {scan}')
+    self.api.get('triggers.togglegroup')('scan', True)
     self.api.get('events.register')('trigger_all', self.scanline)
 
   def scanline(self, args):
@@ -80,26 +80,26 @@ class Plugin(BasePlugin):
     parse a recovery line
     """
     line = args['line'].lower().strip()
-    self.msg('scanline: %s' % line)
+    self.api.get('output.msg')('scanline: %s' % line)
     if 'cp' in self.mobs:
       for i in self.mobs['cp']:
         if i['nocolorname'].lower() in line:
           args['newline'] = self.variables['cptextcolor'] + \
                   self.variables['cpbackcolor'] + args['line'] + ' - (CP)@x'
-          self.msg('cp newline: %s' % args['newline'])
+          self.api.get('output.msg')('cp newline: %s' % args['newline'])
           break
     if 'gq' in self.mobs:
       for i in self.mobs['gq']:
         if i['name'].lower() in line:
           args['newline'] = self.variables['gqtextcolor'] + \
                   self.variables['gqbackcolor'] + args['line'] + ' - (GQ)@x'
-          self.msg('gq newline: %s' % args['newline'])
+          self.api.get('output.msg')('gq newline: %s' % args['newline'])
           break
     if 'quest' in self.mobs:
       if self.mobs['quest'].lower() in line:
         args['newline'] = self.variables['questtextcolor'] + \
               self.variables['questbackcolor'] + args['line'] + ' - (Quest)@x'
-        self.msg('quest newline: %s' % args['newline'])
+        self.api.get('output.msg')('quest newline: %s' % args['newline'])
 
     return args
 
@@ -107,15 +107,15 @@ class Plugin(BasePlugin):
     """
     reset current when seeing a spellheaders ending
     """
-    self.msg('found {/scan}')
+    self.api.get('output.msg')('found {/scan}')
     self.api.get('events.unregister')('trigger_all', self.scanline)
-    self.api.get('trigger.togglegroup')('scan', False)
+    self.api.get('triggers.togglegroup')('scan', False)
 
   def cpmobs(self, args):
     """
     get cp mobs left
     """
-    self.msg('got cpmobs')
+    self.api.get('output.msg')('got cpmobs')
     if 'mobsleft' in args:
       self.mobs['cp'] = args['mobsleft']
 
@@ -123,14 +123,14 @@ class Plugin(BasePlugin):
     """
     clear the cp mobs
     """
-    self.msg('clearing cp mobs')
+    self.api.get('output.msg')('clearing cp mobs')
     del(self.mobs['cp'])
 
   def gqmobs(self, args):
     """
     get gq mobs left
     """
-    self.msg('got gqmobs')
+    self.api.get('output.msg')('got gqmobs')
     if 'mobsleft' in args:
       self.mobs['gq'] = args['mobsleft']
 
@@ -138,19 +138,19 @@ class Plugin(BasePlugin):
     """
     clear the gq mob
     """
-    self.msg('clearing gq mobs')
+    self.api.get('output.msg')('clearing gq mobs')
     del(self.mobs['gq'])
 
   def questmob(self, args):
     """
     get quest mob
     """
-    self.msg('got quest mob')
+    self.api.get('output.msg')('got quest mob')
     self.mobs['quest'] = args['mobname']
 
   def questclear(self, args):
     """
     clear the quest mob
     """
-    self.msg('clearing quest mob')
+    self.api.get('output.msg')('clearing quest mob')
     del(self.mobs['quest'])

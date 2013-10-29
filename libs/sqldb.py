@@ -107,12 +107,18 @@ class Sqldb(object):
     """
     add commands to the plugin to use the database
     """
-    self.plugin.cmds['dbbackup'] = {'func':self.cmd_backup,
-              'shelp':'backup the database'}
-    self.plugin.cmds['dbclose'] = {'func':self.cmd_close,
-              'shelp':'close the database'}
-    self.plugin.cmds['dbvac'] = {'func':self.cmd_vac,
-              'shelp':'vacuum the database'}
+    self.plugin.api.get('commands.add')('dbbackup', self.cmd_backup,
+                                          {'shelp':'backup the database',
+                                           'sname':self.plugin.sname,
+                                           'lname':self.plugin.name})
+    self.plugin.api.get('commands.add')('dbclose', self.cmd_close,
+                                          {'shelp':'close the database',
+                                           'sname':self.plugin.sname,
+                                           'lname':self.plugin.name})
+    self.plugin.api.get('commands.add')('dbvac', self.cmd_vac,
+                                          {'shelp':'vacuum the database',
+                                           'sname':self.plugin.sname,
+                                           'lname':self.plugin.name})
 
   def cmd_vac(self, _=None):
     """

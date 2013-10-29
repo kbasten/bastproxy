@@ -10,7 +10,7 @@ import re
 from libs import utils
 from libs.color import strip_ansi
 from libs.persistentdict import PersistentDict
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf CP Events'
 SNAME = 'cp'
@@ -20,7 +20,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
@@ -28,10 +28,9 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savecpfile = os.path.join(self.savedir, 'cp.txt')
     self.cpinfo = PersistentDict(self.savecpfile, 'c', format='json')
-    self.dependencies.append('aardu')
     self.mobsleft = []
     self.cpinfotimer = {}
     self.linecount = 0
@@ -139,10 +138,10 @@ class Plugin(BasePlugin):
     """
     self.cpinfo['oncp'] = False
     self.savestate()
-    self.api.get('.trigger.togglegroup')('cpcheck', False)
-    self.api.get('.trigger.togglegroup')('cpin', False)
-    self.api.get('.trigger.togglegroup')('cprew', False)
-    self.api.get('.trigger.togglegroup')('cpdone', False)
+    self.api.get('triggers.togglegroup')('cpcheck', False)
+    self.api.get('triggers.togglegroup')('cpin', False)
+    self.api.get('triggers.togglegroup')('cprew', False)
+    self.api.get('triggers.togglegroup')('cpdone', False)
     #check(EnableTimer("cp_timer", false))
     self.cpinfotimer = {}
     self.api.get('output.client')('cpnone')
@@ -161,8 +160,8 @@ class Plugin(BasePlugin):
     self.api.get('output.msg')('raising aard_cp_mobsleft %s' % self.mobsleft)
     self.api.get('events.eraise')('aard_cp_mobsleft',
                     copy.deepcopy({'mobsleft':self.mobsleft}))
-    self.api.get('trigger.togglegroup')("cpcheck", False)
-    self.api.get('trigger.togglegroup')("cpin", True)
+    self.api.get('triggers.togglegroup')("cpcheck", False)
+    self.api.get('triggers.togglegroup')("cpin", True)
 
   def _cpneedtolevel(self, _=None):
     """
@@ -212,7 +211,7 @@ class Plugin(BasePlugin):
     """
     handle cpcomplete
     """
-    self.api.get('trigger.togglegroup')('cprew', True)
+    self.api.get('triggers.togglegroup')('cprew', True)
     self.cpinfo['finishtime'] = time.time()
     self.cpinfo['oncp'] = False
     self.savestate()
@@ -226,7 +225,7 @@ class Plugin(BasePlugin):
     rewardt = self.api.get('aardu.rewardtable')()
     self.cpinfo[rewardt[rtype]] = ramount
     self.savestate()
-    self.api.get('trigger.togglegroup')('cpdone', True)
+    self.api.get('triggers.togglegroup')('cpdone', True)
 
   def _cpcompdone(self, _=None):
     """
@@ -263,7 +262,7 @@ class Plugin(BasePlugin):
     """
     self.mobsleft = []
     self.cpinfotimer = {}
-    self.api.get('trigger.togglegroup')('cpcheck', True)
+    self.api.get('triggers.togglegroup')('cpcheck', True)
     return args
 
   def _mobkillevent(self, args):
@@ -296,5 +295,5 @@ class Plugin(BasePlugin):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.cpinfo.sync()

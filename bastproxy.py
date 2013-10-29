@@ -155,8 +155,8 @@ def main():
   from libs.logger import Logger
   LOGGER = Logger()
   LOGGER.load()
-  LOGGER.adddtype('startup')
-  LOGGER.cmd_console(['startup'])
+  api.get('logger.adddtype')('startup')
+  api.get('logger.console')('startup')
   api.get('output.msg')('Logger - loaded', 'startup')
 
   api.get('output.msg')('Command Manager - loading', 'startup')

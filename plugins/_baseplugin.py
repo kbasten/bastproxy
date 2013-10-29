@@ -1,41 +1,14 @@
 """
 $Id$
 
-#TODO: make initialized events use the same syntax as runtime added events
-  make an addevent function to the plugin baseclass
-  same with commands and all other items that can be added at runtime
+#TODO: same with commands and all other items that can be added at runtime
 
 make all functions that add things use kwargs instead of a table
 """
 import os
 from libs.utils import verify, convert
-from libs.persistentdict import PersistentDict
+from libs.persistentdict import PersistentDictEvent
 from libs.api import API
-
-
-class PersistentDictEvent(PersistentDict):
-  """
-  a class to send events when a dictionary object is set
-  """
-  def __init__(self, plugin, filename, *args, **kwds):
-    """
-    init the class
-    """
-    self.plugin = plugin
-    self.api = API()
-    PersistentDict.__init__(self, filename, *args, **kwds)
-
-  def __setitem__(self, key, val):
-    """
-    override setitem
-    """
-    key = convert(key)
-    val = convert(val)
-    dict.__setitem__(self, key, val)
-    eventname = '%s_%s' % (self.plugin.sname, key)
-    if not self.plugin.resetflag:
-      self.api.get('events.eraise')(eventname, {'var':key,
-                                        'newvalue':val})
 
 
 class BasePlugin(object):
@@ -71,24 +44,28 @@ class BasePlugin(object):
     self.settingvalues = PersistentDictEvent(self, self.savefile,
                             'c', format='json')
     self.settings = {}
-    self.api.overload('output', 'msg', self.msg)
-    self.api.overload('commands', 'default', self.defaultcmd)
-    self.api.overload('dependency', 'add', self.adddependency)
-    self.api.overload('setting', 'add', self.addsetting)
-    self.api.overload('setting', 'gets', self.getsetting)
-    self.api.overload('api', 'add', self.addapi)
+    self.api.overload('output', 'msg', self.api_outputmsg)
+    self.api.overload('commands', 'default', self.api_commandsdefault)
+    self.api.overload('dependency', 'add', self.api_dependencyadd)
+    self.api.overload('setting', 'add', self.api_settingadd)
+    self.api.overload('setting', 'gets', self.api_settinggets)
+    self.api.overload('setting', 'change', self.api_settingchange)
+    self.api.overload('api', 'add', self.api_add)
     self.timers = {}
     self.triggers = {}
     self.cmdwatch = {}
 
     self.api.get('logger.adddtype')(self.sname)
-    self.api.get('commands.add')('set', {'func':self.cmd_set, 'shelp':'Show/Set Settings'})
-    self.api.get('commands.add')('reset', {'func':self.cmd_reset, 'shelp':'reset the plugin'})
-    self.api.get('commands.add')('save', {'func':self.cmd_save, 'shelp':'save plugin state'})
+    self.api.get('commands.add')('set', self.cmd_set,
+                                 {'shelp':'Show/Set Settings'})
+    self.api.get('commands.add')('reset', self.cmd_reset,
+                                 {'shelp':'reset the plugin'})
+    self.api.get('commands.add')('save', self.cmd_save,
+                                 {'shelp':'save plugin state'})
     self.api.get('events.register')('firstactive', self.afterfirstactive)
 
   # get the vaule of a setting
-  def getsetting(self, setting):
+  def api_settinggets(self, setting):
     """  get the value of a setting
     @Ysetting@w = the setting value to get
 
@@ -99,13 +76,25 @@ class BasePlugin(object):
       return None
 
   # add a plugin dependency
-  def adddependency(self, dependency):
+  def api_dependencyadd(self, dependency):
     """  add a depencency
     @Ydependency@w    = the name of the plugin that will be a dependency
 
     this function returns no values"""
     if not (dependency in self.dependencies):
       self.dependencies.append(dependency)
+
+  # change the value of a setting
+  def api_settingchange(self, setting, value):
+    """  add a depencency
+    @Ydependency@w    = the name of the plugin that will be a dependency
+
+    this function returns True if the value was changed, False otherwise"""
+    if setting in self.settings:
+      self.settingvalues[setting] = value
+      return True
+
+    return False
 
   def load(self):
     """
@@ -116,20 +105,11 @@ class BasePlugin(object):
 
     self.settingvalues.pload()
 
-    # register all timers
-    for i in self.timers:
-      tim = self.timers[i]
-      self.api.get('timers.add')(i, tim)
-
     for i in self.triggers:
       self.api.get('triggers.add')(i, self.triggers[i])
 
     for i in self.cmdwatch:
       self.api.get('cmdwatch.add')(i, self.watch[i])
-
-    #if len(self.exported) > 0:
-      #for i in self.exported:
-        #self.api.add(self.sname, i, self.exported[i]['func'])
 
     if proxy and proxy.connected:
       try:
@@ -154,8 +134,7 @@ class BasePlugin(object):
     self.api.get('events.removeplugin')(self.sname)
 
     # delete all timers
-    for i in self.timers:
-      self.api.get('timers.remove')(i)
+    self.api.get('timers.removeplugin')(self.sname)
 
     for i in self.triggers:
       self.api.get('triggers.remove')(i)
@@ -172,7 +151,7 @@ class BasePlugin(object):
     self.api.get('events.eraise')('event_plugin_unload', {'plugin':self.sname})
 
   # handle a message
-  def msg(self, msg):
+  def api_outputmsg(self, msg):
     """
     an internal function to send msgs
     """
@@ -251,7 +230,7 @@ class BasePlugin(object):
     return tmsg
 
   # add a setting to the plugin
-  def addsetting(self, name, default, stype, shelp, **kwargs):
+  def api_settingadd(self, name, default, stype, shelp, **kwargs):
     """  remove a command
     @Yname@w     = the name of the setting
     @Ydefault@w  = the default value of the setting
@@ -303,7 +282,7 @@ class BasePlugin(object):
     self.api.get('events.unregister')('firstactive', self.afterfirstactive)
 
   # set the default command
-  def defaultcmd(self, cmd):
+  def api_commandsdefault(self, cmd):
     """
     set a command as default
     """
@@ -311,7 +290,7 @@ class BasePlugin(object):
     self.api.get('commands.default', True)(self.sname, cmd)
 
   # add a function to the api
-  def addapi(self, name, func):
+  def api_add(self, name, func):
     """
     set a command as default
     """

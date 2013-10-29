@@ -50,21 +50,6 @@ OFF = chr(2)
 
 A102 = chr(102)
 
-# Send an A102 packet
-def a102sendpacket(message):
-  """  send an A102 packet
-  @Ymessage@w  = the message to send
-
-  Format: IAC SB A102 <atcp message text> IAC SE
-
-  this function returns no values"""
-  from libs.api import API
-  api = API()
-  api.get('events.eraise')('to_mud_event', {'data':'%s%s%s%s%s%s' % \
-        (IAC, SB, A102, message.replace(IAC, IAC+IAC), IAC, SE),
-        'raw':True, 'dtype':A102})
-
-
 # Plugin
 class Plugin(BasePlugin):
   """
@@ -81,8 +66,8 @@ class Plugin(BasePlugin):
                              connected to the server
     """
     BasePlugin.__init__(self, tname, tsname, filename, directory, importloc)
-    self.api.get('api.add')('sendpacket', a102sendpacket)
-    self.api.get('api.add')('toggle', self.toggle)
+    self.api.get('api.add')('sendpacket', self.api_sendpacket)
+    self.api.get('api.add')('toggle', self.api_toggle)
     self.api.get('events.register')('A102_from_server', self.a102fromserver)
     self.api.get('events.register')('A102_from_client', self.a102fromclient)
     self.api.get('events.register')('A102:server-enabled', self.a102request)
@@ -94,6 +79,20 @@ class Plugin(BasePlugin):
 
     self.reconnecting = False
 
+  # Send an A102 packet
+  def api_sendpacket(self, message):
+    """  send an A102 packet
+    @Ymessage@w  = the message to send
+
+    Format: IAC SB A102 <atcp message text> IAC SE
+
+    this function returns no values"""
+    from libs.api import API
+    api = API()
+    api.get('events.eraise')('to_mud_event', {'data':'%s%s%s%s%s%s' % \
+          (IAC, SB, A102, message.replace(IAC, IAC+IAC), IAC, SE),
+          'raw':True, 'dtype':A102})
+
   def disconnect(self, _=None):
     """
     this function is registered with the muddisconnect hook
@@ -102,7 +101,7 @@ class Plugin(BasePlugin):
     self.reconnecting = True
 
   # toggle an a102 option
-  def toggle(self, aoption, mstate):
+  def api_toggle(self, aoption, mstate):
     """  toggle an A102 option
     @Yaoption@w  = the A102 option to toggle
     @Ymstate@w  = the state, either True or False
@@ -130,7 +129,7 @@ class Plugin(BasePlugin):
       if self.optionstates[aoption] == 0:
         self.api.get('output.msg')('Enabling A102 option: %s' % AOPTIONREV[aoption])
         cmd = '%s%s' % (chr(aoption), ON)
-        a102sendpacket(cmd)
+        self.api.get('A102.sendpacket')(cmd)
       self.optionstates[aoption] = self.optionstates[aoption] + 1
 
     else:
@@ -139,7 +138,7 @@ class Plugin(BasePlugin):
       if self.optionstates[aoption] == 0:
         self.api.get('output.msg')('Disabling A102 option: %s' % AOPTIONREV[aoption])
         cmd = '%s%s' % (chr(aoption), OFF)
-        a102sendpacket(cmd)
+        self.api.get('A102.sendpacket')(cmd)
 
   def a102fromserver(self, args):
     """
@@ -163,11 +162,11 @@ class Plugin(BasePlugin):
         if tnum > 0:
           self.api.get('output.msg')('Re-Enabling A102 option: %s' % AOPTIONREV[i])
           cmd = '%s%s' % (i, 1)
-          a102sendpacket(cmd)
+          self.api.get('A102.sendpacket')(cmd)
         else:
           self.api.get('output.msg')('Re-Disabling A102 option: %s' % AOPTIONREV[i])
           cmd = '%s%s' % (i, 2)
-          a102sendpacket(cmd)
+          self.api.get('A102.sendpacket')(cmd)
 
 
   def a102fromclient(self, args):

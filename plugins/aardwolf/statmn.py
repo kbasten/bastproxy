@@ -4,7 +4,7 @@ $Id$
 This plugin shows stats for events on Aardwolf
 """
 from libs import utils
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 import time
 import copy
 
@@ -16,7 +16,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to monitor aardwolf events
   """
@@ -24,7 +24,7 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.api.get('events.register')('aard_quest_comp', self.compquest)
     self.api.get('events.register')('aard_cp_comp', self.compcp)
     self.api.get('events.register')('aard_level_gain', self.levelgain)
@@ -32,30 +32,30 @@ class Plugin(BasePlugin):
     self.api.get('events.register')('aard_gq_done', self.compgq)
     self.api.get('events.register')('aard_gq_completed', self.compgq)
     self.api.get('events.register')('statmn_showminutes', self.showchange)
-    self.addsetting('statcolor', '@W', 'color', 'the stat color')
-    self.addsetting('infocolor', '@x33', 'color', 'the info color')
-    self.addsetting('showminutes', 5, int,
+    self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
+    self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
+    self.api.get('setting.add')('showminutes', 5, int,
                     'show the report every x minutes, set to 0 to turn off')
-    self.addsetting('reportminutes', 60, int,
+    self.api.get('setting.add')('reportminutes', 60, int,
                       'the # of minutes for the report to show')
-    self.addsetting('exppermin', 20, int,
+    self.api.get('setting.add')('exppermin', 20, int,
                 'the threshhold for showing exp per minute')
-    self.cmds['rep'] = {'func':self.cmd_rep,
-              'shelp':'show report'}
-    self.timers['statrep'] = {'func':self.timershow,
-                                'seconds':5*60, 'nodupe':True}
+    self.api.get('commands.add')('rep', self.cmd_rep,
+              {'shelp':'show report'})
+
+    self.api.get('timers.add')('statrep', self.timershow,
+                               5*60, nodupe=True)
     self.msgs = []
 
   def showchange(self, args):
     """
     do something when the reportminutes changes
     """
-    self.api.get('timer.remove')('statrep')
+    self.api.get('timers.remove')('statrep')
     if int(args['newvalue']) > 0:
-      self.api.get('timer.add')('statrep',
-               {'func':self.timershow,
-                'seconds':int(args['newvalue']) * 60,
-                'nodupe':True})
+      self.api.get('timers.add')('statrep', self.timershow,
+                int(args['newvalue']) * 60,
+                nodupe=True)
     else:
       self.api.get('output.client')('Turning off the statmon report')
 
@@ -70,42 +70,44 @@ class Plugin(BasePlugin):
     handle a quest completion
     """
     msg = []
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
     msg.append('%sStatMonitor: Quest finished for ' % \
-                      self.variables['infocolor'])
-    msg.append('%s%s' % (self.variables['statcolor'], args['qp']))
+                      infocolor)
+    msg.append('%s%s' % (statcolor, args['qp']))
     if args['lucky'] > 0:
-      msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], args['lucky']))
+      msg.append('%s+%s%s' % (infocolor,
+            statcolor, args['lucky']))
     if args['mccp'] > 0:
-      msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], args['mccp']))
+      msg.append('%s+%s%s' % (infocolor,
+            statcolor, args['mccp']))
     if args['tier'] > 0:
-      msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], args['tier']))
+      msg.append('%s+%s%s' % (infocolor,
+            statcolor, args['tier']))
     if args['daily'] == 1:
-      msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], 'E'))
+      msg.append('%s+%s%s' % (infocolor,
+            statcolor, 'E'))
     if args['double'] == 1:
-      msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], 'D'))
-    msg.append(' %s= ' % self.variables['infocolor'])
-    msg.append('%s%s%sqp' % (self.variables['statcolor'],
-            args['totqp'], self.variables['infocolor']))
+      msg.append('%s+%s%s' % (infocolor,
+            statcolor, 'D'))
+    msg.append(' %s= ' % infocolor)
+    msg.append('%s%s%sqp' % (statcolor,
+            args['totqp'], infocolor))
     if args['tp'] > 0:
-      msg.append(' %s%s%sTP' % (self.variables['statcolor'],
-            args['tp'], self.variables['infocolor']))
+      msg.append(' %s%s%sTP' % (statcolor,
+            args['tp'], infocolor))
     if args['trains'] > 0:
-      msg.append(' %s%s%str' % (self.variables['statcolor'],
-            args['trains'], self.variables['infocolor']))
+      msg.append(' %s%s%str' % (statcolor,
+            args['trains'], infocolor))
     if args['pracs'] > 0:
-      msg.append(' %s%s%spr' % (self.variables['statcolor'],
-            args['pracs'], self.variables['infocolor']))
+      msg.append(' %s%s%spr' % (statcolor,
+            args['pracs'], infocolor))
     msg.append('. It took %s%s%s.' % (
-         self.variables['statcolor'],
+         statcolor,
          utils.timedeltatostring(args['starttime'], args['finishtime'],
-         fmin=True, colorn=self.variables['statcolor'],
-         colors=self.variables['infocolor']),
-         self.variables['infocolor']))
+         fmin=True, colorn=statcolor,
+         colors=infocolor),
+         infocolor))
 
     if self.api.get('plugins.isinstalled')('statdb'):
       stmt = "SELECT COUNT(*) as COUNT, AVG(totqp) as AVEQP " \
@@ -115,10 +117,10 @@ class Plugin(BasePlugin):
       quest_avg = tst[0]['AVEQP']
       if quest_total > 1:
         msg.append(" %sAvg: %s%02.02f %sqp/quest over %s%s%s quests." % \
-          (self.variables['infocolor'], self.variables['statcolor'],
-           quest_avg, self.variables['infocolor'],
-           self.variables['statcolor'], quest_total,
-           self.variables['infocolor']))
+          (infocolor, statcolor,
+           quest_avg, infocolor,
+           statcolor, quest_total,
+           infocolor))
 
     self.addmessage(''.join(msg))
 
@@ -127,33 +129,35 @@ class Plugin(BasePlugin):
     handle a cp completion
     """
     self.api.get('output.msg')('compcp: %s' % args)
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
     msg = []
     msg.append('%sStatMonitor: CP finished for ' % \
-                  self.variables['infocolor'])
+                  infocolor)
     if args['bonusqp'] > 0:
       totalqp = args['bonusqp'] + args['qp']
-      msg.append('%s%s%s+%s%sB%s=%s%sqp' % (self.variables['statcolor'],
-                  args['qp'], self.variables['infocolor'],
-                  self.variables['statcolor'], args['bonusqp'],
-                  self.variables['infocolor'], self.variables['statcolor'],
+      msg.append('%s%s%s+%s%sB%s=%s%sqp' % (statcolor,
+                  args['qp'], infocolor,
+                  statcolor, args['bonusqp'],
+                  infocolor, statcolor,
                   totalqp))
     else:
-      msg.append('%s%s%sqp' % (self.variables['statcolor'], args['qp'],
-                  self.variables['infocolor']))
+      msg.append('%s%s%sqp' % (statcolor, args['qp'],
+                  infocolor))
     if args['tp'] > 0:
-      msg.append(' %s%s%sTP' % (self.variables['statcolor'],
-            args['tp'], self.variables['infocolor']))
+      msg.append(' %s%s%sTP' % (statcolor,
+            args['tp'], infocolor))
     if args['trains'] > 0:
-      msg.append(' %s%s%str' % (self.variables['statcolor'],
-            args['trains'], self.variables['infocolor']))
+      msg.append(' %s%s%str' % (statcolor,
+            args['trains'], infocolor))
     if args['pracs'] > 0:
-      msg.append(' %s%s%spr' % (self.variables['statcolor'],
-            args['pracs'], self.variables['infocolor']))
+      msg.append(' %s%s%spr' % (statcolor,
+            args['pracs'], infocolor))
     msg.append('. %sIt took %s.' % (
-         self.variables['infocolor'],
+         infocolor,
          utils.timedeltatostring(args['starttime'], args['finishtime'],
-         fmin=True, colorn=self.variables['statcolor'],
-         colors=self.variables['infocolor'])))
+         fmin=True, colorn=statcolor,
+         colors=infocolor)))
 
     self.addmessage(''.join(msg))
 
@@ -162,28 +166,30 @@ class Plugin(BasePlugin):
     handle a gq completion
     """
     self.api.get('output.msg')('compgq: %s' % args)
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
     msg = []
     msg.append('%sStatMonitor: GQ finished for ' % \
-                  self.variables['infocolor'])
-    msg.append('%s%s%s' % (self.variables['statcolor'], args['qp'],
-                  self.variables['infocolor']))
-    msg.append('+%s%s%sqp' % (self.variables['statcolor'], args['qpmobs'],
-                  self.variables['infocolor']))
+                  infocolor)
+    msg.append('%s%s%s' % (statcolor, args['qp'],
+                  infocolor))
+    msg.append('+%s%s%sqp' % (statcolor, args['qpmobs'],
+                  infocolor))
     if args['tp'] > 0:
-      msg.append(' %s%s%sTP' % (self.variables['statcolor'],
-            args['tp'], self.variables['infocolor']))
+      msg.append(' %s%s%sTP' % (statcolor,
+            args['tp'], infocolor))
     if args['trains'] > 0:
-      msg.append(' %s%s%str' % (self.variables['statcolor'],
-            args['trains'], self.variables['infocolor']))
+      msg.append(' %s%s%str' % (statcolor,
+            args['trains'], infocolor))
     if args['pracs'] > 0:
-      msg.append(' %s%s%spr' % (self.variables['statcolor'],
-            args['pracs'], self.variables['infocolor']))
+      msg.append(' %s%s%spr' % (statcolor,
+            args['pracs'], infocolor))
     msg.append('.')
     msg.append(' %sIt took %s.' % (
-         self.variables['infocolor'],
+         infocolor,
          utils.timedeltatostring(args['starttime'], args['finishtime'],
-         fmin=True, colorn=self.variables['statcolor'],
-         colors=self.variables['infocolor'])))
+         fmin=True, colorn=statcolor,
+         colors=infocolor)))
 
     self.addmessage(''.join(msg))
 
@@ -192,53 +198,56 @@ class Plugin(BasePlugin):
     handle a level or pup gain
     """
     self.api.get('output.msg')('levelgain: %s' % args)
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
+    exppermin = self.api.get('setting.gets')('exppermin')
     msg = []
-    msg.append('%sStatMonitor: Gained a %s:' % (self.variables['infocolor'],
+    msg.append('%sStatMonitor: Gained a %s:' % (infocolor,
                 args['type']))
     if args['type'] == 'level':
-      msg.append(' %s%s%shp' % (self.variables['statcolor'],
-            args['hp'], self.variables['infocolor']))
+      msg.append(' %s%s%shp' % (statcolor,
+            args['hp'], infocolor))
     if args['type'] == 'level':
-      msg.append(' %s%s%smn' % (self.variables['statcolor'],
-            args['mp'], self.variables['infocolor']))
+      msg.append(' %s%s%smn' % (statcolor,
+            args['mp'], infocolor))
     if args['type'] == 'level':
-      msg.append(' %s%s%smv' % (self.variables['statcolor'],
-            args['mv'], self.variables['infocolor']))
+      msg.append(' %s%s%smv' % (statcolor,
+            args['mv'], infocolor))
     if 'trains' in args:
       trains = args['trains']
-      msg.append(' %s%d' % (self.variables['statcolor'], args['trains']))
+      msg.append(' %s%d' % (statcolor, args['trains']))
       if args['blessingtrains'] > 0:
         trains = trains + args['blessingtrains']
-        msg.append('%s+%s%dE' % (self.variables['infocolor'],
-              self.variables['statcolor'], args['blessingtrains']))
+        msg.append('%s+%s%dE' % (infocolor,
+              statcolor, args['blessingtrains']))
       if args['bonustrains'] > 0:
         trains = trains + args['bonustrains']
-        msg.append('%s+%s%dB' % (self.variables['infocolor'],
-              self.variables['statcolor'], args['bonustrains']))
+        msg.append('%s+%s%dB' % (infocolor,
+              statcolor, args['bonustrains']))
       if trains != args['trains']:
-        msg.append('%s=%s%d' % (self.variables['infocolor'],
-              self.variables['statcolor'], trains))
-      msg.append(' %strains ' % self.variables['infocolor'])
+        msg.append('%s=%s%d' % (infocolor,
+              statcolor, trains))
+      msg.append(' %strains ' % infocolor)
     if args['type'] == 'level':
-      msg.append(' %s%d %spracs ' % (self.variables['statcolor'],
-              args['pracs'], self.variables['infocolor']))
+      msg.append(' %s%d %spracs ' % (statcolor,
+              args['pracs'], infocolor))
     stats = False
     for i in ['str', 'dex', 'con', 'luc', 'int', 'wis']:
       if args[i] > 0:
         if not stats:
           stats = True
-          msg.append('%s%s' % (self.variables['statcolor'], i))
+          msg.append('%s%s' % (statcolor, i))
         else:
-          msg.append('%s+%s%s' % (self.variables['infocolor'],
-            self.variables['statcolor'], i))
+          msg.append('%s+%s%s' % (infocolor,
+            statcolor, i))
     if stats:
-      msg.append(' %sbonus ' % self.variables['infocolor'])
+      msg.append(' %sbonus ' % infocolor)
 
     if args['starttime'] > 0 and args['finishtime'] > 0:
       msg.append(utils.timedeltatostring(args['starttime'],
               args['finishtime'], fmin=True,
-              colorn=self.variables['statcolor'],
-              colors=self.variables['infocolor']))
+              colorn=statcolor,
+              colors=infocolor))
 
     if self.api.get('plugins.isinstalled')('statdb'):
       stmt = "SELECT count(*) as count, AVG(xp + bonusxp) as average FROM " \
@@ -249,15 +258,15 @@ class Plugin(BasePlugin):
       ave = tst[0]['average']
       if count > 0 and ave > 0:
         length = args['finishtime'] - args['starttime']
-        msg.append(' %s%s %smobs killed' % (self.variables['statcolor'],
-          count, self.variables['infocolor']))
-        msg.append(' (%s%02.02f%sxp/mob' % (self.variables['statcolor'],
-          ave, self.variables['infocolor']))
+        msg.append(' %s%s %smobs killed' % (statcolor,
+          count, infocolor))
+        msg.append(' (%s%02.02f%sxp/mob' % (statcolor,
+          ave, infocolor))
         if length:
           expmin = self.api.get('GMCP.getv')('char.base.perlevel')/(length/60)
-          if int(expmin) > self.variables['exppermin']:
-            msg.append(' %s%02d%sxp/min' % (self.variables['statcolor'],
-              expmin, self.variables['infocolor']))
+          if int(expmin) > exppermin:
+            msg.append(' %s%02d%sxp/min' % (statcolor,
+              expmin, infocolor))
         msg.append(')')
 
     self.addmessage(''.join(msg))
@@ -291,12 +300,15 @@ class Plugin(BasePlugin):
     if not self.api.get('plugins.isinstalled')('statdb'):
       return []
 
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
+    reportminutes = self.api.get('setting.gets')('reportminutes')
     linelen = 50
     msg = ['']
     finishtime = time.time()
 
-    emptystats = {'infocolor':self.variables['infocolor'],
-                  'statcolor':self.variables['statcolor'],
+    emptystats = {'infocolor':infocolor,
+                  'statcolor':statcolor,
                   'xp':0,
                   'qp':0,
                   'total':0,
@@ -314,13 +326,13 @@ class Plugin(BasePlugin):
     hourtotals = copy.deepcopy(emptystats)
     hourtotals['type'] = 'Total'
 
-    minutes = tminutes or self.variables['reportminutes']
+    minutes = tminutes or reportminutes
     starttime = finishtime - (minutes * 60)
 
     timestr = '%s' % utils.timedeltatostring(starttime,
               finishtime,
-              colorn=self.variables['statcolor'],
-              colors=self.variables['infocolor'],
+              colorn=statcolor,
+              colors=infocolor,
               nosec=True)
 
     stmt = """SELECT COUNT(*) as total,
@@ -374,18 +386,18 @@ class Plugin(BasePlugin):
                         cpstats['gold'] + queststats['gold']
 
     namestr = "Stats for {timestr}".format(
-                  infocolor=self.variables['infocolor'],
-                  statcolor=self.variables['statcolor'],
+                  infocolor=infocolor,
+                  statcolor=statcolor,
                   timestr=timestr)
 
-    msg.append(self.variables['infocolor'] + \
+    msg.append(infocolor + \
                   utils.center(namestr, '-', linelen))
     fstring = "{infocolor}{type:<10} | {total:>6} " \
               "{xp:>6} {qp:>5} {tp:>5} {gold:>10}"
     msg.append(fstring.format(type='Type',
         total='Total', xp='XP', qp='QP', tp='TP', gold='Gold',
-        infocolor=self.variables['infocolor']))
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+        infocolor=infocolor))
+    msg.append(infocolor + '-' * linelen)
 
     fstring = "{statcolor}{type:<10} {infocolor}| {statcolor}" \
               "{total:>6} {xp:>6} {qp:>5} {tp:>5} {gold:>10}"
@@ -398,7 +410,7 @@ class Plugin(BasePlugin):
 
     msg.append(fstring.format(**mobstats))
 
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    msg.append(infocolor + '-' * linelen)
 
     msg.append(fstring.format(**hourtotals))
 
@@ -409,11 +421,12 @@ class Plugin(BasePlugin):
     """
     do a cmd report
     """
+    reportminutes = self.api.get('setting.gets')('reportminutes')
     minutes = None
     if len(args) > 0:
       minutes = int(args[0])
     else:
-      minutes = self.variables['reportminutes']
+      minutes = reportminutes
 
     msg = self.statreport(minutes)
 

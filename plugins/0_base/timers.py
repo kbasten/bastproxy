@@ -25,7 +25,7 @@ class TimerEvent(Event):
   """
   a class for a timer event
   """
-  def __init__(self, name, args):
+  def __init__(self, name, func, seconds, **kwargs):
     """
     init the class
 
@@ -33,27 +33,22 @@ class TimerEvent(Event):
 
     """
     Event.__init__(self, name)
-    self.func = args['func']
-    self.seconds = args['seconds']
+    self.func = func
+    self.seconds = seconds
+
     self.onetime = False
+    if 'onetime' in kwargs:
+      self.onetime = kwargs['onetime']
 
-    if 'seconds' in args:
-      self.seconds = int(args['seconds'])
-    else:
-      self.seconds = 60*60*24
+    self.enabled = True
+    if 'enabled' in kwargs:
+      self.enabled = kwargs['enabled']
 
-    if 'time' in args:
-      self.time = args['time']
-    else:
-      self.time = None
+    self.time = None
+    if 'time' in kwargs:
+      self.time = kwargs['time']
 
     self.nextcall = self.getnext()
-
-    if 'onetime' in args:
-      self.onetime = args['onetime']
-    self.enabled = True
-    if 'enabled' in args:
-      self.enabled = args['enabled']
 
   def getnext(self):
     """
@@ -105,41 +100,65 @@ class Plugin(BasePlugin):
     self.lasttime = int(time.time())
     self.api.get('output.msg')('lasttime:  %s' % self.lasttime)
 
-    self.api.get('api.add')('add', self.addtimer)
-    self.api.get('api.add')('remove', self.removetimer)
-    self.api.get('api.add')('toggle', self.toggletimer)
+    self.api.get('api.add')('add', self.api_addtimer)
+    self.api.get('api.add')('remove', self.api_remove)
+    self.api.get('api.add')('toggle', self.api_toggle)
+    self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
     self.api.get('events.register')('global_timer', self.checktimerevents, prio=1)
 
   # add a timer
-  def addtimer(self, name, args):
+  def api_addtimer(self, name, func, seconds, **kwargs):
     """  add a timer
     @Yname@w   = The timer name
+    @Yfunc@w  = the function to call when firing the timer
+    @Yseconds@w   = the interval (in seconds) to fire the timer
     @Yargs@w arguments:
-      @Yseconds@w   = the interval (in seconds) to fire the timer
-      @Yfunction@w  = the function to call when firing the timer
+      @Ynodupe@w    = True if no duplicates of this timer are allowed, False otherwise
       @Yonetime@w   = True for a onetime timer, False otherwise
+      @Yenabled@w   = True if enabled, False otherwise
+      @Ytime@w      = The time to start this timer, e.g. 1300 for 1PM
 
     returns an Event instance"""
-    if not ('seconds' in args):
-      self.api.get('output.msg')('timer %s has no seconds, not adding' % name)
+    args = {}
+    if seconds <= 0:
+      self.api.get('output.msg')('timer %s has seconds <= 0, not adding' % name)
       return
-    if not ('func' in args):
+    if not func:
       self.api.get('output.msg')('timer %s has no function, not adding' % name)
       return
 
-    if 'nodupe' in args and args['nodupe']:
+    if 'nodupe' in kwargs and kwargs['nodupe']:
       if name in self.timerlookup:
         self.api.get('output.msg')('trying to add duplicate timer: %s' % name)
         return
 
-    tevent = TimerEvent(name, args)
+    tevent = TimerEvent(name, func, seconds, **kwargs)
     self.api.get('output.msg')('adding %s' % tevent)
     self._addtimer(tevent)
     return tevent
 
+  # remove all the timers associated with a plugin
+  def api_removeplugin(self, name):
+    """  remove a timer
+    @Yname@w   = the name of the plugin
+
+    this function returns no values"""
+    timerstoremove = []
+    for i in self.timerlookup:
+      try:
+        plugin = self.timerlookup[i].func.im_self.sname
+        if plugin == name:
+          timerstoremove.append(i)
+      except AttributeError:
+        continue
+
+    for i in timerstoremove:
+      self.api.get('timers.remove')(i)
+
+
   # remove a timer
-  def removetimer(self, name):
+  def api_remove(self, name):
     """  remove a timer
     @Yname@w   = the name of the timer to remove
 
@@ -154,8 +173,9 @@ class Plugin(BasePlugin):
     except KeyError:
       self.api.get('output.msg')('%s does not exist' % name)
 
+
   # toggle a timer
-  def toggletimer(self, name, flag):
+  def api_toggle(self, name, flag):
     """  toggle a timer to be enabled/disabled
     @Yname@w   = the name of the timer to toggle
     @Yflag@w   = True to enable, False to disable

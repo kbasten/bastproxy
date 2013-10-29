@@ -26,10 +26,12 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('commands.add')('show', {'func':self.show, 'shelp':'Show colors'})
-    self.api.get('commands.add')('example', {'func':self.example, 'shelp':'Show colors'})
+    self.api.get('commands.add')('show', self.cmd_show,
+                                    {'shelp':'Show colors'})
+    self.api.get('commands.add')('example', self.cmd_example,
+                                    {'shelp':'Show colors'})
 
-  def show(self, args):
+  def cmd_show(self, args):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       Show xterm colors
@@ -82,7 +84,7 @@ class Plugin(BasePlugin):
     return True, msg
 
 
-  def example(self, _=None):
+  def cmd_example(self, _=None):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       Show examples of how to use colors

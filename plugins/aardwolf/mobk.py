@@ -3,10 +3,10 @@ $Id$
 
 This plugin handles mobkills on Aardwolf
 """
-import time
 import copy
+import time
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.color import strip_ansi
-from plugins import BasePlugin
 
 NAME = 'Aardwolf Mobkill events'
 SNAME = 'mobk'
@@ -47,7 +47,7 @@ def addtodamage(tdam, damtable):
   return damtable
 
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
@@ -55,15 +55,14 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.kill_info = {}
     self.reset_kill()
     self.mobdamcache = {}
-    self.addsetting('instatext', '@x0', 'color',
+    self.api.get('setting.add')('instatext', '@x0', 'color',
                       'the text color for an instakill')
-    self.addsetting('instaback', '@z10', 'color',
+    self.api.get('setting.add')('instaback', '@z10', 'color',
                       'the background color for an instakill')
-    self.dependencies.append('aardu')
     self.triggers['mobxp'] = {
       'regex':"^You receive (?P<xp>\d+(?:\+\d+)*) experience points?\.$"}
     self.triggers['mobxpptless'] = {
@@ -315,7 +314,7 @@ class Plugin(BasePlugin):
     """
     self.kill_info['finishtime'] = time.time()
     self.kill_info['room_id'] = self.api.get('GMCP.getv')('room.info.num')
-    self.kill_info['level'] = self.api.get('.aardu.getactuallevel')()
+    self.kill_info['level'] = self.api.get('aardu.getactuallevel')()
     self.kill_info['time'] = time.time()
     if not self.kill_info['raised']:
       if not self.kill_info['name']:
@@ -368,4 +367,7 @@ class Plugin(BasePlugin):
       self.kill_info['damage'] = self.mobdamcache[tdam['enemy']]
       del(self.mobdamcache[tdam['enemy']])
     addtodamage(tdam, self.kill_info['damage'])
+
+    if not self.kill_info['name']:
+      self.kill_info['name'] = tdam['enemy']
 

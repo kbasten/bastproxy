@@ -35,16 +35,16 @@ class Plugin(BasePlugin):
     self.regexlookup = {}
     self.triggergroups = {}
 
-    self.api.get('api.add')('add', self.addtrigger)
-    self.api.get('api.add')('remove', self.removetrigger)
-    self.api.get('api.add')('toggle', self.toggletrigger)
-    self.api.get('api.add')('toggletroup', self.toggletriggergroup)
-    self.api.get('api.add')('toggleomit', self.toggletriggeromit)
+    self.api.get('api.add')('add', self.api_addtrigger)
+    self.api.get('api.add')('remove', self.api_remove)
+    self.api.get('api.add')('toggle', self.api_toggle)
+    self.api.get('api.add')('togglegroup', self.api_togglegroup)
+    self.api.get('api.add')('toggleomit', self.api_toggleomit)
 
     self.api.get('events.register')('from_mud_event', self.checktrigger, prio=1)
 
   # add a trigger
-  def addtrigger(self, triggername, args):
+  def api_addtrigger(self, triggername, args):
     """  add a trigger
     @Ytriggername@w   = The trigger name
     @Yargs@w arguments:
@@ -84,7 +84,7 @@ class Plugin(BasePlugin):
                       (triggername, args['regex']))
 
   # remove a trigger
-  def removetrigger(self, triggername):
+  def api_remove(self, triggername):
     """  remove a trigger
     @Ytriggername@w   = The trigger name
 
@@ -97,7 +97,7 @@ class Plugin(BasePlugin):
                         triggername)
 
   # toggle a trigger
-  def toggletrigger(self, triggername, flag):
+  def api_toggle(self, triggername, flag):
     """  toggle a trigger
     @Ytriggername@w = The trigger name
     @Yflag@w        = (optional) True to enable, False otherwise
@@ -110,7 +110,7 @@ class Plugin(BasePlugin):
                         triggername)
 
   # toggle the omit flag for a trigger
-  def toggletriggeromit(self, triggername, flag):
+  def api_toggleomit(self, triggername, flag):
     """  toggle a trigger
     @Ytriggername@w = The trigger name
     @Yflag@w        = (optional) True to omit the line, False otherwise
@@ -123,7 +123,7 @@ class Plugin(BasePlugin):
                         triggername)
 
   # toggle a trigger group
-  def toggletriggergroup(self, triggroup, flag):
+  def api_togglegroup(self, triggroup, flag):
     """  toggle a trigger group
     @Ytriggername@w = The triggergroup name
     @Yflag@w        = (optional) True to enable, False otherwise
@@ -132,7 +132,7 @@ class Plugin(BasePlugin):
     self.api.get('output.msg')('toggletriggergroup: %s to %s' % (triggroup, flag))
     if triggroup in self.triggergroups:
       for i in self.triggergroups[triggroup]:
-        self.toggletrigger(i, flag)
+        self.api.get('triggers.toggle')(i, flag)
 
   @timeit
   def checktrigger(self, args):

@@ -8,7 +8,7 @@ import os
 import copy
 import re
 from libs.persistentdict import PersistentDict
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Level Events'
 SNAME = 'level'
@@ -18,7 +18,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
@@ -26,15 +26,14 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savelevelfile = os.path.join(self.savedir, 'level.txt')
     self.levelinfo = PersistentDict(self.savelevelfile, 'c', format='json')
-    self.dependencies.append('aardu')
 
-    self.addsetting('preremort', False, bool, 'flag for pre remort')
-    self.addsetting('remortcomp', False, bool, 'flag for remort completion')
-    self.addsetting('tiering', False, bool, 'flag for tiering')
-    self.addsetting('seen2', False, bool, 'we saw a state 2 after tiering')
+    self.api.get('setting.add')('preremort', False, bool, 'flag for pre remort')
+    self.api.get('setting.add')('remortcomp', False, bool, 'flag for remort completion')
+    self.api.get('setting.add')('tiering', False, bool, 'flag for tiering')
+    self.api.get('setting.add')('seen2', False, bool, 'we saw a state 2 after tiering')
 
     self.api.get('watch.add')('shloud', {
             'regex':'^superhero loud$'})
@@ -135,7 +134,7 @@ class Plugin(BasePlugin):
     state = self.api.get('GMCP.getv')('char.status.state')
     if state == 2:
       self.api.get('ouput.client')('seen2')
-      self.variables['seen2'] = True
+      self.api.get('setting.change')('seen2', True)
       self.api.get('events.unregister')('GMCP:char.status', self._gmcpstatus)
       self.api.get('events.register')('GMCP:char.base', self._gmcpbase)
 
@@ -145,7 +144,9 @@ class Plugin(BasePlugin):
     """
     self.api.get('output.client')('called char.base')
     state = self.api.get('GMCP.getv')('char.status.state')
-    if self.variables['tiering'] and self.variables['seen2'] and state == 3:
+    tiering = self.api.get('setting.gets')('tiering')
+    seen2 = self.api.get('setting.gets')('seen2')
+    if tiering and seen2 and state == 3:
       self.api.get('output.client')('in char.base')
       self.api.get('events.unregister')('GMCP:char.base', self._gmcpstatus)
       self._lvl({'level':1})
@@ -154,7 +155,7 @@ class Plugin(BasePlugin):
     """
     about to tier
     """
-    self.variables['tiering'] = True
+    self.api.get('setting.change')('tiering', True)
     self.api.get('output.client')('tiering')
     self.api.get('events.register')('GMCP:char.status', self._gmcpstatus)
 
@@ -162,15 +163,15 @@ class Plugin(BasePlugin):
     """
     do stuff when a remort is complete
     """
-    self.variables['preremort'] = False
-    self.variables['remortcomp'] = True
+    self.api.get('setting.change')('preremort', False)
+    self.api.get('setting.change')('remortcomp',  True)
     self._lvl({'level':1})
 
   def _preremort(self, _=None):
     """
     set the preremort flag
     """
-    self.variables['preremort'] = True
+    self.api.get('setting.change')('preremort', True)
     self.api.get('events.eraise')('aard_level_preremort', {})
 
   def cmd_superhero(self, _=None):
@@ -178,8 +179,7 @@ class Plugin(BasePlugin):
     figure out what is done when superhero is typed
     """
     self.api.get('output.client')('superhero was typed')
-    print 'trying to got a sh'
-    self.api.get('trigger.togglegroup')('superhero', True)
+    self.api.get('triggers.togglegroup')('superhero', True)
     self._lvl({'level':201})
 
   def _superherobad(self, _=None):
@@ -187,9 +187,8 @@ class Plugin(BasePlugin):
     undo things that we typed if we didn't really superhero
     """
     self.api.get('output.client')('didn\'t sh though')
-    print 'didn\'t sh though'
-    self.api.get('trigger.togglegroup')('superhero', False)
-    self.api.get('trigger.togglegroup')('linfo', False)
+    self.api.get('triggers.togglegroup')('superhero', False)
+    self.api.get('triggers.togglegroup')('linfo', False)
     self.api.get('events.unregister')('trigger_emptyline', self._finish)
 
   def resetlevel(self):
@@ -239,7 +238,7 @@ class Plugin(BasePlugin):
                                                             args['level'])
       self.levelinfo['type'] = 'level'
 
-    self.api.get('trigger.togglegroup')('linfo', True)
+    self.api.get('triggers.togglegroup')('linfo', True)
     self.api.get('events.register')('trigger_emptyline', self._finish)
 
 
@@ -277,14 +276,15 @@ class Plugin(BasePlugin):
     """
     finish up and raise the level event
     """
-    if self.levelinfo['trains'] == 0 and not (self.variables['remortcomp'] \
-            or self.variables['tiering']):
+    remortcomp = self.api.get('setting.gets')('remortcomp')
+    tiering = self.api.get('setting.gets')('tiering')
+    if self.levelinfo['trains'] == 0 and not remortcomp or tiering:
       return
     self.levelinfo['finishtime'] = time.time()
     self.levelinfo.sync()
-    self.api.get('trigger.togglegroup')('linfo', False)
+    self.api.get('triggers.togglegroup')('linfo', False)
     self.api.get('events.unregister')('trigger_emptyline', self._finish)
-    self.api.get('eventa.eraise')('aard_level_gain', copy.deepcopy(self.levelinfo))
+    self.api.get('events.eraise')('aard_level_gain', copy.deepcopy(self.levelinfo))
     if self.levelinfo['level'] == 200 and self.levelinfo['type'] == 'level':
       self.api.get('output.msg')('raising hero event', 'level')
       self.api.get('events.eraise')('aard_level_hero', {})
@@ -292,20 +292,20 @@ class Plugin(BasePlugin):
       self.api.get('output.msg')('raising superhero event', 'level')
       self.api.get('events.eraise')('aard_level_superhero', {})
     elif self.levelinfo['level'] == 1:
-      if self.variables['tiering']:
+      if self.api.get('setting.gets')('tiering'):
         self.api.get('output.msg')('raising tier event', 'level')
-        self.variables['tiering'] = False
-        self.variables['seen2'] = False
+        self.api.get('setting.change')('tiering', False)
+        self.api.get('setting.change')('seen2', False)
         self.api.get('events.eraise')('aard_level_tier', {})
       else:
         self.api.get('output.msg')('raising remort event', 'level')
-        self.variables['remortcomp'] = False
+        self.api.get('setting.change')('remortcomp', False)
         self.api.get('events.eraise')('aard_level_remort', {})
 
   def savestate(self):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.levelinfo.sync()
 

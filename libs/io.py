@@ -10,7 +10,7 @@ from libs.api import API
 from libs import color
 
 # send a message
-def msg(tmsg, datatype='default'):
+def api_msg(tmsg, datatype='default'):
   """  send a message through the logger
     @Ymsg@w        = This message to send
     @Ydatatype@w   = the datatype of the message (default: 'default')
@@ -23,7 +23,7 @@ def msg(tmsg, datatype='default'):
                                           time.localtime()), datatype, tmsg)
 
 # write and format a traceback
-def write_traceback(message=""):
+def api_traceback(message=""):
   """  handle a traceback
     @Ymessage@w  = the message to put into the traceback
 
@@ -38,7 +38,7 @@ def write_traceback(message=""):
   api.get('output.error')(message)
 
 # write and format an error
-def write_error(text):
+def api_error(text):
   """  handle an error
     @Ytext@w  = The error to handle
 
@@ -55,7 +55,7 @@ def write_error(text):
                                           time.localtime()), 'error', tmsg)
 
 # send text to the clients
-def sendtoclient(text, raw=False, preamble=True):
+def api_client(text, raw=False, preamble=True):
   """  handle a traceback
     @Ytext@w      = The text to send to the clients
     @Yraw@w       = if True, don't convert colors
@@ -80,7 +80,7 @@ def sendtoclient(text, raw=False, preamble=True):
     api.get('output.msg')("couldn't send msg to client: %s" % '\n'.join(text), 'error')
 
 # execute a command throgh the interpreter
-def execute(cmd):
+def api_execute(cmd):
   """  execute a command through the interpreter
   It will first check to see if it is an internal command, and then
   sent to the mud if not.
@@ -100,8 +100,8 @@ def execute(cmd):
     api.get('events.eraise')('to_mud_event', {'data':data, 'dtype':'fromclient'})
 
 api = API()
-api.add('output', 'msg', msg)
-api.add('output', 'error', write_error)
-api.add('output', 'traceback', write_traceback)
-api.add('output', 'client', sendtoclient)
-api.add('input', 'execute', execute)
+api.add('output', 'msg', api_msg)
+api.add('output', 'error', api_error)
+api.add('output', 'traceback', api_traceback)
+api.add('output', 'client', api_client)
+api.add('input', 'execute', api_execute)

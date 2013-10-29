@@ -31,11 +31,13 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, *args, **kwargs)
     self.password = ''
     self.api.get('events.register')('client_connected', self.checkpassword)
-    self.api.get('commands.add')('password', {'func':self.cmd_pw, 'shelp':'set the password'})
-    self.api.get('commands.add')('test', {'func':self.cmd_test, 'shelp':'send a test email'})
-    self.api.get('commands.add')('check', {'func':self.cmd_check,
-                    'shelp':'check to make sure all settings are applied'})
-    self.api.get('api.add')('send', self.send)
+    self.api.get('commands.add')('password', self.cmd_pw,
+                                        {'shelp':'set the password'})
+    self.api.get('commands.add')('test', self.cmd_test,
+                                        {'shelp':'send a test email'})
+    self.api.get('commands.add')('check', self.cmd_check,
+                      {'shelp':'check to make sure all settings are applied'})
+    self.api.get('api.add')('send', self.api_send)
     self.api.get('setting.add')('server', '', str, 'the smtp server to send mail through')
     self.api.get('setting.add')('port', '', int, 'the port to use when sending mail')
     self.api.get('setting.add')('username', '', str, 'the username to connect as',
@@ -63,7 +65,7 @@ class Plugin(BasePlugin):
     return True
 
   # send an email
-  def send(self, subject, msg, mailto=None):
+  def api_send(self, subject, msg, mailto=None):
     """  send an email
     @Ysubject@w  = the subject of the message
     @Ymsg@w      = the msg to send
@@ -175,7 +177,7 @@ X-Mailer: My-Mail
       subject = args[0]
       msg = args[1]
       if self.check():
-        self.send(subject, msg)
+        self.api.get('mail.send')(subject, msg)
         return True, ['Attempted to send test message',
                                 'Please check your email']
       else:

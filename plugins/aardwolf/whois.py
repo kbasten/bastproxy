@@ -6,7 +6,7 @@ This plugin parses whois data from Aardwolf
 import os
 import copy
 from libs.persistentdict import PersistentDict
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 
 NAME = 'Aardwolf Whois'
@@ -17,7 +17,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf cp events
   """
@@ -25,10 +25,9 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savewhoisfile = os.path.join(self.savedir, 'whois.txt')
     self.whois = PersistentDict(self.savewhoisfile, 'c', format='json')
-    self.dependencies.append('aardu')
     self.api.get('watch.add')('whois', {
                 'regex':'^(whoi|whois)$'})
 
@@ -79,7 +78,7 @@ class Plugin(BasePlugin):
     reset the whois info when a "whois" command is sent
     """
     self.whois.clear()
-    self.api.get('trigger.togglegroup')('whois', True)
+    self.api.get('triggers.togglegroup')('whois', True)
     return args
 
   def _whoisstats(self, args=None):
@@ -123,7 +122,7 @@ class Plugin(BasePlugin):
               'class':classabs[self.api.get('GMCP.getv')(
                                       'char.base.class').lower()]})
 
-    self.api.get('trigger.toggle')('whoisend', True)
+    self.api.get('triggers.toggle')('whoisend', True)
 
   def _whoisclasses(self, args):
     """
@@ -148,15 +147,15 @@ class Plugin(BasePlugin):
                       self.whois['level'], self.whois['remorts'],
                       self.whois['tiers'], self.whois['redos'])
     self.whois.sync()
-    self.api.get('trigger.togglegroup')('whois', False)
-    self.api.get('trigger.toggle')('whoisend', False)
+    self.api.get('triggers.togglegroup')('whois', False)
+    self.api.get('triggers.toggle')('whoisend', False)
     self.api.get('events.eraise')('aard_whois', copy.deepcopy(self.whois))
-    self.msg('whois: %s' % self.whois)
+    self.api.get('output.msg')('whois: %s' % self.whois)
 
   def savestate(self):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.whois.sync()
 

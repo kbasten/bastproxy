@@ -5,7 +5,7 @@ This plugin holds a stat database for quests/cp/gqs/mobkills
 """
 import copy
 import time
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.sqldb import Sqldb
 from libs.utils import readablenumber, format_time
 
@@ -477,7 +477,7 @@ class Statdb(Sqldb):
     self.api.get('output.msg')('inserted mobkill: %s' % rowid, 'statdb')
 
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to monitor aardwolf events
   """
@@ -485,35 +485,34 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
     # backup the db every 4 hours
-    self.timers['stats_backup'] = {'func':self.backupdb,
-                                'seconds':60*60*4, 'time':'0000'}
+    self.api.get('timers.add')('stats_backup', self.backupdb,
+                                60*60*4, time='0000')
 
-    self.addsetting('backupstart', '0000', 'miltime',
+    self.api.get('setting.add')('backupstart', '0000', 'miltime',
                       'the time for a db backup, like 1200 or 2000')
-    self.addsetting('backupinterval', 60*60*4, int,
+    self.api.get('setting.add')('backupinterval', 60*60*4, int,
                       'the interval to backup the db, default every 4 hours')
 
-    self.dependencies.append('aardu')
-    self.dependencies.append('whois')
-    self.dependencies.append('level')
-    self.dependencies.append('mobk')
-    self.dependencies.append('cp')
-    self.dependencies.append('gq')
-    self.dependencies.append('quest')
+    self.api.get('dependency.add')('whois')
+    self.api.get('dependency.add')('level')
+    self.api.get('dependency.add')('mobk')
+    self.api.get('dependency.add')('cp')
+    self.api.get('dependency.add')('gq')
+    self.api.get('dependency.add')('quest')
 
-    self.cmds['quests'] = {'func':self.cmd_quests,
-              'shelp':'show quest stats'}
-    self.cmds['levels'] = {'func':self.cmd_levels,
-              'shelp':'show level stats'}
-    self.cmds['cps'] = {'func':self.cmd_cps,
-              'shelp':'show cp stats'}
-    self.cmds['gqs'] = {'func':self.cmd_gqs,
-              'shelp':'show gq stats'}
-    self.cmds['mobs'] = {'func':self.cmd_mobs,
-              'shelp':'show mob stats'}
+    self.api.get('commands.add')('quests', self.cmd_quests,
+                                {'shelp':'show quest stats'})
+    self.api.get('commands.add')('levels', self.cmd_levels,
+                                {'shelp':'show level stats'})
+    self.api.get('commands.add')('cps', self.cmd_cps,
+                                {'shelp':'show cp stats'})
+    self.api.get('commands.add')('gqs', self.cmd_gqs,
+                                {'shelp':'show gq stats'})
+    self.api.get('commands.add')('mobs', self.cmd_mobs,
+                                {'shelp':'show mob stats'})
 
     self.triggers['dead'] = {
       'regex':"^You die.$",
@@ -539,7 +538,7 @@ class Plugin(BasePlugin):
 
     self.api.get('events.register')('trigger_dead', self.dead)
 
-    self.exported['runselect'] = {'func':self.runselect}
+    self.api.get('api.add')('runselect', self.runselect)
 
     self.statdb = Statdb(self)
 
@@ -547,14 +546,11 @@ class Plugin(BasePlugin):
     """
     do something when the reportminutes changes
     """
-    self.api.get('timer.remove')('stats_backup')
-    self.api.get('timer.add')('stats_backup',
-                    {'func':self.backupdb,
-                     'seconds':self.variables['backupinterval'],
-                     'time':self.variables['backupstart']})
-               #{'func':self.timershow,
-                #'seconds':int(args['newvalue']) * 60,
-                #'nodupe':True})
+    backupinterval = self.api.get('setting.gets')('backupinterval')
+    backupstart = self.api.get('setting.gets')('backupstart')
+    self.api.get('timers.remove')('stats_backup')
+    self.api.get('timers.add')('stats_backup', self.backupdb,
+                               backupinterval, time=backupstart)
 
   def backupdb(self):
     """
@@ -1299,7 +1295,7 @@ class Plugin(BasePlugin):
     """
     handle unloading
     """
-    BasePlugin.unload(self)
+    AardwolfBasePlugin.unload(self)
     self.statdb.close()
 
   def runselect(self, select):

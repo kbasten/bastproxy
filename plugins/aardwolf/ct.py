@@ -3,9 +3,9 @@ $Id$
 
 This plugin includes a combat tracker for aardwolf
 """
-from libs import utils
-from plugins import BasePlugin
 import math
+from libs import utils
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'CombatTracker'
 SNAME = 'ct'
@@ -15,7 +15,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to monitor aardwolf events
   """
@@ -23,11 +23,11 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.api.get('events.register')('aard_mobkill', self.mobkill)
-    self.dependencies.append('mobk')
-    self.addsetting('statcolor', '@W', 'color', 'the stat color')
-    self.addsetting('infocolor', '@x33', 'color', 'the info color')
+    self.api.get('dependency.add')('mobk')
+    self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
+    self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
     self.msgs = []
 
   def mobkill(self, args=None):
@@ -36,40 +36,42 @@ class Plugin(BasePlugin):
     """
     linelen = 72
     msg = []
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    infocolor = self.api.get('setting.gets')('infocolor')
+    statcolor = self.api.get('setting.gets')('statcolor')
+    msg.append(infocolor + '-' * linelen)
     timestr = ''
     damages = args['damage']
     totald = sum(damages[d]['damage'] for d in damages)
     if args['finishtime'] and args['starttime']:
       timestr = '%s' % utils.timedeltatostring(args['starttime'],
               args['finishtime'],
-              colorn=self.variables['statcolor'],
-              colors=self.variables['infocolor'])
+              colorn=statcolor,
+              colors=infocolor)
 
     namestr = "{statcolor}{name}{infocolor} : {time}{infocolor}".format(
-            infocolor = self.variables['infocolor'],
-            statcolor = self.variables['statcolor'],
+            infocolor = infocolor,
+            statcolor = statcolor,
             name = args['name'],
             time=timestr,
             )
-    tstr = self.variables['infocolor'] + utils.center(namestr, '-', linelen)
+    tstr = infocolor + utils.center(namestr, '-', linelen)
 
     msg.append(tstr)
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    msg.append(infocolor + '-' * linelen)
 
     bstringt = "{statcolor}{dtype:<20} {infocolor}: {statcolor}{hits:^10} " \
                 "{damage:^10} ({percent:4.0%}) {misses:^10} {average:^10}"
 
     msg.append(bstringt.format(
-           statcolor=self.variables['infocolor'],
-           infocolor=self.variables['infocolor'],
+           statcolor=infocolor,
+           infocolor=infocolor,
            dtype='Dam Type',
            hits='Hits',
            percent=0,
            damage='Damage',
            misses='Misses',
            average='Average'))
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    msg.append(infocolor + '-' * linelen)
     #totald = 0
     totalm = 0
     totalh = 0
@@ -91,8 +93,8 @@ class Plugin(BasePlugin):
         tperc = vdict['damage'] / float(totald)
 
         msg.append(bstringt.format(
-           statcolor=self.variables['statcolor'],
-           infocolor=self.variables['infocolor'],
+           statcolor=statcolor,
+           infocolor=infocolor,
            dtype=damt,
            hits=vdict['hits'],
            percent=tperc,
@@ -100,17 +102,17 @@ class Plugin(BasePlugin):
            misses=vdict['misses'],
            average=avedamage))
 
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    msg.append(infocolor + '-' * linelen)
     msg.append(bstringt.format(
-           statcolor=self.variables['statcolor'],
-           infocolor=self.variables['infocolor'],
+           statcolor=statcolor,
+           infocolor=infocolor,
            dtype='Total',
            hits=totalh,
            percent=1,
            damage=totald,
            misses=totalm,
            average=totald/(totalh or 1)))
-    msg.append(self.variables['infocolor'] + '-' * linelen)
+    msg.append(infocolor + '-' * linelen)
     self.addmessage('\n'.join(msg))
 
   def addmessage(self, msg):

@@ -22,14 +22,14 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
-    self.timers['test_timer'] = {'func':self.test,
-                                'seconds':600, 'onetime':False}
-    self.timers['test_touser_timer'] = {'func':self.test_to_user,
-                                'seconds':10, 'onetime':True}
-    self.timers['test_timewsec'] = {'func':self.test_timewsec,
-                                'seconds':60, 'time':'2010'}
-    self.timers['test_time'] = {'func':self.test_time,
-                                'time':'1200'}
+    self.api.get('timers.add')('test_timer', self.test,
+                                    600, onetime=False)
+    self.api.get('timers.add')('test_touser_timer', self.test_to_user,
+                                    10, onetime=True)
+    self.api.get('timers.add')('test_timewsec', self.test_timewsec,
+                                    60, time='2010')
+    self.api.get('timers.add')('test_time', self.test_time,
+                                    60*60*24, time='1200')
 
   def test(self):
     """

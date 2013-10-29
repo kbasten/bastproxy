@@ -5,7 +5,7 @@ Overall:
   #TODO: figure out a way to document raised events, decorator?
   #TODO: make everything use baseplugin?
   #TODO: convert to run under python3
-  #TODO: remove func from the table in commands.add
+  #TODO: change all __init__ calls to use super (when converted to python3)
 
 New Plugins:
   Base Plugins:
@@ -70,3 +70,8 @@ su:
   #TODO: add ability to spellup others
   #TODO: add ability to have spell blockers
 
+triggers:
+  #TODO: add ability to add triggers with a command
+
+timers:
+  #TODO: add ability to add timers with a command

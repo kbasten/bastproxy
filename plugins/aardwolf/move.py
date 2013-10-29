@@ -4,7 +4,7 @@ $Id$
 This plugin sends events when moving between rooms
 """
 import copy
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'movement'
 SNAME = 'move'
@@ -14,7 +14,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to monitor aardwolf events
   """
@@ -22,7 +22,7 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
     self.api.get('events.register')('GMCP:room.info', self._roominfo)
     self.lastroom = {}

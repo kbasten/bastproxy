@@ -24,13 +24,13 @@ class CmdMgr(object):
     self.regexlookup = {}
     self.lastcmd = ''
 
-    self.api.add(self.sname, 'add', self.addcmd)
-    self.api.add(self.sname, 'remove', self.removecmd)
-    self.api.add(self.sname, 'default', self.setdefault)
-    self.api.add(self.sname, 'removeplugin', self.removeplugin)
+    self.api.add(self.sname, 'add', self.api_addcmd)
+    self.api.add(self.sname, 'remove', self.api_removecmd)
+    self.api.add(self.sname, 'default', self.api_setdefault)
+    self.api.add(self.sname, 'removeplugin', self.api_removeplugin)
 
-    self.addcmd('list', {'func':self.listcmds, 'shelp':'list commands'})
-    self.addcmd('default', {'func':self.listcmds, 'shelp':'list commands'})
+    self.api.get('commands.add')('list', self.cmd_list, {'shelp':'list commands'})
+    self.api.get('commands.add')('default', self.cmd_list, {'shelp':'list commands'})
 
   def formatretmsg(self, msg, sname, stcmd):
     """
@@ -61,7 +61,7 @@ class CmdMgr(object):
         self.api.get('output.client')('\n'.join(self.formatretmsg(msg, sname, stcmd)))
         return True
     else:
-      _, msg = self.listcmds([sname, scmd])
+      _, msg = self.cmd_list([sname, scmd])
       self.api.get('output.client')('\n'.join(self.formatretmsg(
                                                   msg, 'plugins', 'help')))
     return retval
@@ -99,7 +99,7 @@ class CmdMgr(object):
           del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.listcmds(targs)
+        _, msg = self.cmd_list(targs)
         self.api.get('output.client')('\n'.join(self.formatretmsg(
                                               msg, 'plugins', 'help')))
       elif sname and scmd:
@@ -135,7 +135,7 @@ class CmdMgr(object):
           del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.listcmds(targs)
+        _, msg = self.cmd_list(targs)
         self.api.get('output.client')('\n'.join(self.formatretmsg(
                                                 msg, 'plugins', 'help')))
 
@@ -149,7 +149,7 @@ class CmdMgr(object):
       return data
 
   # add a command
-  def addcmd(self, cmdname, args):
+  def api_addcmd(self, cmdname, func, args):
     """  add a command
     @Ycmdname@w  = the base that the api should be under
     The @Yargs@w should contain
@@ -159,24 +159,28 @@ class CmdMgr(object):
 
       The command will be added as sname.cmdname
 
-      sname is gotten from the class the function belongs to
+      sname is gotten from the class the function belongs to or the sname key
+        in args
 
     this function returns no values"""
 
     #lname, cmd, tfunction, shelp="", lhelp=""
     #{'func':tfunction, 'lname':lname, 'lhelp':lhelp, 'shelp':shelp}
     lname = None
-    if not ('func' in args):
+    if not func:
       self.api.get('output.msg')('cmd %s.%s has no function, not adding' % \
                                                 (sname, cmdname), self.sname)
       return
     try:
-      sname = args['func'].im_self.sname
+      sname = func.im_self.sname
     except AttributeError:
-      self.api.get('output.msg')('Function is not part of a class: %s' % cmdname)
-      return
+      if 'sname' in args:
+        sname = args['sname']
+      else:
+        self.api.get('output.msg')('Function is not part of a plugin class: %s' % cmdname)
+        return
     try:
-      lname = args['func'].im_self.name
+      lname = func.im_self.name
       args['lname'] = lname
     except AttributeError:
       pass
@@ -187,10 +191,11 @@ class CmdMgr(object):
       return
     if not (sname in self.cmds):
       self.cmds[sname] = {}
+    args['func'] = func
     self.cmds[sname][cmdname] = args
 
   # remove a command
-  def removecmd(self, sname, cmdname):
+  def api_removecmd(self, sname, cmdname):
     """  remove a command
     @Ysname@w    = the top level of the command
     @Ycmdname@w  = the name of the command
@@ -203,7 +208,7 @@ class CmdMgr(object):
                                                 (sname, cmdname), self.sname)
 
   # set the default command for a plugin
-  def setdefault(self, sname, cmd):
+  def api_setdefault(self, sname, cmd):
     """  set the default command for a plugin
     @Ysname@w    = the plugin of the command
     @Ycmdname@w  = the name of the command
@@ -216,7 +221,7 @@ class CmdMgr(object):
     return False
 
   # remove all commands for a plugin
-  def removeplugin(self, sname):
+  def api_removeplugin(self, sname):
     """  remove all commands for a plugin
     @Ysname@w    = the plugin to remove commands for
 
@@ -226,7 +231,7 @@ class CmdMgr(object):
     else:
       self.api.get('output.msg')('removeplugin: cmd %s does not exist' % sname, self.sname)
 
-  def listcmds(self, args):
+  def cmd_list(self, args):
     """
     list commands
     """

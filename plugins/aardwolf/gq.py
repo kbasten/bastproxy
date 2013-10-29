@@ -8,7 +8,7 @@ import time
 import copy
 from libs.color import strip_ansi
 from libs.persistentdict import PersistentDict
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf GQ Events'
 SNAME = 'gq'
@@ -18,7 +18,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf quest events
   """
@@ -26,14 +26,13 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
-    self.dependencies.append('aardu')
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savegqfile = os.path.join(self.savedir, 'gq.txt')
     self.gqinfo = PersistentDict(self.savegqfile, 'c', format='json')
-    self.addsetting('declared', False, bool, 'flag for a gq being declared')
-    self.addsetting('started', False, bool, 'flag for a gq started')
-    self.addsetting('joined', False, bool, 'flag for a gq joined')
-    self.addsetting('extended', False, bool, 'flag for extended')
+    self.api.get('setting.add')('declared', False, bool, 'flag for a gq being declared')
+    self.api.get('setting.add')('started', False, bool, 'flag for a gq started')
+    self.api.get('setting.add')('joined', False, bool, 'flag for a gq joined')
+    self.api.get('setting.add')('extended', False, bool, 'flag for extended')
     self.mobsleft = []
     self.nextdeath = False
     self.linecount = 0
@@ -139,21 +138,22 @@ class Plugin(BasePlugin):
     do something when a gq is declared
     """
     self._gqnew()
-    self.api.get('trigger.togglegroup')('gqdone', True)
-    self.api.get('trigger.togglegroup')('gq_start', True)
-    self.variables['declared'] = True
+    self.api.get('triggers.togglegroup')('gqdone', True)
+    self.api.get('triggers.togglegroup')('gq_start', True)
+    self.api.get('setting.change')('declared', True)
     self.api.get('events.eraise')('aard_gq_declared', args)
 
   def _gqjoined(self, args):
     """
     do something when a gq is joined
     """
-    self.api.get('trigger.togglegroup')('gqdone', True)
-    self.api.get('trigger.togglegroup')('gq_start', True)
-    self.variables['joined'] = True
+    self.api.get('triggers.togglegroup')('gqdone', True)
+    self.api.get('triggers.togglegroup')('gq_start', True)
+    self.api.get('setting.change')('joined', True)
     self.mobsleft = []
-    if self.variables['started'] or not self.variables['declared']:
-      self.variables['declared'] = True
+    if self.api.get('setting.gets')('started') \
+        or not self.api.get('setting.gets')('declared'):
+      self.api.get('setting.change')('declared', True)
       self._gqnew()
       self._gqstarted()
     self.api.get('events.eraise')('aard_gq_joined', args)
@@ -164,11 +164,11 @@ class Plugin(BasePlugin):
     """
     if not args:
       args = {}
-    self.variables['started'] = True
+    self.api.get('setting.change')('started', True)
     self._gqnew()
-    if self.variables['joined']:
-      self.gqinfo['starttime'] = time.time()
-      self.api.get('trigger.togglegroup')("gqin", True)
+    if self.api.get('setting.gets')('joined'):
+      self.api.get('setting.change')('starttime', time.time())
+      self.api.get('triggers.togglegroup')("gqin", True)
       self.api.get('input.execute')("gq check")
 
   def _gqitem(self, args):
@@ -188,8 +188,8 @@ class Plugin(BasePlugin):
     """
     this will be called when a gq check returns the not started message
     """
-    self.api.get('trigger.togglegroup')('gqcheck', False)
-    self.api.get('trigger.togglegroup')('gqin', False)
+    self.api.get('triggers.togglegroup')('gqcheck', False)
+    self.api.get('triggers.togglegroup')('gqin', False)
     self.api.get('events.unregister')('trigger_emptyline', self._emptyline)
 
   def _emptyline(self, _=None):
@@ -200,7 +200,7 @@ class Plugin(BasePlugin):
       self.gqinfo['mobs'] = self.mobsleft[:]
       self.savestate()
 
-    self.api.get('trigger.togglegroup')('gqcheck', False)
+    self.api.get('triggers.togglegroup')('gqcheck', False)
     self.api.get('events.unregister')('trigger_emptyline', self._emptyline)
     self.api.get('events.eraise')('aard_gq_mobsleft',
                 {'mobsleft':copy.deepcopy(self.mobsleft)})
@@ -217,7 +217,7 @@ class Plugin(BasePlugin):
     """
     this will be registered to the mobkill hook
     """
-    self.api.get('output.msg')('checking kill %s' % args['name'], 'gq')
+    self.api.get('output.msg')('checking kill %s' % args['name'])
     self.api.get('events.register')('aard_mobkill', self._mobkillevent)
 
     found = False
@@ -225,7 +225,7 @@ class Plugin(BasePlugin):
     for i in range(len(self.mobsleft)):
       tmob = self.mobsleft[i]
       if tmob['name'] == args['name']:
-        self.msg('found %s' % tmob['name'])
+        self.api.get('output.msg')('found %s' % tmob['name'])
         found = True
         if tmob['num'] == 1:
           removeitem = i
@@ -247,13 +247,13 @@ class Plugin(BasePlugin):
     the gquest was won
     """
     self.gqinfo['won'] = 1
-    self.api.get('trigger.togglegroup')("gqrew", True)
+    self.api.get('triggers.togglegroup')("gqrew", True)
 
   def _gqdone(self, _=None):
     """
     do something on the done line
     """
-    if self.variables['joined'] == 0:
+    if self.api.get('setting.gets')('joined') == 0:
       return
     if self.gqinfo['won'] == 1:
       #print('I won, so no extra!')
@@ -270,15 +270,15 @@ class Plugin(BasePlugin):
     self.linecount = self.linecount + 1
 
     if 'extended time for 3 more minutes' in args['line']:
-      self.api.get('trigger.togglegroup')("gqext", True)
-      self.variables['extended'] = True
+      self.api.get('triggers.togglegroup')("gqext", True)
+      self.api.get('setting.change')('extended', True)
 
     if self.linecount < 3:
       return
 
     self.api.get('events.unregister')('trigger_all', self._triggerall)
 
-    if not self.variables['extended']:
+    if not self.api.get('setting.gets')('extended'):
       self._raisegq('aard_gq_done')
 
   def _gqreward(self, args=None):
@@ -291,14 +291,14 @@ class Plugin(BasePlugin):
     self.gqinfo['won'] = 1
     self.gqinfo[rewardt[rtype]] = ramount
     self.savestate()
-    self.api.get('trigger.togglegroup')('gqdone', True)
+    self.api.get('triggers.togglegroup')('gqdone', True)
 
   def _gqcheckcmd(self, args=None):
     """
     do something after we see a gq check
     """
     self.mobsleft = []
-    self.api.get('trigger.togglegroup')('gqcheck', True)
+    self.api.get('triggers.togglegroup')('gqcheck', True)
     self.api.get('events.register')('trigger_emptyline', self._emptyline)
     return args
 
@@ -306,8 +306,8 @@ class Plugin(BasePlugin):
     """
     quit the gq
     """
-    self.variables['started'] = False
-    self.variables['joined'] = False
+    self.api.get('setting.change')('started', False)
+    self.api.get('setting.change')('joined', False)
     self.api.get('events.eraise')('aard_gq_quit', {})
 
   def _gqextfin(self, _=None):
@@ -336,21 +336,21 @@ class Plugin(BasePlugin):
     """
     reset gq triggers
     """
-    self.api.get('trigger.togglegroup')("gqcheck", False)
-    self.api.get('trigger.togglegroup')("gqin", False)
-    self.api.get('trigger.togglegroup')("gqrew", False)
-    self.api.get('trigger.togglegroup')("gqdone", False)
-    self.api.get('trigger.togglegroup')("gqext", False)
+    self.api.get('triggers.togglegroup')("gqcheck", False)
+    self.api.get('triggers.togglegroup')("gqin", False)
+    self.api.get('triggers.togglegroup')("gqrew", False)
+    self.api.get('triggers.togglegroup')("gqdone", False)
+    self.api.get('triggers.togglegroup')("gqext", False)
     self.api.get('events.unregister')('aard_mobkill', self._mobkillevent)
-    self.variables['joined'] = False
-    self.variables['started'] = False
-    self.variables['declared'] = False
-    self.variables['extended'] = False
+    self.api.get('setting.change')('joined', False)
+    self.api.get('setting.change')('started', False)
+    self.api.get('setting.change')('declared', False)
+    self.api.get('setting.change')('extended', False)
     self.savestate()
 
   def savestate(self):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.gqinfo.sync()

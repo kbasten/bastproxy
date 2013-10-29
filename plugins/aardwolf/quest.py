@@ -7,7 +7,7 @@ import time
 import copy
 import os
 from libs.persistentdict import PersistentDict
-from plugins import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Quest Events'
 SNAME = 'quest'
@@ -17,7 +17,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf quest events
   """
@@ -25,10 +25,9 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savequestfile = os.path.join(self.savedir, 'quest.txt')
     self.queststuff = PersistentDict(self.savequestfile, 'c', format='json')
-    self.dependencies.append('aardu')
     self.api.get('events.register')('GMCP:comm.quest', self.quest)
 
   def resetquest(self):
@@ -61,7 +60,7 @@ class Plugin(BasePlugin):
     process the quest event
     """
     questi = args['data']
-    self.msg('quest: %s' % questi)
+    self.api.get('output.msg')('quest: %s' % questi)
     if questi['action'] == 'ready':
       self.api.get('events.eraise')('aard_quest_ready', {})
     elif questi['action'] == 'start':
@@ -106,7 +105,7 @@ class Plugin(BasePlugin):
     """
     save states
     """
-    BasePlugin.savestate(self)
+    AardwolfBasePlugin.savestate(self)
     self.queststuff.sync()
 
 

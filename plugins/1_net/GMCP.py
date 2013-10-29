@@ -18,20 +18,6 @@ VERSION = 1
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = True
 
-# send a GMCP packet
-def gmcpsendpacket(message):
-  """  send a GMCP packet
-  @Ymessage@w  = the message to send
-
-  this function returns no values
-
-  Format: IAC SB GMCP <gmcp message text> IAC SE"""
-  from libs.api import API
-  api = API()
-  api.get('events.eraise')('to_mud_event', {'data':'%s%s%s%s%s%s' % \
-              (IAC, SB, GMCP, message.replace(IAC, IAC+IAC), IAC, SE),
-              'raw':True, 'dtype':GMCP})
-
 # Plugin
 class Plugin(BasePlugin):
   """
@@ -49,10 +35,10 @@ class Plugin(BasePlugin):
               the client before connected to the server
     """
     BasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('api.add')('sendpacket', gmcpsendpacket)
-    self.api.get('api.add')('sendmodule', self.sendmoduletoclients)
-    self.api.get('api.add')('togglemodule', self.gmcptogglemodule)
-    self.api.get('api.add')('getv', self.gmcpget)
+    self.api.get('api.add')('sendpacket', self.api_sendpacket)
+    self.api.get('api.add')('sendmodule', self.api_sendmodule)
+    self.api.get('api.add')('togglemodule', self.api_togglemodule)
+    self.api.get('api.add')('getv', self.api_getv)
     self.api.get('events.register')('GMCP_raw', self.gmcpfromserver)
     self.api.get('events.register')('GMCP_from_client', self.gmcpfromclient)
     self.api.get('events.register')('GMCP:server-enabled', self.gmcprequest)
@@ -66,6 +52,20 @@ class Plugin(BasePlugin):
 
     self.reconnecting = False
 
+  # send a GMCP packet
+  def api_sendpacket(self, message):
+    """  send a GMCP packet
+    @Ymessage@w  = the message to send
+
+    this function returns no values
+
+    Format: IAC SB GMCP <gmcp message text> IAC SE"""
+    from libs.api import API
+    api = API()
+    api.get('events.eraise')('to_mud_event', {'data':'%s%s%s%s%s%s' % \
+                (IAC, SB, GMCP, message.replace(IAC, IAC+IAC), IAC, SE),
+                'raw':True, 'dtype':GMCP})
+
   def disconnect(self, _=None):
     """
     disconnect
@@ -74,7 +74,7 @@ class Plugin(BasePlugin):
     self.reconnecting = True
 
   # toggle a GMCP module
-  def gmcptogglemodule(self, modname, mstate):
+  def api_togglemodule(self, modname, mstate):
     """  toggle a GMCP module
     @Ymodname@w  = the GMCP module to toggle
     @Ymstate@w  = the state, either True or False
@@ -87,7 +87,7 @@ class Plugin(BasePlugin):
       if self.modstates[modname] == 0:
         self.api.get('output.msg')('Enabling GMCP module: %s' % modname)
         cmd = 'Core.Supports.Set [ "%s %s" ]' % (modname, 1)
-        gmcpsendpacket(cmd)
+        self.api.get('GMCP.sendpacket')(cmd)
       self.modstates[modname] = self.modstates[modname] + 1
 
     else:
@@ -95,10 +95,10 @@ class Plugin(BasePlugin):
       if self.modstates[modname] == 0:
         self.api.get('output.msg')('Disabling GMCP module: %s' % modname)
         cmd = 'Core.Supports.Set [ "%s %s" ]' % (modname, 0)
-        gmcpsendpacket(cmd)
+        self.api.get('GMCP.sendpacket')(cmd)
 
   # get a GMCP value/module from the cache
-  def gmcpget(self, module):
+  def api_getv(self, module):
     """  get a GMCP value/module from the cache
     @Ymodule@w  = the module to get
 
@@ -119,12 +119,12 @@ class Plugin(BasePlugin):
     return currenttable
 
   # send a GMCP module to all clients that support GMCP
-  def sendmoduletoclients(self, modname):
+  def api_sendmodule(self, modname):
     """  send a GMCP module to clients that support GMCP
     @Ymodname@w  = the module to send to clients
 
     this function returns no values"""
-    data = self.gmcpget(modname)
+    data = self.api.get('GMCP.getv')(modname)
     if data:
       import json
       tdata = json.dumps(data)
@@ -179,7 +179,7 @@ class Plugin(BasePlugin):
     """
     if not self.reconnecting:
       for i in self.gmcpmodqueue:
-        self.gmcptogglemodule(i['modname'], i['toggle'])
+        self.api.get('GMCP.togglemodule')(i['modname'], i['toggle'])
       self.gmcpmodqueue = []
     else:
       self.reconnecting = False
@@ -188,10 +188,10 @@ class Plugin(BasePlugin):
         if tnum > 0:
           self.api.get('output.msg')('Re-Enabling GMCP module %s' % i)
           cmd = 'Core.Supports.Set [ "%s %s" ]' % (i, 1)
-          gmcpsendpacket(cmd)
+          self.api.get('GMCP.sendpacket')(cmd)
 
     for i in self.gmcpqueue:
-      gmcpsendpacket(i)
+      self.api.get('GMCP.sendpacket')(i)
     self.gmcpqueue = []
 
   def gmcpfromclient(self, args):
@@ -215,7 +215,7 @@ class Plugin(BasePlugin):
         if not proxy.connected:
           self.gmcpmodqueue.append({'modname':modname, 'toggle':toggle})
         else:
-          self.gmcptogglemodule(modname, toggle)
+          self.self.api.get('GMCP.togglemodule')(modname, toggle)
     elif 'rawcolor' in data.lower() or 'group' in data.lower():
       #we only support rawcolor on right now, the json parser doesn't like
       #ascii codes, we also turn on group and leave it on
@@ -225,6 +225,6 @@ class Plugin(BasePlugin):
         if not (data in self.gmcpqueue):
           self.gmcpqueue.append(data)
       else:
-        gmcpsendpacket(data)
+        self.api.get('GMCP.sendpacket')(data)
 
 
