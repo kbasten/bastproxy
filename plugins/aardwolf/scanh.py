@@ -79,26 +79,32 @@ class Plugin(AardwolfBasePlugin):
     """
     parse a recovery line
     """
+    cptextcolor = self.api.get('setting.gets')('cptextcolor')
+    cpbackcolor = self.api.get('setting.gets')('cpbackcolor')
+    gqtextcolor = self.api.get('setting.gets')('gqtextcolor')
+    gqbackcolor = self.api.get('setting.gets')('gqbackcolor')
+    questtextcolor = self.api.get('setting.gets')('questtextcolor')
+    questbackcolor = self.api.get('setting.gets')('questbackcolor')
     line = args['line'].lower().strip()
     self.api.get('output.msg')('scanline: %s' % line)
     if 'cp' in self.mobs:
       for i in self.mobs['cp']:
         if i['nocolorname'].lower() in line:
-          args['newline'] = self.variables['cptextcolor'] + \
-                  self.variables['cpbackcolor'] + args['line'] + ' - (CP)@x'
+          args['newline'] = cptextcolor + \
+                  cpbackcolor + args['line'] + ' - (CP)@x'
           self.api.get('output.msg')('cp newline: %s' % args['newline'])
           break
     if 'gq' in self.mobs:
       for i in self.mobs['gq']:
         if i['name'].lower() in line:
-          args['newline'] = self.variables['gqtextcolor'] + \
-                  self.variables['gqbackcolor'] + args['line'] + ' - (GQ)@x'
+          args['newline'] = gqtextcolor + \
+                  gqbackcolor + args['line'] + ' - (GQ)@x'
           self.api.get('output.msg')('gq newline: %s' % args['newline'])
           break
     if 'quest' in self.mobs:
       if self.mobs['quest'].lower() in line:
-        args['newline'] = self.variables['questtextcolor'] + \
-              self.variables['questbackcolor'] + args['line'] + ' - (Quest)@x'
+        args['newline'] = questtextcolor + \
+              questbackcolor + args['line'] + ' - (Quest)@x'
         self.api.get('output.msg')('quest newline: %s' % args['newline'])
 
     return args
