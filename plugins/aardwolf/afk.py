@@ -64,7 +64,7 @@ class Plugin(AardwolfBasePlugin):
     """
     if self.api.get('setting.gets')('lasttitle'):
       title = self.api.get('setting.gets')('lasttitle')
-      self.api.get('input.execute')('title %s' % lasttitle)
+      self.api.get('input.execute')('title %s' % title)
 
   def _titlesetevent(self, args):
     """
