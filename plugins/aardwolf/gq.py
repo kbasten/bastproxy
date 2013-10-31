@@ -168,7 +168,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('setting.change')('started', True)
     self._gqnew()
     if self.api.get('setting.gets')('joined'):
-      self.api.get('setting.change')('starttime', time.time())
+      self.gq_info['starttime'] = time.time()
       self.api.get('triggers.togglegroup')("gqin", True)
       self.api.get('input.execute')("gq check")
 
