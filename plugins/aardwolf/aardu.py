@@ -120,6 +120,12 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('rewardtable', self.api_rewardtable)
     self.api.get('api.add')('parsedamageline', self.api_parsedamageline)
 
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
   # convert level, remort, tier, redos to the total levels
   def api_getactuallevel(self, level=None, remort=None, tier=None, redos=None):
     """  convert level, remort, tier, redos to the total levels

@@ -30,6 +30,13 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, *args, **kwargs)
     self.savesubfile = os.path.join(self.savedir, 'subs.txt')
     self._substitutes = PersistentDict(self.savesubfile, 'c', format='json')
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+    
     self.api.get('commands.add')('add', self.cmd_add,
                                  shelp='Add a substitute')
     self.api.get('commands.add')('remove', self.cmd_remove,

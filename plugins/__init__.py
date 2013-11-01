@@ -348,12 +348,20 @@ class PluginMgr(object):
     #check dependencies here
     self.loaddependencies(plugin.sname, plugin.dependencies)
 
-    plugin.load()
+    try:
+      plugin.load()
+    except:
+      self.api.get('output.traceback')(
+                    "load: had problems running the load method for %s." % fullimploc)
+      return False
     self.pluginl[plugin.name] = plugin
     self.plugins[plugin.sname] = plugin
     self.pluginm[plugin.name] = module
     self.loadedplugins[fullname] = True
     self.loadedplugins.sync()
+
+    self.api.get('events.eraise')('event_plugin_load', {'plugin':plugin.sname})
+
     return True
 
   def remove_plugin(self, pluginname):
@@ -363,7 +371,13 @@ class PluginMgr(object):
     plugin = None
     if pluginname in self.plugins:
       plugin = self.plugins[pluginname]
-      plugin.unload()
+      try:
+        plugin.unload()
+      except:
+        self.api.get('output.traceback')(
+                      "unload: had problems running the unload method for %s." % fullimploc)
+        return False
+
       del self.plugins[plugin.sname]
       del self.pluginl[plugin.name]
       del self.pluginm[plugin.name]

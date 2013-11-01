@@ -59,6 +59,13 @@ class Plugin(AardwolfBasePlugin):
     self.kill_info = {}
     self.reset_kill()
     self.mobdamcache = {}
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('instatext', '@x0', 'color',
                       'the text color for an instakill')
     self.api.get('setting.add')('instaback', '@z10', 'color',

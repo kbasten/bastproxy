@@ -35,14 +35,7 @@ class Plugin(BasePlugin):
               the client before connected to the server
     """
     BasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('api.add')('sendpacket', self.api_sendpacket)
-    self.api.get('api.add')('sendmodule', self.api_sendmodule)
-    self.api.get('api.add')('togglemodule', self.api_togglemodule)
-    self.api.get('api.add')('getv', self.api_getv)
-    self.api.get('events.register')('GMCP_raw', self.gmcpfromserver)
-    self.api.get('events.register')('GMCP_from_client', self.gmcpfromclient)
-    self.api.get('events.register')('GMCP:server-enabled', self.gmcprequest)
-    self.api.get('events.register')('muddisconnect', self.disconnect)
+
     self.canreload = False
 
     self.gmcpcache = {}
@@ -51,6 +44,22 @@ class Plugin(BasePlugin):
     self.gmcpmodqueue = []
 
     self.reconnecting = False
+
+    self.api.get('api.add')('sendpacket', self.api_sendpacket)
+    self.api.get('api.add')('sendmodule', self.api_sendmodule)
+    self.api.get('api.add')('togglemodule', self.api_togglemodule)
+    self.api.get('api.add')('getv', self.api_getv)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
+    self.api.get('events.register')('GMCP_raw', self.gmcpfromserver)
+    self.api.get('events.register')('GMCP_from_client', self.gmcpfromclient)
+    self.api.get('events.register')('GMCP:server-enabled', self.gmcprequest)
+    self.api.get('events.register')('muddisconnect', self.disconnect)
 
   # send a GMCP packet
   def api_sendpacket(self, message):

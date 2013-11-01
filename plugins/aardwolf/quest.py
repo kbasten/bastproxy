@@ -28,6 +28,13 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savequestfile = os.path.join(self.savedir, 'quest.txt')
     self.queststuff = PersistentDict(self.savequestfile, 'c', format='json')
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+    
     self.api.get('events.register')('GMCP:comm.quest', self.quest)
 
   def resetquest(self):

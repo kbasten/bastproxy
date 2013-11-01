@@ -22,10 +22,17 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('triggers.add')('example_trigger',
             "^(?P<name>.*) flicks a (?P<insect>.*) off his bar\.$")
     self.api.get('events.register')('trigger_example_trigger', self.testtrigger)
-
+    
   def testtrigger(self, args):
     """
     show that the trigger fired

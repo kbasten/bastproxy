@@ -35,6 +35,15 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('remove', self.api_removewatch)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
+    #self.api.get('commands.add')('detail', self.cmd_detail,
+                                 #shelp='details of an event')
+
     self.api.get('events.register')('from_client_event', self.checkcmd)
 
   # add a command watch

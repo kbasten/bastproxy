@@ -22,8 +22,21 @@ class Plugin(AardwolfBasePlugin):
     initialize the instance
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('events.register')('GMCP:server-enabled', self.enablemods)
     self.api.get('events.register')('client_connected', self.clientconnected)
+
+    state = self.api.get('GMCP.getv')('char.status.state')
+    proxy = self.api.get('managers.getm')('proxy')
+    if state == 3 and proxy and proxy.connected:
+      self.enablemods()
+      self.clientconnected()
 
   def enablemods(self, _=None):
     """
@@ -46,13 +59,4 @@ class Plugin(AardwolfBasePlugin):
       self.api.get('GMCP.sendmodule')('room.info')
       self.api.get('GMCP.sendpacket')("request quest")
       self.api.get('GMCP.sendpacket')("request char")
-
-  def load(self):
-    AardwolfBasePlugin.load(self)
-    state = self.api.get('GMCP.getv')('char.status.state')
-    proxy = self.api.get('managers.getm')('proxy')
-    if state == 3 and proxy and proxy.connected:
-      self.enablemods()
-      self.clientconnected()
-
 

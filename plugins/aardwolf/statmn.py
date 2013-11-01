@@ -25,6 +25,14 @@ class Plugin(AardwolfBasePlugin):
     initialize the instance
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
+    self.msgs = []
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('events.register')('aard_quest_comp', self.compquest)
     self.api.get('events.register')('aard_cp_comp', self.compcp)
     self.api.get('events.register')('aard_level_gain', self.levelgain)
@@ -32,6 +40,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_gq_done', self.compgq)
     self.api.get('events.register')('aard_gq_completed', self.compgq)
     self.api.get('events.register')('statmn_showminutes', self.showchange)
+
     self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
     self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
     self.api.get('setting.add')('showminutes', 5, int,
@@ -40,12 +49,12 @@ class Plugin(AardwolfBasePlugin):
                       'the # of minutes for the report to show')
     self.api.get('setting.add')('exppermin', 20, int,
                 'the threshhold for showing exp per minute')
+
     self.api.get('commands.add')('rep', self.cmd_rep,
               shelp='show report')
 
     self.api.get('timers.add')('statrep', self.timershow,
                                5*60, nodupe=True)
-    self.msgs = []
 
   def showchange(self, args):
     """

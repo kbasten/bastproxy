@@ -31,12 +31,18 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('events.register')('GMCP', self.test)
     self.api.get('events.register')('GMCP:char', self.testchar)
     self.api.get('events.register')('GMCP:char.status', self.testcharstatus)
     self.api.get('commands.add')('get', self.cmd_get,
                          shelp='print what is in the gmcp cache')
-    self.defaultcmd = 'get'
 
   def cmd_get(self, args):
     """

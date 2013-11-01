@@ -27,6 +27,13 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('commands.add')('clients', self.cmd_clients,
                               shelp='list clients that are connected')
     self.api.get('commands.default')('clients')

@@ -28,6 +28,13 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savewhoisfile = os.path.join(self.savedir, 'whois.txt')
     self.whois = PersistentDict(self.savewhoisfile, 'c', format='json')
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+    
     self.api.get('watch.add')('whois', '^(whoi|whois)$')
 
     self.api.get('triggers.add')('whoisheader',

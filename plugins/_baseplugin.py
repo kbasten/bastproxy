@@ -15,6 +15,9 @@ class BasePlugin(object):
   def __init__(self, name, sname, fullname, basepath, fullimploc):
     """
     initialize the instance
+    The following things should not be done in __init__
+      Interacting with anything in the api except api.add or api.overload
+      and dependency.add
     """
     self.author = ''
     self.purpose = ''
@@ -37,10 +40,10 @@ class BasePlugin(object):
     self.basepath = basepath
     self.fullimploc = fullimploc
 
+    self.settings = {}
     self.settingvalues = PersistentDictEvent(self, self.savefile,
                             'c', format='json')
-    self.settings = {}
-    self.cmdwatch = {}
+    self.settingvalues.pload()
 
     self.api.overload('output', 'msg', self.api_outputmsg)
     self.api.overload('commands', 'default', self.api_commandsdefault)
@@ -51,15 +54,6 @@ class BasePlugin(object):
     self.api.overload('api', 'add', self.api_add)
     self.api.overload('triggers', 'add', self.api_triggersadd)
     self.api.overload('watch', 'add', self.api_watchadd)
-
-    self.api.get('logger.adddtype')(self.sname)
-    self.api.get('commands.add')('set', self.cmd_set,
-                                 shelp='Show/Set Settings')
-    self.api.get('commands.add')('reset', self.cmd_reset,
-                                 shelp='reset the plugin')
-    self.api.get('commands.add')('save', self.cmd_save,
-                                 shelp='save plugin state')
-    self.api.get('events.register')('firstactive', self.afterfirstactive)
 
   # get the vaule of a setting
   def api_settinggets(self, setting):
@@ -95,20 +89,18 @@ class BasePlugin(object):
 
   def load(self):
     """
-    load stuff
+    load stuff, do most things here
     """
-    # load all commands
+    self.api.get('logger.adddtype')(self.sname)
+    self.api.get('commands.add')('set', self.cmd_set,
+                                 shelp='Show/Set Settings')
+    self.api.get('commands.add')('reset', self.cmd_reset,
+                                 shelp='reset the plugin')
+    self.api.get('commands.add')('save', self.cmd_save,
+                                 shelp='save plugin state')
+    self.api.get('events.register')('firstactive', self.afterfirstactive)
+
     proxy = self.api.get('managers.getm')('proxy')
-
-    self.settingvalues.pload()
-
-    #for i in self.triggers:
-      #regex = self.triggers[i]['regex']
-      #del self.triggers[i]['regex']
-      #self.api.get('triggers.add', True)(i, regex, self.sname, **self.triggers[i])
-
-    for i in self.cmdwatch:
-      self.api.get('cmdwatch.add')(i, self.watch[i])
 
     if proxy and proxy.connected:
       try:
@@ -117,8 +109,6 @@ class BasePlugin(object):
           self.afterfirstactive()
       except AttributeError:
         pass
-
-    self.api.get('events.eraise')('event_plugin_load', {'plugin':self.sname})
 
   def unload(self):
     """
@@ -150,11 +140,11 @@ class BasePlugin(object):
     self.api.get('events.eraise')('event_plugin_unload', {'plugin':self.sname})
 
   # handle a message
-  def api_outputmsg(self, msg):
+  def api_outputmsg(self, msg, secondary='None'):
     """
     an internal function to send msgs
     """
-    self.api.get('output.msg', True)(msg, self.sname)
+    self.api.get('output.msg', True)(msg, self.sname, secondary)
 
   def api_triggersadd(self, triggername, regex, **kwargs):
     """

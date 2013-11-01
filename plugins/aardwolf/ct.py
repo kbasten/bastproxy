@@ -24,11 +24,21 @@ class Plugin(AardwolfBasePlugin):
     initialize the instance
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('events.register')('aard_mobkill', self.mobkill)
+
+    self.msgs = []
+
     self.api.get('dependency.add')('mobk')
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
     self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
-    self.msgs = []
+
+    self.api.get('events.register')('aard_mobkill', self.mobkill)
 
   def mobkill(self, args=None):
     """

@@ -22,6 +22,13 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+    
     self.api.get('timers.add')('test_timer', self.test,
                                     600, onetime=False)
     self.api.get('timers.add')('test_touser_timer', self.test_to_user,

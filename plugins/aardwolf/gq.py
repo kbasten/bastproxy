@@ -36,6 +36,12 @@ class Plugin(AardwolfBasePlugin):
     self.mobsleft = []
     self.nextdeath = False
     self.linecount = 0
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
     self.api.get('watch.add')('gq_check',
       '^(gq|gqu|gque|gques|gquest) (c|ch|che|chec|check)$')
 
@@ -110,8 +116,6 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_gqextfin', self._gqextfin)
     self.api.get('events.register')('trigger_gqnote', self._gqreset)
     self.api.get('events.register')('watch_gq_check', self._gqcheckcmd)
-
-
 
   def _gqnew(self):
     """

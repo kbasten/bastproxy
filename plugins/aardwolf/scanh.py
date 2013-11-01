@@ -29,6 +29,19 @@ class Plugin(AardwolfBasePlugin):
     initialize the instance
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
+
+    self.api.get('dependency.add')('quest')
+    self.api.get('dependency.add')('cp')
+    self.api.get('dependency.add')('gq')
+
+    self.mobs = {}
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('cpbackcolor', '@z14', 'color',
                         'the background color for cp mobs')
     self.api.get('setting.add')('gqbackcolor', '@z9', 'color',
@@ -41,10 +54,6 @@ class Plugin(AardwolfBasePlugin):
                         'the background color for gq mobs')
     self.api.get('setting.add')('questtextcolor', '@x0', 'color',
                         'the background color for quest mobs')
-
-    self.api.get('dependency.add')('quest')
-    self.api.get('dependency.add')('cp')
-    self.api.get('dependency.add')('gq')
 
     self.api.get('triggers.add')('scanstart',
             "^\{scan\}$")
@@ -64,8 +73,6 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_quest_start', self.questmob)
     self.api.get('events.register')('aard_quest_failed', self.questclear)
     self.api.get('events.register')('aard_quest_comp', self.questclear)
-
-    self.mobs = {}
 
   def scanstart(self, args):
     """

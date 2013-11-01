@@ -42,6 +42,12 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('toggleomit', self.api_toggleomit)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('commands.add')('detail', self.cmd_detail,
                                  shelp='details of a trigger')
     self.api.get('commands.add')('list', self.cmd_list,
@@ -50,7 +56,7 @@ class Plugin(BasePlugin):
                                  shelp='show trigger stats')
 
     self.api.get('events.register')('from_mud_event', self.checktrigger, prio=1)
-
+    
   # add a trigger
   def api_addtrigger(self, triggername, regex, plugin, **kwargs):
     """  add a trigger

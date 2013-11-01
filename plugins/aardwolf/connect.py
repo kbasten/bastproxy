@@ -28,7 +28,15 @@ class Plugin(BasePlugin):
     # the firstactive flag
     self.api.get('api.add')('firstactive', self.api_firstactive)
 
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('events.register')('GMCP:char.status', self._charstatus)
+
+    self._charstatus()
 
   # returns the firstactive flag
   def api_firstactive(self):
@@ -49,6 +57,3 @@ class Plugin(BasePlugin):
       self.api.get('output.msg')('sending first active')
       self.api.get('events.eraise')('firstactive', {})
 
-  def load(self):
-    BasePlugin.load(self)
-    self._charstatus()

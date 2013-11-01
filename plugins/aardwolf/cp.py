@@ -35,6 +35,13 @@ class Plugin(AardwolfBasePlugin):
     self.cpinfotimer = {}
     self.linecount = 0
     self.nextdeath = False
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('watch.add')('cp_check',
       '^(cp|campa|campai|campaig|campaign) (c|ch|che|chec|check)$')
 

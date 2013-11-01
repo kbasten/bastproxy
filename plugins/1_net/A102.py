@@ -66,18 +66,27 @@ class Plugin(BasePlugin):
                              connected to the server
     """
     BasePlugin.__init__(self, tname, tsname, filename, directory, importloc)
-    self.api.get('api.add')('sendpacket', self.api_sendpacket)
-    self.api.get('api.add')('toggle', self.api_toggle)
-    self.api.get('events.register')('A102_from_server', self.a102fromserver)
-    self.api.get('events.register')('A102_from_client', self.a102fromclient)
-    self.api.get('events.register')('A102:server-enabled', self.a102request)
-    self.api.get('events.register')('muddisconnect', self.disconnect)
+
     self.canreload = False
 
     self.optionstates = {}
     self.a102optionqueue = []
 
     self.reconnecting = False
+    
+    self.api.get('api.add')('sendpacket', self.api_sendpacket)
+    self.api.get('api.add')('toggle', self.api_toggle)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
+    self.api.get('events.register')('A102_from_server', self.a102fromserver)
+    self.api.get('events.register')('A102_from_client', self.a102fromclient)
+    self.api.get('events.register')('A102:server-enabled', self.a102request)
+    self.api.get('events.register')('muddisconnect', self.disconnect)
 
   # Send an A102 packet
   def api_sendpacket(self, message):

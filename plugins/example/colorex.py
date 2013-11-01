@@ -26,6 +26,13 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    BasePlugin.load(self)
+
     self.api.get('commands.add')('show', self.cmd_show,
                                     shelp='Show colors')
     self.api.get('commands.add')('example', self.cmd_example,

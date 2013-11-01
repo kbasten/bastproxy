@@ -3,7 +3,7 @@ $Id$
 
 This plugin sends emails when certain events happen in aardwolf
 """
-from plugins._baseplugin import BasePlugin
+from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Alerts'
 SNAME = 'alerts'
@@ -13,7 +13,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-class Plugin(BasePlugin):
+class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf quest events
   """
@@ -21,9 +21,17 @@ class Plugin(BasePlugin):
     """
     initialize the instance
     """
-    BasePlugin.__init__(self, *args, **kwargs)
+    AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.api.get('dependency.add')('gq')
     self.api.get('dependency.add')('quest')
+
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('email', '', str, 'the email to send the alerts',
               nocolor=True)
     self.api.get('events.register')('aard_gq_declared', self._gqdeclared)

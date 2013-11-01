@@ -24,9 +24,15 @@ class Plugin(AardwolfBasePlugin):
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
-    self.api.get('events.register')('GMCP:room.info', self._roominfo)
     self.lastroom = {}
 
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
+    self.api.get('events.register')('GMCP:room.info', self._roominfo)
 
   def _roominfo(self, _=None):
     """

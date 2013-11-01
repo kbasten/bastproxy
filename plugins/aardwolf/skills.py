@@ -82,6 +82,19 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('canuse', self.api_canuse)
     self.api.get('api.add')('isuptodate', self.api_isuptodate)
 
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
+    self.api.get('output.msg')('running load function of skills')
+
+    self.api.get('commands.add')('refresh', self.cmd_refresh,
+                                 shelp='refresh skills and spells')
+    self.api.get('commands.add')('lu', self.cmd_lu,
+                                 shelp='lookup skill by name or sn')
+
     self.api.get('triggers.add')('spellh_noprompt',
             "^\{spellheaders noprompt\}$")
     self.api.get('triggers.add')('spellh_spellup_noprompt',
@@ -138,11 +151,7 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('events.register')('GMCP:char.status', self.checkskills)
 
-    self.api.get('commands.add')('refresh', self.cmd_refresh,
-                                 shelp='refresh skills and spells')
-    self.api.get('commands.add')('lu', self.cmd_lu,
-                                 shelp='lookup skill by name or sn')
-
+    self.checkskills()
 
   def firstactive(self):
     """
@@ -514,7 +523,3 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.savestate(self)
     self.skills.sync()
     self.recoveries.sync()
-
-  def load(self):
-    AardwolfBasePlugin.load(self)
-    self.checkskills()

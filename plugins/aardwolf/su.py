@@ -38,6 +38,12 @@ class Plugin(AardwolfBasePlugin):
     self.lastmana = -1
     self.lastmoves = -1
 
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('enabled', True, bool,
                       'auto spellup is enabled')
     self.api.get('setting.add')('waiting', -1, int,

@@ -34,16 +34,20 @@ class Plugin(AardwolfBasePlugin):
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
+    self.temptitle = ''
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('afktitle', 'is AFK.', str,
                         'the title when afk mode is enabled')
     self.api.get('setting.add')('lasttitle', '', str,
                         'the title before afk mode is enabled')
     self.api.get('setting.add')('queue', [], list, 'the tell queue', readonly=True)
     self.api.get('setting.add')('isafk', False, bool, 'AFK flag', readonly=True)
-
-    self.api.get('events.register')('client_connected', self.clientconnected)
-    self.api.get('events.register')('client_disconnected', self.clientdisconnected)
-    self.api.get('events.register')('firstactive', self.afkfirstactive)
 
     self.api.get('commands.add')('show', self.cmd_show,
                                   shelp='Show the afk comm queue')
@@ -52,10 +56,11 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('commands.add')('toggle', self.cmd_toggle,
                                   shelp='toggle afk')
 
-    self.temptitle = ''
-
     self.api.get('watch.add')('titleset', '^(tit|titl|title) (?P<title>.*)$')
 
+    self.api.get('events.register')('client_connected', self.clientconnected)
+    self.api.get('events.register')('client_disconnected', self.clientdisconnected)
+    self.api.get('events.register')('firstactive', self.afkfirstactive)
     self.api.get('events.register')('watch_titleset', self._titlesetevent)
 
   def afkfirstactive(self, args):

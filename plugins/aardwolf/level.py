@@ -30,6 +30,12 @@ class Plugin(AardwolfBasePlugin):
     self.savelevelfile = os.path.join(self.savedir, 'level.txt')
     self.levelinfo = PersistentDict(self.savelevelfile, 'c', format='json')
 
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('setting.add')('preremort', False, bool, 'flag for pre remort')
     self.api.get('setting.add')('remortcomp', False, bool, 'flag for remort completion')
     self.api.get('setting.add')('tiering', False, bool, 'flag for tiering')

@@ -488,6 +488,21 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
     # backup the db every 4 hours
+    self.api.get('dependency.add')('whois')
+    self.api.get('dependency.add')('level')
+    self.api.get('dependency.add')('mobk')
+    self.api.get('dependency.add')('cp')
+    self.api.get('dependency.add')('gq')
+    self.api.get('dependency.add')('quest')
+
+    self.statdb = Statdb(self)
+
+  def load(self):
+    """
+    load the plugins
+    """
+    AardwolfBasePlugin.load(self)
+
     self.api.get('timers.add')('stats_backup', self.backupdb,
                                 60*60*4, time='0000')
 
@@ -495,13 +510,6 @@ class Plugin(AardwolfBasePlugin):
                       'the time for a db backup, like 1200 or 2000')
     self.api.get('setting.add')('backupinterval', 60*60*4, int,
                       'the interval to backup the db, default every 4 hours')
-
-    self.api.get('dependency.add')('whois')
-    self.api.get('dependency.add')('level')
-    self.api.get('dependency.add')('mobk')
-    self.api.get('dependency.add')('cp')
-    self.api.get('dependency.add')('gq')
-    self.api.get('dependency.add')('quest')
 
     self.api.get('commands.add')('quests', self.cmd_quests,
                                 shelp='show quest stats')
@@ -539,8 +547,6 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_dead', self.dead)
 
     self.api.get('api.add')('runselect', self.api_runselect)
-
-    self.statdb = Statdb(self)
 
   def changetimer(self, _=None):
     """
