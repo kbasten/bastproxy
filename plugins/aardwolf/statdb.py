@@ -290,7 +290,7 @@ class Statdb(Sqldb):
     if not milestone:
       return
 
-    trows = self.statdb.runselect('SELECT * FROM stats WHERE milestone = "%s"' \
+    trows = self.runselect('SELECT * FROM stats WHERE milestone = "%s"' \
                                                           % milestone)
     if len(trows) > 0:
       self.api.get('output.client')('@RMilestone %s already exists' % milestone)
