@@ -164,8 +164,9 @@ class Plugin(BasePlugin):
 
     this function returns no values"""
     timerstoremove = []
+    self.api.get('output.msg')('removing timers for %s' % name, secondary=name)
     for i in self.timerlookup:
-      if plugin == self.timerlookup[i].plugin:
+      if name == self.timerlookup[i].plugin:
         timerstoremove.append(i)
 
     for i in timerstoremove:
