@@ -296,7 +296,7 @@ class Statdb(Sqldb):
       self.api.get('output.client')('@RMilestone %s already exists' % milestone)
       return -1
 
-    stats = self.statdb.runselect('SELECT * FROM stats WHERE milestone = "current"')
+    stats = self.runselect('SELECT * FROM stats WHERE milestone = "current"')
     tstats = stats[0]
 
     if tstats:
@@ -330,7 +330,7 @@ class Statdb(Sqldb):
     get all classes
     """
     classes = []
-    tclasses = self.statdb.runselect('SELECT * FROM classes ORDER by remort ASC')
+    tclasses = self.runselect('SELECT * FROM classes ORDER by remort ASC')
     for i in tclasses:
       if i['remort'] != -1:
         classes.append(i['class'])
