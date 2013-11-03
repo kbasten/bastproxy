@@ -13,11 +13,12 @@ class Event(object):
   """
   a basic event class
   """
-  def __init__(self, name):
+  def __init__(self, name, plugin):
     """
     init the class
     """
     self.name = name
+    self.plugin = plugin
 
   def execute(self):
     """
@@ -25,11 +26,11 @@ class Event(object):
     """
     self.func()
 
-  def timerstring(self):
+  def __str__(self):
     """
     return a string representation of the timer
     """
-    return self.name
+    return 'Event %-10s : %-15s' % (self.name, self.plugin)
 
 
 class EventMgr(object):
@@ -50,7 +51,6 @@ class EventMgr(object):
     self.api.add(self.sname, 'eraise', self.api_eraise)
     self.api.add(self.sname, 'removeplugin', self.api_removeplugin)
     self.api.add(self.sname, 'gete', self.api_getevent)
-    #self.api.add(self.sname, 'getplugins', self.api_getplugins)
 
     #print 'api', self.api.api
     #print 'overloadedapi', self.api.overloadedapi
@@ -185,7 +185,14 @@ class EventMgr(object):
         for k in keys:
           for i in self.events[eventname][k]:
             try:
+              try:
+                plugin = i.im_self.sname
+              except AttributeError:
+                plugin = ''
               tnargs = i(nargs)
+              self.api.get('output.msg')('event %s : function %s, plugin %s called with args %s, returned %s' % \
+                                         (eventname, i.__name__, plugin or 'Unknown', nargs, tnargs),
+                                         primary=self.sname, secondary=plugin)
               #self.api.get('output.msg')('%s: returned %s' % (eventname, tnargs), self.sname)
               if tnargs:
                 nargs = tnargs

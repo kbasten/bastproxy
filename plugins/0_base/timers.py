@@ -32,7 +32,7 @@ class TimerEvent(Event):
     time should be military time, "1430"
 
     """
-    Event.__init__(self, name)
+    Event.__init__(self, name, plugin)
     self.func = func
     self.seconds = seconds
 
@@ -47,8 +47,6 @@ class TimerEvent(Event):
     self.time = None
     if 'time' in kwargs:
       self.time = kwargs['time']
-
-    self.plugin = plugin
 
     self.nextcall = self.getnext()
 
@@ -77,12 +75,11 @@ class TimerEvent(Event):
 
     return nextt
 
-
-  def timerstring(self):
+  def __str__(self):
     """
     return a string representation of the timer
     """
-    return '%-10s : %-15s : %05d : %-6s : %d' % (self.name, self.plugin,
+    return 'Timer - %-10s : %-15s : %05d : %-6s : %d' % (self.name, self.plugin,
                                   self.seconds, self.enabled, self.nextcall)
 
 class Plugin(BasePlugin):
@@ -129,12 +126,12 @@ class Plugin(BasePlugin):
 
     returns an Event instance"""
     try:
-      plugin = func.im_self.sname
+      plugin = func.im_self
     except AttributeError:
       plugin = ''
 
     if 'plugin' in kwargs:
-      plugin = kwargs['plugin']
+      plugin = self.api.get('plugins.getp')(kwargs['plugin'])
 
     args = {}
     if seconds <= 0:
@@ -153,7 +150,7 @@ class Plugin(BasePlugin):
         return
 
     tevent = TimerEvent(name, func, seconds, plugin, **kwargs)
-    self.api.get('output.msg')('adding %s' % tevent, secondary=plugin)
+    self.api.get('output.msg')('adding %s from plugin %s' % (tevent, plugin), secondary=plugin.sname)
     self._addtimer(tevent)
     return tevent
 
@@ -163,10 +160,11 @@ class Plugin(BasePlugin):
     @Yname@w   = the name of the plugin
 
     this function returns no values"""
+    plugin = self.api.get('plugins.getp')(name)
     timerstoremove = []
     self.api.get('output.msg')('removing timers for %s' % name, secondary=name)
     for i in self.timerlookup:
-      if name == self.timerlookup[i].plugin:
+      if plugin == self.timerlookup[i].plugin:
         timerstoremove.append(i)
 
     for i in timerstoremove:
@@ -224,6 +222,8 @@ class Plugin(BasePlugin):
           if timer.enabled:
             try:
               timer.execute()
+              self.api.get('output.msg')('Timer fired: %s' % timer,
+                                         secondary=timer.plugin.sname)
             except:
               self.api.get('output.traceback')('A timer had an error')
           self.timerevents[i].remove(timer)

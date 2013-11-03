@@ -51,7 +51,7 @@ def api_error(text):
     test.append(color.convertcolors('@x136%s@w' % i))
   tmsg = '\n'.join(test)
   try:
-    api.get('logger.msg')({'msg':tmsg, 'dtype':'error'})
+    api.get('logger.msg')({'msg':tmsg, 'primary':'error'})
   except (AttributeError, TypeError):
     print '%s - No Logger - %s : %s' % (time.strftime(api.timestring,
                                           time.localtime()), 'error', tmsg)

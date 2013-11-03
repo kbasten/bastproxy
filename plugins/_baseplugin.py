@@ -137,8 +137,6 @@ class BasePlugin(object):
     # remove anything out of the api
     self.api.get('api.remove')(self.sname)
 
-    self.api.get('events.eraise')('event_plugin_unload', {'plugin':self.sname})
-
   # handle a message
   def api_outputmsg(self, msg, secondary='None'):
     """

@@ -284,7 +284,6 @@ class CmdMgr(object):
     """
     self.api.get('managers.add')(self.sname, self)
     self.api.get('logger.adddtype')(self.sname)
-    self.api.get('logger.console')(self.sname)
     self.api.get('events.register')('from_client_event', self.chkcmd, prio=1)
     self.api.get('events.eraise')('plugin_cmdman_loaded', {})
 

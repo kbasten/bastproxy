@@ -13,6 +13,7 @@ from libs.utils import find_files, verify, convert
 from libs.persistentdict import PersistentDict
 from libs.utils import DotDict
 from libs.api import API
+from plugins._baseplugin import BasePlugin
 
 
 def get_module_name(path, filename):
@@ -75,6 +76,22 @@ class PluginMgr(object):
     self.api.get('logger.adddtype')(self.sname)
     self.api.get('logger.console')(self.sname)
     self.api.add(self.sname, 'isinstalled', self.api_isinstalled)
+    self.api.add(self.sname, 'getp', self.api_getp)
+
+  # get a plugin instance
+  def api_getp(self, pluginname):
+    """  get a plugin instance
+    @Ypluginname@w  = the plugin to check for"""
+
+    if type(pluginname) == str:
+      if pluginname in self.plugins:
+        return self.plugins[pluginname]
+      if pluginname in self.pluginl:
+        return self.pluginl[pluginname]
+    elif type(pluginname) == BasePlugin:
+      return pluginname
+
+    return None
 
   # check if a plugin is installed
   def api_isinstalled(self, pluginname):
@@ -222,7 +239,7 @@ class PluginMgr(object):
         force = True
       self.load_module(fullname, basepath, force)
 
-  def load_module(self, fullname, basepath, force=False):
+  def load_module(self, fullname, basepath, force=False, noadd=False):
     """
     load a single module
     """
@@ -251,7 +268,7 @@ class PluginMgr(object):
         load = False
 
       if load:
-        if "Plugin" in _module.__dict__:
+        if "Plugin" in _module.__dict__ and not noadd:
           self.add_plugin(_module, fullname, basepath, fullimploc)
 
         else:
@@ -383,7 +400,11 @@ class PluginMgr(object):
       del self.pluginm[plugin.name]
       del self.loadedplugins[plugin.fullname]
       self.loadedplugins.sync()
+
+      self.api.get('events.eraise')('event_plugin_unload', {'plugin':plugin.sname})
+
       plugin = None
+
       return True
     else:
       return False
