@@ -286,6 +286,7 @@ class Plugin(BasePlugin):
     """
     load external stuff
     """
+    BasePlugin.load(self)
     self.api.get('managers.add')(self.sname, self)
     self.api.get('log.adddtype')(self.sname)
     self.api.get('commands.add')('list', self.cmd_list, shelp='list commands')

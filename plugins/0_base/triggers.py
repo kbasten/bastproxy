@@ -289,7 +289,7 @@ class Plugin(BasePlugin):
       for trigger in args:
         if trigger in self.triggers:
           eventname = self.triggers[trigger]['eventname']
-          eventstuff = self.api.get('eventinfo.detail')(eventname)
+          eventstuff = self.api.get('events.detail')(eventname)
           tmsg.append('%-13s : %s' % ('Name', trigger))
           tmsg.append('%-13s : %s' % ('Defined in', self.triggers[trigger]['plugin']))
           tmsg.append('%-13s : %s' % ('Regex', self.triggers[trigger]['regex']))

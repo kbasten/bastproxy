@@ -386,6 +386,7 @@ class Plugin(BasePlugin):
     load external stuff
     """
     BasePlugin.load(self)
+    
     #print('log api before adding', self.api.api)
     self.api.get('managers.add')('log', self)
 

@@ -37,6 +37,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('eraise', self.api_eraise)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
     self.api.get('api.add')('gete', self.api_getevent)
+    self.api.get('api.add')('detail', self.api_detail)
 
   # return the event, will have registered functions
   def api_getevent(self, eventname):
@@ -188,6 +189,49 @@ class Plugin(BasePlugin):
     #self.api.get('output.msg')('returning', nargs)
     return nargs
 
+  # get the details of an event
+  def api_detail(self, eventname):
+    """  get the details of an event
+    @Yeventname@w = The event name
+
+    this function returns a list of strings for the info"""
+    tmsg = []
+    eventstuff = self.api.get('events.gete')(eventname)
+    plugins = []
+    tmsg.append('%-13s : %s' % ('Event', eventname))
+    tmsg.append('@B' + utils.center('Registrations', '-', 60))
+    tmsg.append('%-4s : %-15s - %-s' % ('prio',
+                                        'plugin',
+                                        'function name'))
+    tmsg.append('@B' + '-' * 60)
+    if not eventstuff:
+      tmsg.append('None')
+    else:
+      for func in eventstuff['funcdict']:
+        eventfunc = eventstuff['funcdict'][func]
+        tmsg.append('%-4s : %-15s - %-s' % (eventfunc['priority'],
+                                            eventfunc['plugin'],
+                                            eventfunc['name']))
+    tmsg.append('')
+    return tmsg
+
+  def cmd_detail(self, args):
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      list events and the plugins registered with them
+      @CUsage@w: list
+    """
+    tmsg = []
+    if len(args) > 0:
+      for eventname in args:
+        tmsg = self.api.get('events.detail')(eventname)
+        tmsg.append('')
+    else:
+      tmsg.append('Please provide an event name')
+
+    return True, tmsg
+
+
   def logloaded(self, args):
     """
     initialize the event log types
@@ -199,6 +243,10 @@ class Plugin(BasePlugin):
     """
     load the module
     """
+    BasePlugin.load(self)
     self.api.get('managers.add')(self.sname, self)
     self.api.get('events.register')('log_plugin_loaded', self.logloaded)
     self.api.get('events.eraise')('event_plugin_loaded', {})
+    self.api.get('commands.add')('detail', self.cmd_detail,
+                                 shelp='details of an event')
+

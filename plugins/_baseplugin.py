@@ -92,7 +92,7 @@ class BasePlugin(object):
     load stuff, do most things here
     """
     self.settingvalues.pload()
-    
+
     self.api.get('log.adddtype')(self.sname)
     self.api.get('commands.add')('set', self.cmd_set,
                                  shelp='Show/Set Settings')
@@ -100,17 +100,18 @@ class BasePlugin(object):
                                  shelp='reset the plugin')
     self.api.get('commands.add')('save', self.cmd_save,
                                  shelp='save plugin state')
-    self.api.get('events.register')('firstactive', self.afterfirstactive)
 
     proxy = self.api.get('managers.getm')('proxy')
 
     if proxy and proxy.connected:
       try:
         if self.api.get('connect.firstactive'):
-          self.api.get('events.unregister')('firstactive', self.afterfirstactive)
           self.afterfirstactive()
       except AttributeError:
-        pass
+        self.api.get('events.register')('firstactive', self.afterfirstactive)
+    else:
+      self.api.get('events.register')('firstactive', self.afterfirstactive)
+
 
 
   def unload(self):
