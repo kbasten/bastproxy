@@ -219,7 +219,8 @@ class Plugin(BasePlugin):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       list events and the plugins registered with them
-      @CUsage@w: list
+      @CUsage@w: detail show @Y<eventname>@w
+        @Yeventname@w  = the eventname to get info for
     """
     tmsg = []
     if len(args) > 0:
@@ -231,6 +232,22 @@ class Plugin(BasePlugin):
 
     return True, tmsg
 
+  def cmd_list(self, args):
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      list events and the plugins registered with them
+      @CUsage@w: list
+    """
+    match = None
+    if len(args) > 0:
+      match = args[0]
+    tmsg = []
+    for name in self.events:
+      if not match or match in name:
+        if len(self.events[name]) > 0:
+          tmsg.append(name)
+
+    return True, tmsg
 
   def logloaded(self, args):
     """
@@ -249,4 +266,5 @@ class Plugin(BasePlugin):
     self.api.get('events.eraise')('event_plugin_loaded', {})
     self.api.get('commands.add')('detail', self.cmd_detail,
                                  shelp='details of an event')
-
+    self.api.get('commands.add')('list', self.cmd_list,
+                                 shelp='list all events in the manager')
