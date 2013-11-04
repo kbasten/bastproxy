@@ -14,6 +14,7 @@ SNAME = 'ssub'
 PURPOSE = 'simple substitution of strings'
 AUTHOR = 'Bast'
 VERSION = 1
+PRIORITY = 25
 
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = True
@@ -36,7 +37,7 @@ class Plugin(BasePlugin):
     load the plugins
     """
     BasePlugin.load(self)
-    
+
     self.api.get('commands.add')('add', self.cmd_add,
                                  shelp='Add a substitute')
     self.api.get('commands.add')('remove', self.cmd_remove,

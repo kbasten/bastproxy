@@ -11,6 +11,7 @@ SNAME = 'A102'
 PURPOSE = 'Aardwolf 102 telnet options'
 AUTHOR = 'Bast'
 VERSION = 1
+PRIORITY = 35
 
 AUTOLOAD = True
 
@@ -73,7 +74,7 @@ class Plugin(BasePlugin):
     self.a102optionqueue = []
 
     self.reconnecting = False
-    
+
     self.api.get('api.add')('sendpacket', self.api_sendpacket)
     self.api.get('api.add')('toggle', self.api_toggle)
 

@@ -5,6 +5,7 @@ Overall:
   #TODO: move all api interactions into the load function instead of the plugin __init__ (except api.add)
   #TODO: anytime an action is performed, (Trigger matched, timer goes off, function is called from an event, command called, variable changed)
               send output.msg with the owning plugins sname
+  #TODO: move option plugins into the plugin folders and load from there
 
 Python3:
   #TODO: convert to run under python3
@@ -28,6 +29,7 @@ timers:
   #TODO: add command to show timer info, lists, specific info
   #TODO: add command to show stats
   #TODO: make reloadable, either have original plugins reload or copy the structures somewhere
+  #TODO: add a end time for a timer that starts at a specific time (or a setting for a specific # of times to execute)
 
 triggers:
   #TODO: add ability to manually add triggers from #bp.triggers.add
@@ -86,4 +88,4 @@ su:
             after a reload
   #TODO: add ability to spellup others
   #TODO: add ability to have spell blockers
-
+  #TODO: spellups stop if client isn't connected, investigate

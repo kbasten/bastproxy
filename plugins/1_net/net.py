@@ -13,6 +13,7 @@ SNAME = 'net'
 PURPOSE = 'get information about connections'
 AUTHOR = 'Bast'
 VERSION = 1
+PRIORITY = 35
 
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = True

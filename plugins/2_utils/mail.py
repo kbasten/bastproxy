@@ -30,6 +30,14 @@ class Plugin(BasePlugin):
     """
     BasePlugin.__init__(self, *args, **kwargs)
     self.password = ''
+    self.api.get('api.add')('send', self.api_send)
+
+  def load(self):
+    """
+    load the plugin
+    """
+    BasePlugin.load(self)
+
     self.api.get('events.register')('client_connected', self.checkpassword)
     self.api.get('commands.add')('password', self.cmd_pw,
                                         shelp='set the password')
@@ -37,7 +45,7 @@ class Plugin(BasePlugin):
                                         shelp='send a test email')
     self.api.get('commands.add')('check', self.cmd_check,
                       shelp='check to make sure all settings are applied')
-    self.api.get('api.add')('send', self.api_send)
+
     self.api.get('setting.add')('server', '', str, 'the smtp server to send mail through')
     self.api.get('setting.add')('port', '', int, 'the port to use when sending mail')
     self.api.get('setting.add')('username', '', str, 'the username to connect as',
@@ -48,6 +56,9 @@ class Plugin(BasePlugin):
                   nocolor=True)
     self.api.get('setting.add')('ssl', '', bool,
                           'set this to True if the connection will use ssl')
+
+    if self.api.get('setting.gets')('username') != '':
+      self.api.get('output.client')('Please set the mail password')
 
   def check(self):
     """
@@ -156,14 +167,6 @@ X-Mailer: My-Mail
     else:
       msg.append('Everything is ready to send a test email')
     return True, msg
-
-  def load(self):
-    """
-    load the plugin
-    """
-    BasePlugin.load(self)
-    if self.api.get('setting.gets')('username') != '':
-      self.api.get('output.client')('Please set the mail password')
 
   def cmd_test(self, args):
     """

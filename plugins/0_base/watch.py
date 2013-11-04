@@ -12,6 +12,7 @@ SNAME = 'watch'
 PURPOSE = 'watch for specific commands from clients'
 AUTHOR = 'Bast'
 VERSION = 1
+PRIORITY = 25
 
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = True

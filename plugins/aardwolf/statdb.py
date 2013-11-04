@@ -495,13 +495,15 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('dependency.add')('gq')
     self.api.get('dependency.add')('quest')
 
-    self.statdb = Statdb(self)
+    self.statdb = None
 
   def load(self):
     """
     load the plugins
     """
     AardwolfBasePlugin.load(self)
+
+    self.statdb = Statdb(self)
 
     self.api.get('timers.add')('stats_backup', self.backupdb,
                                 60*60*4, time='0000')

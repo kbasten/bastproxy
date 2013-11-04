@@ -5,32 +5,41 @@ This module handles commands and parsing input
 
 #TODO: use decorators to handle the adding of commands?
 """
-from libs.api import API
 import shlex
 
-class CmdMgr(object):
+from plugins._baseplugin import BasePlugin
+
+NAME = 'Commands'
+SNAME = 'commands'
+PURPOSE = 'Parse commands, e.g. #bp.commands.list'
+AUTHOR = 'Bast'
+VERSION = 1
+PRIORITY = 10
+
+# This keeps the plugin from being autoloaded if set to False
+AUTOLOAD = True
+
+class Plugin(BasePlugin):
   """
   a class to manage internal commands
   """
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     """
     init the class
     """
-    self.sname = 'commands'
-    self.name = 'Commands'
+    BasePlugin.__init__(self, *args, **kwargs)
+
+    self.canreload = False
+
     self.cmds = {}
-    self.api = API()
     self.nomultiplecmds = {}
     self.regexlookup = {}
     self.lastcmd = ''
 
-    self.api.add(self.sname, 'add', self.api_addcmd)
-    self.api.add(self.sname, 'remove', self.api_removecmd)
-    self.api.add(self.sname, 'default', self.api_setdefault)
-    self.api.add(self.sname, 'removeplugin', self.api_removeplugin)
-
-    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands')
-    self.api.get('commands.add')('default', self.cmd_list, shelp='list commands')
+    self.api.get('api.add')('add', self.api_addcmd)
+    self.api.get('api.add')('remove', self.api_removecmd)
+    self.api.get('api.add')('default', self.api_setdefault)
+    self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
   def formatretmsg(self, msg, sname, stcmd):
     """
@@ -168,8 +177,7 @@ class CmdMgr(object):
     lname = None
     if not func:
       self.api.get('output.msg')('cmd %s has no function, not adding' % \
-                                                (cmdname),
-                                          primary=self.sname)
+                                                (cmdname))
       return
     try:
       sname = func.im_self.sname
@@ -188,12 +196,10 @@ class CmdMgr(object):
     if not ('lname' in args):
       self.api.get('output.msg')('cmd %s.%s has no long name, not adding' % \
                                                 (sname, cmdname),
-                                            primary=self.sname,
                                             secondary=sname)
       return
     self.api.get('output.msg')('added cmd %s.%s' % \
                                               (sname, cmdname),
-                                          primary=self.sname,
                                           secondary=sname)
 
     if not (sname in self.cmds):
@@ -213,12 +219,10 @@ class CmdMgr(object):
     else:
       self.api.get('output.msg')('removecmd: cmd %s.%s does not exist' % \
                                                 (sname, cmdname),
-                                            primary=self.sname,
                                             secondary=sname)
 
     self.api.get('output.msg')('removed cmd %s.%s' % \
                                                 (sname, cmdname),
-                                            primary=self.sname,
                                             secondary=sname)
 
   # set the default command for a plugin
@@ -243,7 +247,7 @@ class CmdMgr(object):
     if sname in self.cmds:
       del self.cmds[sname]
     else:
-      self.api.get('output.msg')('removeplugin: cmd %s does not exist' % sname, self.sname)
+      self.api.get('output.msg')('removeplugin: cmd %s does not exist' % sname)
 
   def cmd_list(self, args):
     """
@@ -283,7 +287,9 @@ class CmdMgr(object):
     load external stuff
     """
     self.api.get('managers.add')(self.sname, self)
-    self.api.get('logger.adddtype')(self.sname)
+    self.api.get('log.adddtype')(self.sname)
+    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands')
+    self.api.get('commands.add')('default', self.cmd_list, shelp='list commands')
     self.api.get('events.register')('from_client_event', self.chkcmd, prio=1)
     self.api.get('events.eraise')('plugin_cmdman_loaded', {})
 

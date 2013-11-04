@@ -19,7 +19,7 @@ def timeit(func):
     api.get('output.msg')('%s: started %s' % (func.func_name, arg), 'timing')
     res = func(*arg)
     time2 = time.time()
-    api.get('logger.adddtype')('timing')
+    api.get('log.adddtype')('timing')
     api.get('output.msg')('%s: %0.3f ms' % \
               (func.func_name, (time2-time1)*1000.0), 'timing')
     return res

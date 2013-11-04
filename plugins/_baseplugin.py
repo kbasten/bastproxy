@@ -15,18 +15,19 @@ class BasePlugin(object):
   def __init__(self, name, sname, fullname, basepath, fullimploc):
     """
     initialize the instance
-    The following things should not be done in __init__
+    The following things should not be done in __init__ in a plugin
       Interacting with anything in the api except api.add or api.overload
-      and dependency.add
+          and dependency.add
     """
     self.author = ''
     self.purpose = ''
     self.version = 0
+    self.priority = 100
     self.name = name
     self.sname = sname
     self.dependencies = []
     self.canreload = True
-    self.resetflag = False
+    self.resetflag = True
     self.api = API()
     self.savedir = os.path.join(self.api.BASEPATH, 'data',
                                       'plugins', self.sname)
@@ -43,7 +44,6 @@ class BasePlugin(object):
     self.settings = {}
     self.settingvalues = PersistentDictEvent(self, self.savefile,
                             'c', format='json')
-    self.settingvalues.pload()
 
     self.api.overload('output', 'msg', self.api_outputmsg)
     self.api.overload('commands', 'default', self.api_commandsdefault)
@@ -91,7 +91,9 @@ class BasePlugin(object):
     """
     load stuff, do most things here
     """
-    self.api.get('logger.adddtype')(self.sname)
+    self.settingvalues.pload()
+    
+    self.api.get('log.adddtype')(self.sname)
     self.api.get('commands.add')('set', self.cmd_set,
                                  shelp='Show/Set Settings')
     self.api.get('commands.add')('reset', self.cmd_reset,
@@ -109,6 +111,7 @@ class BasePlugin(object):
           self.afterfirstactive()
       except AttributeError:
         pass
+
 
   def unload(self):
     """

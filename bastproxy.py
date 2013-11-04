@@ -145,34 +145,14 @@ def main():
     api.get('output.traceback')('Error parsing config!')
     sys.exit(1)
 
-  api.get('output.msg')('Event Manager - loading', 'startup')
-  from libs.event import EventMgr
-  EVENTMGR = EventMgr()
-  EVENTMGR.load()
-  api.get('output.msg')('Event Manager - loaded', 'startup')
-
-  api.get('output.msg')('Logger - loading', 'startup')
-  from libs.logger import Logger
-  LOGGER = Logger()
-  LOGGER.load()
-  api.get('logger.adddtype')('startup')
-  api.get('logger.console')('startup')
-  api.get('output.msg')('Logger - loaded', 'startup')
-
-  api.get('output.msg')('Command Manager - loading', 'startup')
-  from libs.cmdman import CmdMgr
-  CMDMGR = CmdMgr()
-  CMDMGR.load()
-  api.get('output.msg')('Command Manager - loaded', 'startup')
-
   api.get('output.msg')('Plugin Manager - loading', 'startup')
   from plugins import PluginMgr
   PLUGINMGR = PluginMgr()
   PLUGINMGR.load()
   api.get('output.msg')('Plugin Manager - loaded', 'startup')
 
-  api.get('logger.adddtype')('net')
-  api.get('logger.console')('net')
+  api.get('log.adddtype')('net')
+  api.get('log.console')('net')
 
   def guard(func, message):
     """

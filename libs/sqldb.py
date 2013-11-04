@@ -48,9 +48,9 @@ class Sqldb(object):
     self.name = plugin.name
     self.api = plugin.api
     self.dbname = dbname or "db"
-    self.api.get('logger.adddtype')('sqlite')
-    self.api.get('logger.file')('sqlite')
-    self.api.get('logger.console')('sqlite')
+    self.api.get('log.adddtype')('sqlite')
+    self.api.get('log.file')('sqlite')
+    self.api.get('log.console')('sqlite')
     self.backupform = '%s_%%s.sqlite' % self.dbname
     self.dbdir = dbdir or os.path.join(self.api.BASEPATH, 'data', 'db')
     try:

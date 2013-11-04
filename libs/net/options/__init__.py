@@ -31,7 +31,7 @@ class TelnetOptionMgr(object):
     self.options = {}
     self.optionsmod = {}
     self.load_options()
-    self.api.get('logger.adddtype')('telopt')
+    self.api.get('log.adddtype')('telopt')
 
   def load_options(self):
     """

@@ -11,7 +11,7 @@ from libs import color
 
 # send a message
 def api_msg(tmsg, primary='default', secondary='None'):
-  """  send a message through the logger
+  """  send a message through the log plugin
     @Ymsg@w        = This message to send
     @Yprimary@w    = the primary datatype of the message (default: 'default')
     @Ysecondary@w  = the secondary datatype of the message
@@ -19,7 +19,7 @@ def api_msg(tmsg, primary='default', secondary='None'):
 
   this function returns no values"""
   try:
-    api.get('logger.msg')({'msg':tmsg}, {'primary':primary, 'secondary':secondary})
+    api.get('log.msg')({'msg':tmsg}, {'primary':primary, 'secondary':secondary})
   except AttributeError: #%s - %-10s :
     print '%s - %-10s : %s' % (time.strftime(api.timestring,
                                           time.localtime()), primary, tmsg)
@@ -51,9 +51,9 @@ def api_error(text):
     test.append(color.convertcolors('@x136%s@w' % i))
   tmsg = '\n'.join(test)
   try:
-    api.get('logger.msg')({'msg':tmsg, 'primary':'error'})
+    api.get('log.msg')({'msg':tmsg, 'primary':'error'})
   except (AttributeError, TypeError):
-    print '%s - No Logger - %s : %s' % (time.strftime(api.timestring,
+    print '%s - No Log Plugin - %s : %s' % (time.strftime(api.timestring,
                                           time.localtime()), 'error', tmsg)
 
 # send text to the clients
@@ -79,13 +79,13 @@ def api_client(text, raw=False, preamble=True):
     api.get('events.eraise')('to_client_event', {'todata':'\n'.join(text),
                                     'raw':raw, 'dtype':'fromproxy'})
   except (NameError, TypeError, AttributeError):
-    api.get('output.msg')("couldn't send msg to client: %s" % '\n'.join(text), 'error')
+    api.get('output.msg')("couldn't send msg to client: %s" % '\n'.join(text), primary='error')
 
 # execute a command throgh the interpreter
 def api_execute(cmd):
   """  execute a command through the interpreter
   It will first check to see if it is an internal command, and then
-  sent to the mud if not.
+  send to the mud if not.
     @Ycmd@w      = the command to send through the interpreter
 
   this function returns no values"""

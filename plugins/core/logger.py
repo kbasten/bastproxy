@@ -14,20 +14,31 @@ import zipfile
 import libs.color as color
 from libs.persistentdict import PersistentDict
 from libs import utils
-from libs.api import API
+from plugins._baseplugin import BasePlugin
 
-class Logger(object):
+NAME = 'Logging'
+SNAME = 'log'
+PURPOSE = 'Handle logging to file and console, errors'
+AUTHOR = 'Bast'
+VERSION = 1
+PRIORITY = 5
+
+AUTOLOAD = True
+
+class Plugin(BasePlugin):
   """
-  a class to manage logging and its related activities
+  a class to manage internal commands
   """
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     """
     init the class
     """
-    self.sname = 'log'
-    self.api = API()
-    #print('logger api.api', self.api.api)
-    #print('logger basepath', self.api.BASEPATH)
+    BasePlugin.__init__(self, *args, **kwargs)
+
+    self.canreload = False
+
+    #print('log api.api', self.api.api)
+    #print('log basepath', self.api.BASEPATH)
     self.savedir = os.path.join(self.api.BASEPATH, 'data',
                                           'plugins', self.sname)
     self.logdir = os.path.join(self.api.BASEPATH, 'data', 'logs')
@@ -49,22 +60,34 @@ class Logger(object):
     self.openlogs = {}
     self.currentlogs = {}
     self.colors = {}
-    self.api_adddtype('default')
-    self.api_adddtype('frommud')
-    self.sendtoconsole['default'] = True
-    self.sendtofile['default'] = {
-                                'logdir':os.path.join(self.logdir, 'default'),
-                                'file':'%a-%b-%d-%Y.log', 'timestamp':True
-                                  }
-    self.api_adddtype('error')
-    self.sendtoconsole['error'] = True
-    self.sendtoclient['error'] = True
-    self.colors['error'] = '@x136'
-    self.sendtoclient.sync()
-    self.sendtoconsole.sync()
-    self.sendtofile.sync()
 
-  # add a datatype to the logger
+    #self.sendtofile['default'] = {
+                                #'logdir':os.path.join(self.logdir, 'default'),
+                                #'file':'%a-%b-%d-%Y.log', 'timestamp':True
+                                  #}
+
+    self.colors['error'] = '@x136'
+
+    self.api.get('api.add')('msg', self.api_msg)
+    self.api.get('api.add')('adddtype', self.api_adddtype)
+    self.api.get('api.add')('console', self.api_toggletoconsole)
+    self.api.get('api.add')('file', self.api_toggletofile)
+    self.api.get('api.add')('client', self.api_toggletoclient)
+
+    self.api.get('log.adddtype')('default')
+    self.api.get('log.adddtype')('frommud')
+    self.api.get('log.adddtype')('startup')
+    self.api.get('log.adddtype')('error')
+
+    self.api.get('log.client')('error')
+    self.api.get('log.console')('error')
+    self.api.get('log.console')('default')
+    self.api.get('log.console')('startup')
+
+    self.api.get('log.file')('default')
+
+
+  # add a datatype to the log
   def api_adddtype(self, datatype):
     """  add a datatype
     @Ydatatype@w  = the datatype to add
@@ -161,7 +184,7 @@ class Logger(object):
     #print('logging to %s' % tfile)
     if self.sendtofile[dtype]['timestamp']:
       tstring = '%s : ' % \
-            (time.strftime('%a %b %d %Y %H:%M:%S', time.localtime()))
+            (time.strftime(self.api.timestring, time.localtime()))
       msg = tstring + msg
     self.openlogs[self.currentlogs[dtype]].write(color.strip_ansi(msg) + '\n')
     self.openlogs[self.currentlogs[dtype]].flush()
@@ -177,7 +200,7 @@ class Logger(object):
       self.sendtoclient[datatype] = flag
 
     self.api.get('output.msg')('setting %s to log to client' % \
-                      datatype, self.sname)
+                      datatype)
 
     self.sendtoclient.sync()
 
@@ -253,7 +276,7 @@ class Logger(object):
       return True, tmsg
 
   # toggle logging a datatype to a file
-  def api_toggletofile(self, datatype, flag=True):
+  def api_toggletofile(self, datatype, flag=True, timestamp=True):
     """  toggle a data type to show to file
     @Ydatatype@w  = the type to toggle
     @Yflag@w      = True to send to file, false otherwise (default: True)
@@ -266,7 +289,7 @@ class Logger(object):
 
       self.sendtofile[datatype] = {'file':tfile,
                                 'logdir':os.path.join(self.logdir, datatype),
-                                'timestamp':self.api.timestring}
+                                'timestamp':timestamp}
       self.api.get('output.msg')('setting %s to log to %s' % \
                       (datatype, self.sendtofile[datatype]['file']), self.sname)
       self.sendtofile.sync()
@@ -357,10 +380,19 @@ class Logger(object):
       self.logtofile(data, 'frommud')
     return args
 
-  def cmdinit(self, args):
+
+  def load(self):
     """
-    initialize commands
+    load external stuff
     """
+    BasePlugin.load(self)
+    #print('log api before adding', self.api.api)
+    self.api.get('managers.add')('log', self)
+
+    #print('log api after adding', self.api.api)
+    self.api.get('events.register')('from_mud_event', self.logmud)
+    self.api.get('events.register')('to_mud_event', self.logmud)
+
     self.api.get('commands.add')('client', self.cmd_client,
                         lname='Logger',
                          shelp='Send message of a type to clients')
@@ -373,25 +405,6 @@ class Logger(object):
     self.api.get('commands.add')('types', self.cmd_types,
                         lname='Logger',
                         shelp='Show data types')
-    #self.api.get('commands.add')('log', 'archive', self.cmd_archive,
-                        #lname='Logger',
-                        #shelp='archive a dtype')
 
-  def load(self):
-    """
-    load external stuff
-    """
-    #print('logger api before adding', self.api.api)
-    self.api.get('managers.add')('logger', self)
-    self.api.add('logger', 'msg', self.api_msg)
-    self.api.add('logger', 'adddtype', self.api_adddtype)
-    self.api.add('logger', 'console', self.api_toggletoconsole)
-    self.api.add('logger', 'file', self.api_toggletofile)
-    self.api.add('logger', 'client', self.api_toggletoclient)
-    #print('logger api after adding', self.api.api)
-    self.api.get('events.register')('from_mud_event', self.logmud, plugin='log')
-    self.api.get('events.register')('to_mud_event', self.logmud, plugin='log')
-    self.api.get('events.register')('plugin_cmdman_loaded', self.cmdinit)
-    self.api.get('events.eraise')('plugin_logger_loaded', {})
-    #print('logger loaded')
+    #print('log loaded')
 

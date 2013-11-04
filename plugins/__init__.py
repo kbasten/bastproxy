@@ -8,6 +8,7 @@ import glob
 import os
 import sys
 import inspect
+import operator
 
 from libs.utils import find_files, verify, convert
 from libs.persistentdict import PersistentDict
@@ -73,8 +74,7 @@ class PluginMgr(object):
     self.loadedplugins = PersistentDict(self.savefile, 'c', format='json')
     self.sname = 'plugins'
     self.lname = 'Plugin Manager'
-    self.api.get('logger.adddtype')(self.sname)
-    self.api.get('logger.console')(self.sname)
+
     self.api.add(self.sname, 'isinstalled', self.api_isinstalled)
     self.api.add(self.sname, 'getp', self.api_getp)
 
@@ -233,13 +233,26 @@ class PluginMgr(object):
     _module_list = find_files( basepath, tfilter)
     _module_list.sort()
 
+    pluginlist = {}
+
+    load = False
+
     for fullname in _module_list:
       force = False
       if fullname in self.loadedplugins:
         force = True
-      self.load_module(fullname, basepath, force)
+      modname, status = self.load_module(fullname, basepath, force=force, runload=load)
 
-  def load_module(self, fullname, basepath, force=False, noadd=False):
+      if modname == 'log':
+        self.api.get('log.adddtype')(self.sname)
+        self.api.get('log.console')(self.sname)
+
+    if not load:
+      testsort = sorted(self.plugins.values(), key=operator.attrgetter('priority'))
+      for i in testsort:
+        self.loadplugin(i)
+
+  def load_module(self, fullname, basepath, force=False, runload=True):
     """
     load a single module
     """
@@ -259,6 +272,7 @@ class PluginMgr(object):
       self.api.get('output.msg')('importing %s' % fullimploc, self.sname)
       _module = __import__(fullimploc)
       _module = sys.modules[fullimploc]
+      self.api.get('output.msg')('imported %s' % fullimploc, self.sname)
       load = True
 
       if 'AUTOLOAD' in _module.__dict__ and not force:
@@ -268,16 +282,14 @@ class PluginMgr(object):
         load = False
 
       if load:
-        if "Plugin" in _module.__dict__ and not noadd:
-          self.add_plugin(_module, fullname, basepath, fullimploc)
+        if "Plugin" in _module.__dict__:
+          self.add_plugin(_module, fullname, basepath, fullimploc, runload)
 
         else:
           self.api.get('output.msg')('Module %s has no Plugin class' % \
                                               _module.NAME, self.sname)
 
         _module.__dict__["proxy_import"] = 1
-        self.api.get('output.client')("load: loaded %s" % fullimploc)
-        self.api.get('output.msg')('loaded %s (%s: %s)' % (fullimploc, _module.SNAME, _module.NAME), self.sname)
 
         return _module.SNAME, 'Loaded'
       else:
@@ -290,7 +302,7 @@ class PluginMgr(object):
       if fullimploc in sys.modules:
         del sys.modules[fullimploc]
 
-      self.api.get('output.traceback')("Module '%s' refuses to load." % fullimploc)
+      self.api.get('output.traceback')("Module '%s' refuses to import/load." % fullimploc)
       return False, 'error'
 
   def unload_module(self, fullimploc):
@@ -345,7 +357,23 @@ class PluginMgr(object):
     else:
       return False, ''
 
-  def add_plugin(self, module, fullname, basepath, fullimploc):
+  def loadplugin(self, plugin):
+    """
+    check dependencies and run the load function
+    """
+    self.api.get('output.msg')('loading dependencies for %s' % plugin.fullimploc, self.sname)
+    self.loaddependencies(plugin.sname, plugin.dependencies)
+    self.api.get('output.client')("load: loading %s" % plugin.fullimploc)
+    self.api.get('output.msg')('loading %s (%s: %s)' % (plugin.fullimploc,
+                                    plugin.sname, plugin.name), self.sname)
+    plugin.load()
+    self.api.get('output.client')("load: loaded %s" % plugin.fullimploc)
+    self.api.get('output.msg')('loaded %s (%s: %s)' % (plugin.fullimploc,
+                                    plugin.sname, plugin.name), self.sname)
+
+    self.api.get('events.eraise')('%s_plugin_load' % plugin.sname, {})
+
+  def add_plugin(self, module, fullname, basepath, fullimploc, load=True):
     """
     add a plugin to be managed
     """
@@ -355,6 +383,10 @@ class PluginMgr(object):
     plugin.author = module.AUTHOR
     plugin.purpose = module.PURPOSE
     plugin.version = module.VERSION
+    try:
+      plugin.priority = module.PRIORITY
+    except AttributeError:
+      pass
     if plugin.name in self.pluginl:
       self.api.get('output.msg')('Plugin %s already exists' % plugin.name, self.sname)
       return False
@@ -362,22 +394,19 @@ class PluginMgr(object):
       self.api.get('output.msg')('Plugin %s already exists' % plugin.sname, self.sname)
       return False
 
-    #check dependencies here
-    self.loaddependencies(plugin.sname, plugin.dependencies)
-
-    try:
-      plugin.load()
-    except:
-      self.api.get('output.traceback')(
-                    "load: had problems running the load method for %s." % fullimploc)
-      return False
+    if load:
+      try:
+        #check dependencies here
+        self.loadplugin(plugin)
+      except:
+        self.api.get('output.traceback')(
+                      "load: had problems running the load method for %s." % fullimploc)
+        return False
     self.pluginl[plugin.name] = plugin
     self.plugins[plugin.sname] = plugin
     self.pluginm[plugin.name] = module
     self.loadedplugins[fullname] = True
     self.loadedplugins.sync()
-
-    self.api.get('events.eraise')('event_plugin_load', {'plugin':plugin.sname})
 
     return True
 
@@ -401,7 +430,7 @@ class PluginMgr(object):
       del self.loadedplugins[plugin.fullname]
       self.loadedplugins.sync()
 
-      self.api.get('events.eraise')('event_plugin_unload', {'plugin':plugin.sname})
+      self.api.get('events.eraise')('%s_plugin_unload' % plugin.sname, {})
 
       plugin = None
 
@@ -421,7 +450,9 @@ class PluginMgr(object):
     load various things
     """
     self.api.get('managers.add')('plugin', self)
+
     self.load_modules("*.py")
+
     self.api.get('commands.add')('list', self.cmd_list,
                         lname='Plugin Manager', shelp='List plugins')
     self.api.get('commands.add')('load', self.cmd_load,
@@ -430,6 +461,7 @@ class PluginMgr(object):
                         lname='Plugin Manager', shelp='Unload a plugin')
     self.api.get('commands.add')('reload', self.cmd_reload,
                         lname='Plugin Manager', shelp='Reload a plugin')
+
     self.api.get('commands.default')(self.sname, 'list')
     self.api.get('events.register')('savestate', self.savestate, plugin=self.sname)
 
