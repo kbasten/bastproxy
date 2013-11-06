@@ -120,7 +120,7 @@ class Plugin(AardwolfBasePlugin):
     """
     msg = []
     msg.append('AFK comm queue cleared')
-    self.api.get('setting.change')('lasttitle', [])
+    self.api.get('setting.change')('queue', [])
     self.savestate()
     return True, msg
 
