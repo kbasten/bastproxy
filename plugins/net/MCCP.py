@@ -17,6 +17,8 @@ AUTHOR = 'Bast'
 VERSION = 1
 PRIORITY = 35
 
+AUTOLOAD = True
+
 # Plugin
 class Plugin(BasePlugin):
   """

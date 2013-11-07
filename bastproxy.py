@@ -60,7 +60,7 @@ class Listener(asyncore.dispatcher):
     self.proxy = None
     self.server_address = server_address
     self.server_port = server_port
-    api.get('output.msg')("Forwarder bound on: %s" % listen_port, 'startup')
+    api.get('output.msg')("Listener bound on: %s" % listen_port, 'startup')
 
   def handle_error(self):
     """

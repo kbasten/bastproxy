@@ -50,7 +50,8 @@ class Plugin(BasePlugin):
     """  add a server option
     @Yserveroption@w  = server option to add, must be of class BaseTelnetOption
     """
-    if isinstance(serveroption, BaseTelnetOption):
+    if issubclass(serveroption, BaseTelnetOption):
+      self.api.get('output.msg')('adding telnet option %s to server' % optionname)
       self.serveroptions[optionname] = serveroption
       return True
     return False
@@ -60,7 +61,8 @@ class Plugin(BasePlugin):
     """  add a client option
     @Yclientoption@w  = client option to add, must be of class BaseTelnetOption
     """
-    if isinstance(clientoption, BaseTelnetOption):
+    if issubclass(clientoption, BaseTelnetOption):
+      self.api.get('output.msg')('adding telnet option %s to client' % optionname)
       self.clientoptions[optionname] = clientoption
       return True
     return False
