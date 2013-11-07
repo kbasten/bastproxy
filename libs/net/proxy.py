@@ -6,7 +6,6 @@ This file holds the class that connects to the mud
 import time
 from libs.net.telnetlib import Telnet
 from libs.color import strip_ansi, convertcolors
-from libs.net.options import TELOPTMGR
 from libs.api import API
 
 
@@ -34,7 +33,9 @@ class Proxy(Telnet):
     self.banned = {}
     self.connectedtime = None
     self.api.get('events.register')('to_mud_event', self.addtooutbuffer, prio=99)
-    TELOPTMGR.addtoserver(self)
+    optionmgr = self.api.get('managers.getm')('options')
+
+    optionmgr.addtoserver(self)
 
   def handle_read(self):
     """

@@ -5,7 +5,7 @@ This module holds the base class for a Telnet Option
 """
 from libs.api import API
 
-class TelnetOption(object):
+class BaseTelnetOption(object):
   """
   a base class for a telnet object
   """

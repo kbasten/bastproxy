@@ -8,7 +8,6 @@ import time
 
 from libs.api import API
 from libs.net.telnetlib import Telnet
-from libs.net.options import TELOPTMGR
 from libs.color import convertcolors
 
 PASSWORD = 0
@@ -39,7 +38,10 @@ class ProxyClient(Telnet):
 
     self.api.get('events.register')('to_client_event', self.addtooutbufferevent,
                                                       prio=99)
-    TELOPTMGR.addtoclient(self)
+
+    optionmgr = self.api.get('managers.getm')('options')
+
+    optionmgr.addtoclient(self)
     self.state = PASSWORD
     self.addtooutbufferevent({'todata':convertcolors(
                   '@R#BP@w: @RPlease enter the proxy password:@w'),
