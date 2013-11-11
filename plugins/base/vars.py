@@ -72,8 +72,6 @@ class Plugin(BasePlugin):
         @Yoriginalstring@w    = The original string to be replaced
         @Mreplacementstring@w = The new string
     """
-    print args
-
     tmsg = []
     if len(args) == 2 and args[0] and args[1]:
       tmsg.append("@GAdding variable@w : '%s' will be replaced by '%s'" % \

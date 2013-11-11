@@ -69,9 +69,10 @@ class Plugin(BasePlugin):
           self.api.get('output.msg')('matched input on %s' % mem)
           #argdict = {}
           tlist = shlex.split(data)
-          self.api.get('output.msg')('args: %s' % tlist)
+          tlistn = ['"%s"' % i for i in tlist]
+          self.api.get('output.msg')('args: %s' % tlistn)
           try:
-            datan = self._aliases[mem]['alias'].format(*tlist)
+            datan = self._aliases[mem]['alias'].format(*tlistn)
           except:
             self.api.get('output.traceback')('alias %s had an issue' % (mem))
       else:
@@ -90,8 +91,6 @@ class Plugin(BasePlugin):
         @Yoriginalstring@w    = The original string to be replaced
         @Mreplacementstring@w = The new string
     """
-    print args
-
     tmsg = []
     if len(args) == 2 and args[0] and args[1]:
       tmsg.append("@GAdding alias@w : '%s' will be replaced by '%s'" % \
