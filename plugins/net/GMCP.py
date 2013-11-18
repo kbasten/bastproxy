@@ -67,6 +67,22 @@ class Plugin(BasePlugin):
     self.api.get('options.addserveroption')(self.sname, SERVER)
     self.api.get('options.addclientoption')(self.sname, CLIENT)
 
+    self.api.get('commands.add')('send', self.cmd_send)
+
+  def cmd_send(self, args):
+    """
+    send a gmcp packet
+    """
+    tmsg = []
+    if len(args) == 0:
+      tmsg.append('Please supply a command')
+    else:
+      command = args[0]
+      self.api.get('GMCP.sendpacket')(command)
+      tmsg.append('Send "%s" to GMCP' % command)
+
+    return True, tmsg
+
   # send a GMCP packet
   def api_sendpacket(self, message):
     """  send a GMCP packet
