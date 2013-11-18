@@ -1299,7 +1299,7 @@ class Plugin(AardwolfBasePlugin):
     """
     self.statdb.savemobkill(args)
 
-  def unload(self):
+  def unload(self, _=None):
     """
     handle unloading
     """

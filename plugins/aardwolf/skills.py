@@ -153,11 +153,11 @@ class Plugin(AardwolfBasePlugin):
 
     self.checkskills()
 
-  def firstactive(self):
+  def afterfirstactive(self, _=None):
     """
     do something on connect
     """
-    AardwolfBasePlugin.firstactive(self)
+    AardwolfBasePlugin.afterfirstactive(self)
     self.checkskills()
 
   def api_isuptodate(self):
