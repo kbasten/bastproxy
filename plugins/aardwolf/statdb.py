@@ -1328,11 +1328,12 @@ class Plugin(AardwolfBasePlugin):
                                     tlist['remort'], tlist['level'])
 
     if args['eventname'] == 'aard_level_remort':
-      self.setstat('remorts', self.api.get('GMCP.getv')('char.base.remorts'))
-      self.setstat('tier', self.api.get('GMCP.getv')('char.base.tier'))
-      alev = self.api.get('aardu.getactuallevel')()
-      self.setstat('totallevels', alev)
-      self.setstat('level', 1)
+      if self.statdb:
+        self.statdb.setstat('remorts', self.api.get('GMCP.getv')('char.base.remorts'))
+        self.statdb.setstat('tier', self.api.get('GMCP.getv')('char.base.tier'))
+        alev = self.api.get('aardu.getactuallevel')()
+        self.statdb.setstat('totallevels', alev)
+        self.statdb.setstat('level', 1)
 
     if self.statdb:
       self.statdb.addmilestone(milestone)
