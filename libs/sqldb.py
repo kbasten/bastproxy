@@ -21,19 +21,6 @@ def dict_factory(cursor, row):
   return tdict
 
 
-def fixsql(tstr, like=False):
-  """
-  Fix quotes in a item that will be passed into a sql statement
-  """
-  if tstr:
-    if like:
-      return "'%" + tstr.replace("'", "''") + "%'"
-    else:
-      return "'" + tstr.replace("'", "''") + "'"
-  else:
-    return 'NULL'
-
-
 class Sqldb(object):
   """
   a class to manage sqlite3 databases
@@ -49,7 +36,7 @@ class Sqldb(object):
     self.api = plugin.api
     self.dbname = dbname or "db"
     self.api.get('log.adddtype')('sqlite')
-    self.api.get('log.file')('sqlite')
+    #self.api.get('log.file')('sqlite')
     self.api.get('log.console')('sqlite')
     self.backupform = '%s_%%s.sqlite' % self.dbname
     self.dbdir = dbdir or os.path.join(self.api.BASEPATH, 'data', 'db')
@@ -84,7 +71,7 @@ class Sqldb(object):
     if funcname == '__getattribute__':
       funcname = inspect.stack()[2][3]
     self.api.get('output.msg')('open: called by - %s' % funcname)
-    self.dbconn = sqlite3.connect(self.dbfile)
+    self.dbconn = sqlite3.connect(self.dbfile, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     self.dbconn.row_factory = dict_factory
     # only return byte strings so is easier to send to a client or the mud
     self.dbconn.text_factory = str
@@ -100,6 +87,18 @@ class Sqldb(object):
       if not self.dbconn:
         self.open()
     return attr
+
+  def fixsql(self, tstr, like=False):
+    """
+    Fix quotes in a item that will be passed into a sql statement
+    """
+    if tstr:
+      if like:
+        return "'%" + tstr.replace("'", "''") + "%'"
+      else:
+        return "'" + tstr.replace("'", "''") + "'"
+    else:
+      return 'NULL'
 
   def addcmds(self):
     """
@@ -221,10 +220,11 @@ class Sqldb(object):
       tlist = self.tables[tablename]['createsql'].split('\n')
       for i in tlist:
         i = i.strip()
-        if not ('CREATE' in i) and not (')' in i):
-          ilist = i.split(' ')
-          columns.append(ilist[0])
-          columnsbykeys[ilist[0]] = True
+        if i and i[0:2] != '--':
+          if not ('CREATE' in i) and not (')' in i):
+            ilist = i.split(' ')
+            columns.append(ilist[0])
+            columnsbykeys[ilist[0]] = True
 
     return columns, columnsbykeys
 
@@ -299,7 +299,7 @@ class Sqldb(object):
         if self.tables[tablename]['precreate']:
           self.tables[tablename]['precreate']()
         cur = self.dbconn.cursor()
-        cur.execute(self.tables[tablename]['createsql'])
+        cur.executescript(self.tables[tablename]['createsql'])
         self.dbconn.commit()
         cur.close()
         if self.tables[tablename]['postcreate']:
