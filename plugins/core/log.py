@@ -12,6 +12,7 @@ import time
 import os
 import shutil
 import zipfile
+import argparse
 
 import libs.color as color
 from libs.persistentdict import PersistentDict
@@ -214,8 +215,8 @@ class Plugin(BasePlugin):
     @Ydatatype@w  = the type to toggle
     if no arguments, list types that are sent to client"""
     tmsg = []
-    if len(args) > 0:
-      for i in args:
+    if len(args.datatypes) > 0:
+      for i in args.datatypes:
         if i in self.sendtoclient and i != 'frommud':
           self.sendtoclient[i] = not self.sendtoclient[i]
           if self.sendtoclient[i]:
@@ -257,8 +258,8 @@ class Plugin(BasePlugin):
     @Ydatatype@w  = the type to toggle, can be multiple (list)
     if no arguments, list types that are sent to console"""
     tmsg = []
-    if len(args) > 0:
-      for i in args:
+    if len(args.datatypes) > 0:
+      for i in args.datatypes:
         if i in self.sendtoconsole and i != 'frommud':
           self.sendtoconsole[i] = not self.sendtoconsole[i]
           if self.sendtoconsole[i]:
@@ -310,12 +311,9 @@ class Plugin(BasePlugin):
     if no arguments, list types that are sent to file"""
     tmsg = []
     timestamp = True
-    if len(args) >= 1:
-      dtype = args[0]
-      try:
-        timestamp = utils.verify(args[1], bool)
-      except IndexError:
-        pass
+    if args.datatype != 'list':
+      dtype = args.datatype
+      timestamp = args.notimestamp
 
       if dtype in self.sendtofile:
         del self.sendtofile[dtype]
@@ -354,19 +352,23 @@ class Plugin(BasePlugin):
           tmsg.append('%s does not exist' % i)
       return True, tmsg
     else:
-      tmsg = self.cmd_types()
-      return True, tmsg
+      tmsg = ['Please specifiy a datatype to archive']
+      return False, tmsg
 
   # show all types
-  def cmd_types(self, _=None):
+  def cmd_types(self, args):
     """@G%(name)s@w - @B%(cmdname)s@w
   show data types
   @CUsage@w: types"""
     tmsg = []
     tmsg.append('Data Types')
     tmsg.append('-' *  30)
-    for i in self.dtypes:
-      tmsg.append(i)
+    match = args.match
+    tkeys = self.dtypes.keys()
+    tkeys.sort()
+    for i in tkeys:
+      if not match or match in i:
+        tmsg.append(i)
     return True, tmsg
 
   def logmud(self, args):
@@ -395,18 +397,31 @@ class Plugin(BasePlugin):
     self.api.get('events.register')('from_mud_event', self.logmud)
     self.api.get('events.register')('to_mud_event', self.logmud)
 
+    parser = argparse.ArgumentParser(add_help=False,
+                description="toggle datatypes to clients")
+    parser.add_argument('datatypes', help='a list of datatypes to toggle', default=[], nargs='*')
     self.api.get('commands.add')('client', self.cmd_client,
-                        lname='Logger',
-                         shelp='Send message of a type to clients')
+                        lname='Logger', parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                description="toggle datatype to log to a file")
+    parser.add_argument('datatype', help='the datatype to toggle', default='list', nargs='?')
+    parser.add_argument("-n", "--notimestamp", help="do not log to file with a timestamp",
+                  action="store_false")
     self.api.get('commands.add')('file', self.cmd_file,
-                        lname='Logger',
-                        shelp='Send message of a type to a file')
+                        lname='Logger', parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                description="toggle datatypes to the console")
+    parser.add_argument('datatypes', help='a list of datatypes to toggle', default=[], nargs='*')
     self.api.get('commands.add')('console', self.cmd_console,
-                        lname='Logger',
-                        shelp='Send message of a type to console')
+                        lname='Logger', parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                description="list all datatypes")
+    parser.add_argument('match', help='only list datatypes that have this argument in their name', default='', nargs='?')
     self.api.get('commands.add')('types', self.cmd_types,
-                        lname='Logger',
-                        shelp='Show data types')
+                        lname='Logger', parser=parser)
 
     #print('log loaded')
 

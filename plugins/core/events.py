@@ -5,6 +5,7 @@ This plugin handles events.
   You can register/unregister with events, raise events
 """
 import inspect
+import argparse
 from libs.api import API
 from libs import utils
 from plugins._baseplugin import BasePlugin
@@ -226,9 +227,9 @@ class Plugin(BasePlugin):
         @Yeventname@w  = the eventname to get info for
     """
     tmsg = []
-    if len(args) > 0:
-      for eventname in args:
-        tmsg = self.api.get('events.detail')(eventname)
+    if len(args.event) > 0:
+      for eventname in args.event:
+        tmsg.extend(self.api.get('events.detail')(eventname))
         tmsg.append('')
     else:
       tmsg.append('Please provide an event name')
@@ -241,10 +242,8 @@ class Plugin(BasePlugin):
       list events and the plugins registered with them
       @CUsage@w: list
     """
-    match = None
-    if len(args) > 0:
-      match = args[0]
     tmsg = []
+    match = args.match
     for name in self.events:
       if not match or match in name:
         if len(self.events[name]) > 0:
@@ -267,7 +266,15 @@ class Plugin(BasePlugin):
     self.api.get('managers.add')(self.sname, self)
     self.api.get('events.register')('log_plugin_loaded', self.logloaded)
     self.api.get('events.eraise')('event_plugin_loaded', {})
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='get details of an event')
+    parser.add_argument('event', help='list only events that have this argument in their name', default=[], nargs='*')
     self.api.get('commands.add')('detail', self.cmd_detail,
-                                 shelp='details of an event')
+                                 parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='list events and the plugins registered with them')
+    parser.add_argument('match', help='list only events that have this argument in their name', default='', nargs='?')
     self.api.get('commands.add')('list', self.cmd_list,
-                                 shelp='list all events in the manager')
+                                 parser=parser)
