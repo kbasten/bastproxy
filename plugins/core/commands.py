@@ -6,6 +6,7 @@ This module handles commands and parsing input
 #TODO: use decorators to handle the adding of commands?
 """
 import shlex
+import argparse
 
 from plugins._baseplugin import BasePlugin
 
@@ -41,38 +42,46 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('default', self.api_setdefault)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
-  def formatretmsg(self, msg, sname, stcmd):
+  def formatretmsg(self, msg, sname, cmd):
     """
     format a return message
     """
     msg.insert(0, '')
-    msg.insert(1, '#bp.%s.%s' % (sname, stcmd))
+    msg.insert(1, '#bp.%s.%s' % (sname, cmd))
     msg.insert(2, '@G' + '-' * 60 + '@w')
     msg.append('@G' + '-' * 60 + '@w')
     msg.append('')
     return msg
 
-  def runcmd(self, tfunction, targs, sname, stcmd, scmd):
+  def runcmd(self, cmd, targs):
     """
-    run a command
+    run a command that has an ArgParser
     """
-    retvalue = tfunction(targs)
+    retval = False
 
-    if isinstance(retvalue, tuple):
-      retval = retvalue[0]
-      msg = retvalue[1]
-    else:
-      retval = retvalue
-      msg = []
-
-    if retval:
-      if msg and isinstance(msg, list):
-        self.api.get('output.client')('\n'.join(self.formatretmsg(msg, sname, stcmd)))
-        return True
-    else:
-      _, msg = self.cmd_list([sname, scmd])
+    args, other_args = cmd['parser'].parse_known_args(targs)
+    if args.help:
+      msg = cmd['parser'].format_help().split('\n')
       self.api.get('output.client')('\n'.join(self.formatretmsg(
-                                                  msg, 'plugins', 'help')))
+                                                  msg, cmd['sname'],
+                                                  cmd['commandname'])))
+
+    else:
+      retvalue = cmd['func'](args)
+      if isinstance(retvalue, tuple):
+        retval = retvalue[0]
+        msg = retvalue[1]
+      else:
+        retval = retvalue
+        msg = []
+
+      if retval == False:
+        msg.append('')
+        msg.extend(cmd['parser'].format_help().split('\n'))
+      self.api.get('output.client')('\n'.join(self.formatretmsg(
+                                                  msg, cmd['sname'],
+                                                  cmd['commandname'])))
+
     return retval
 
   def chkcmd(self, data):
@@ -81,72 +90,47 @@ class Plugin(BasePlugin):
     """
     tdat = data['fromdata']
     if tdat[0:3] == '#bp':
-      cmd = tdat.split(" ")[0]
-      args = tdat.replace(cmd, "").strip()
-      targs = []
-      targs = shlex.split(args)
-      tst = cmd.split('.')
-      try:
-        sname = tst[1].strip()
-      except IndexError:
-        sname = None
-      try:
-        scmd = tst[2].strip()
-      except IndexError:
-        scmd = None
-      if scmd:
-        targs.insert(0, scmd)
-      elif len(targs) > 0:
-        scmd = targs[0]
-      targs.insert(0, sname)
+      targs = shlex.split(tdat.strip())
+      cmd = targs.pop(0)
+      cmdsplit = cmd.split('.')
+      sname = ''
+      if len(cmdsplit) >= 2:
+        sname = cmdsplit[1].strip()
+
+      scmd = ''
+      if len(cmdsplit) >= 3:
+        scmd = cmdsplit[2].strip()
+
       if 'help' in targs:
-        try:
-          del targs[targs.index(None)]
-        except ValueError:
-          pass
         try:
           del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.cmd_list(targs)
-        self.api.get('output.client')('\n'.join(self.formatretmsg(
-                                              msg, 'plugins', 'help')))
+        cmd = self.cmds[self.sname]['list']
+        self.runcmd(cmd, [sname, scmd])
+
       elif sname and scmd:
         if sname in self.cmds:
-          stcmd = None
+          cmd = None
           if scmd in self.cmds[sname]:
-            stcmd = scmd
+            cmd = self.cmds[sname][scmd]
           elif not scmd and 'default' in self.cmds[sname]:
-            stcmd = 'default'
-          try:
-            del targs[targs.index(scmd)]
-          except ValueError:
-            pass
-          try:
-            del targs[targs.index(sname)]
-          except ValueError:
-            pass
-          if not stcmd:
-            self.api.get('output.client')("@R%s.%s@W is not a command" % \
-                                                        (sname, scmd))
+            cmd = self.cmds[sname]['default']
+          if cmd:
+            self.runcmd(cmd, targs)
           else:
-            self.runcmd(self.cmds[sname][stcmd]['func'], targs,
-                                                  sname, stcmd, scmd)
+            self.api.get('output.client')("@R%s.%s@W is not a command" % \
+                                                  (sname, scmd))
         else:
           self.api.get('output.client')("@R%s.%s@W is not a command." % \
                                                   (sname, scmd))
       else:
         try:
-          del targs[targs.index(None)]
-        except ValueError:
-          pass
-        try:
           del targs[targs.index('help')]
         except ValueError:
           pass
-        _, msg = self.cmd_list(targs)
-        self.api.get('output.client')('\n'.join(self.formatretmsg(
-                                                msg, 'plugins', 'help')))
+        cmd = self.cmds[self.sname]['list']
+        self.runcmd(cmd, [sname, scmd])
 
       return {'fromdata':''}
     else:
@@ -173,7 +157,10 @@ class Plugin(BasePlugin):
 
     this function returns no values"""
 
+    # if parser, autoadd -h, -?, --help, -help to set help=True
     args = kwargs.copy()
+
+
     lname = None
     if not func:
       self.api.get('output.msg')('cmd %s has no function, not adding' % \
@@ -187,6 +174,22 @@ class Plugin(BasePlugin):
       else:
         self.api.get('output.msg')('Function is not part of a plugin class: %s' % cmdname)
         return
+
+    if 'parser' in args:
+      tparser = args['parser']
+    else:
+      self.api.get('output.msg')('adding default parser to command %s.%s' % (sname, cmdname))
+      if not ('shelp' in args):
+        args['shelp'] = 'there is no help for this command'
+      tparser = argparse.ArgumentParser(add_help=False,
+                 description=args['shelp'])
+      args['parser'] = tparser
+
+    tparser.add_argument("-h", "--help", help="show help",
+                  action="store_true")
+
+    tparser.prog='@B#bp.%s.%s@w' % (sname, cmdname)
+
     try:
       lname = func.im_self.name
       args['lname'] = lname
@@ -195,16 +198,19 @@ class Plugin(BasePlugin):
 
     if not ('lname' in args):
       self.api.get('output.msg')('cmd %s.%s has no long name, not adding' % \
-                                                (sname, cmdname),
+                                            (sname, cmdname),
                                             secondary=sname)
       return
     self.api.get('output.msg')('added cmd %s.%s' % \
-                                              (sname, cmdname),
-                                          secondary=sname)
+                                            (sname, cmdname),
+                                            secondary=sname)
 
     if not (sname in self.cmds):
       self.cmds[sname] = {}
     args['func'] = func
+    args['sname'] = sname
+    args['lname'] = lname
+    args['commandname'] = cmdname
     self.cmds[sname][cmdname] = args
 
   # remove a command
@@ -217,7 +223,7 @@ class Plugin(BasePlugin):
     if sname in self.cmds and cmdname in self.cmds[sname]:
       del self.cmds[sname][cmdname]
     else:
-      self.api.get('output.msg')('removecmd: cmd %s.%s does not exist' % \
+      self.api.get('output.msg')('remove cmd: cmd %s.%s does not exist' % \
                                                 (sname, cmdname),
                                             secondary=sname)
 
@@ -239,46 +245,45 @@ class Plugin(BasePlugin):
     return False
 
   # remove all commands for a plugin
-  def api_removeplugin(self, sname):
+  def api_removeplugin(self, plugin):
     """  remove all commands for a plugin
     @Ysname@w    = the plugin to remove commands for
 
     this function returns no values"""
-    if sname in self.cmds:
-      del self.cmds[sname]
+    if plugin in self.cmds:
+      del self.cmds[plugin]
     else:
-      self.api.get('output.msg')('removeplugin: cmd %s does not exist' % sname)
+      self.api.get('output.msg')('removeplugin: plugin %s does not exist' % plugin)
 
   def cmd_list(self, args):
     """
     list commands
     """
     tmsg = []
-    if len(args) > 0 and args[0]:
-      sname = args[0]
-      try:
-        cmd = args[1]
-      except IndexError:
-        cmd = None
-      if sname in self.cmds:
-        if cmd and cmd in self.cmds[sname]:
-          thelp = 'No help for this command'
-          if self.cmds[sname][cmd]['func'].__doc__:
-            thelp = self.cmds[sname][cmd]['func'].__doc__ % \
-                      {'name':self.cmds[sname][cmd]['lname'], 'cmdname':cmd}
-          elif self.cmds[sname][cmd]['shelp']:
-            thelp = self.cmds[sname][cmd]['shelp']
-          tmsg.append(thelp)
+    category = args.category
+    cmd = args.cmd
+    if category:
+      if category in self.cmds:
+        if cmd and cmd in self.cmds[category]:
+          msg = self.cmds[category][cmd]['parser'].format_help().split('\n')
+          tmsg.extend(msg)
         else:
-          tmsg.append('Commands in category: %s' % sname)
-          for i in self.cmds[sname]:
+          tmsg.append('Commands in %s:' % category)
+          tkeys = self.cmds[category].keys()
+          tkeys.sort()
+          for i in tkeys:
             if i != 'default':
-              tmsg.append('  %-10s : %s' % (i, self.cmds[sname][i]['shelp']))
+              tlist = self.cmds[category][i]['parser'].description.split('\n')
+              if not tlist[0]:
+                tlist.pop(0)
+              tmsg.append('  %-10s : %s' % (i, tlist[0]))
       else:
-        tmsg.append('There is no category named %s' % sname)
+        tmsg.append('There is no category %s' % category)
     else:
-      tmsg.append('Command Categories:')
-      for i in self.cmds:
+      tmsg.append('Categories:')
+      tkeys = self.cmds.keys()
+      tkeys.sort()
+      for i in tkeys:
         tmsg.append('  %s' % i)
     return True, tmsg
 
@@ -289,8 +294,15 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
     self.api.get('managers.add')(self.sname, self)
     self.api.get('log.adddtype')(self.sname)
-    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands')
-    self.api.get('commands.add')('default', self.cmd_list, shelp='list commands')
+    self.api.get('log.console')(self.sname)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='list commands in a category')
+    parser.add_argument('category', help='the category to see help for', default='', nargs='?')
+    parser.add_argument('cmd', help='the command in the category (can be left out)', default='', nargs='?')
+    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands', parser=parser)
+
+    self.api.get('commands.default')('list')
     self.api.get('events.register')('from_client_event', self.chkcmd, prio=1)
     self.api.get('events.eraise')('plugin_cmdman_loaded', {})
 
