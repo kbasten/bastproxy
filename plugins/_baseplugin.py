@@ -4,7 +4,10 @@ $Id$
 #TODO: make all functions that add things use kwargs instead of a table
 """
 import os
-from libs.utils import verify, convert
+import sys
+import argparse
+import textwrap
+from libs.utils import verify, convert, center
 from libs.persistentdict import PersistentDictEvent
 from libs.api import API
 
@@ -55,6 +58,52 @@ class BasePlugin(object):
     self.api.overload('triggers', 'add', self.api_triggersadd)
     self.api.overload('watch', 'add', self.api_watchadd)
 
+  def load(self):
+    """
+    load stuff, do most things here
+    """
+    self.settingvalues.pload()
+
+    self.api.get('log.adddtype')(self.sname)
+    setparser = argparse.ArgumentParser(add_help=False,
+                formatter_class=argparse.RawDescriptionHelpFormatter,
+                description=textwrap.dedent("""
+          change a setting in the plugin
+
+          if there are no arguments or 'list' is the first argument then
+          it will list the settings for the plugin"""))
+    setparser.add_argument('name', help='the setting name', default='list', nargs='?')
+    setparser.add_argument('value', help='the new value of the setting', default='', nargs='?')
+    self.api.get('commands.add')('set', self.cmd_set, parser=setparser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='reset the plugin')
+    self.api.get('commands.add')('reset', self.cmd_reset,
+                                 parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='save the plugin state')
+    self.api.get('commands.add')('save', self.cmd_save,
+                                 parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='show plugin stats')
+    self.api.get('commands.add')('bstats', self.cmd_bstats,
+                                 parser=parser)
+
+    proxy = self.api.get('managers.getm')('proxy')
+
+    if proxy and proxy.connected:
+      try:
+        if self.api.get('connect.firstactive'):
+          self.afterfirstactive()
+      except AttributeError:
+        self.api.get('events.register')('firstactive', self.afterfirstactive)
+    else:
+      self.api.get('events.register')('firstactive', self.afterfirstactive)
+
+    self.api.get('events.register')('shutdown', self.unload)
+
   # get the vaule of a setting
   def api_settinggets(self, setting):
     """  get the value of a setting
@@ -87,33 +136,33 @@ class BasePlugin(object):
 
     return False
 
-  def load(self):
+  def getstats(self):
     """
-    load stuff, do most things here
+    get the stats for the plugin
     """
-    self.settingvalues.pload()
+    stats = {}
+    stats['Base'] = {}
+    stats['Base']['showorder'] = ['Class', 'Variables', 'Api']
+    stats['Base']['Variables'] = sys.getsizeof(self.settingvalues)
+    stats['Base']['Class'] = sys.getsizeof(self)
+    stats['Base']['Api'] = sys.getsizeof(self.api)
 
-    self.api.get('log.adddtype')(self.sname)
-    self.api.get('commands.add')('set', self.cmd_set,
-                                 shelp='Show/Set Settings')
-    self.api.get('commands.add')('reset', self.cmd_reset,
-                                 shelp='reset the plugin')
-    self.api.get('commands.add')('save', self.cmd_save,
-                                 shelp='save plugin state')
+    return stats
 
-    proxy = self.api.get('managers.getm')('proxy')
+  def cmd_bstats(self, args=None):
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+    show stats, memory, profile, etc.. for this plugin
+    @CUsage@w: stats
+    """
+    stats = self.getstats()
+    tmsg = []
+    for header in stats:
+      tmsg.append(center(header, '=', 60))
+      for subtype in stats[header]['showorder']:
+        tmsg.append('%-20s : %s' % (subtype, stats[header][subtype]))
 
-    if proxy and proxy.connected:
-      try:
-        if self.api.get('connect.firstactive'):
-          self.afterfirstactive()
-      except AttributeError:
-        self.api.get('events.register')('firstactive', self.afterfirstactive)
-    else:
-      self.api.get('events.register')('firstactive', self.afterfirstactive)
-
-    self.api.get('events.register')('shutdown', self.unload)
-
+    return True, tmsg
 
   def unload(self, _=None):
     """
@@ -177,11 +226,12 @@ class BasePlugin(object):
       if there are no arguments or 'list' is the first argument then
       it will list the settings for the plugin
     """
-    if len(args) == 0 or args[0] == 'list':
+    msg = []
+    if args.name == 'list':
       return True, self.listvars()
-    elif len(args) == 2:
-      var = args[0]
-      val = args[1]
+    elif args.name and args.value:
+      var = args.name
+      val = args.value
       if var in self.settings:
         if 'readonly' in self.settings[var] \
               and self.settings[var]['readonly']:
@@ -204,7 +254,9 @@ class BasePlugin(object):
                                     (val, self.settings[var]['stype'])]
             return True, msg
         return True, self.listvars()
-    return False, {}
+      else:
+        msg = ['plugin setting %s does not exist' % var]
+    return False, msg
 
   def cmd_save(self, args):
     """
