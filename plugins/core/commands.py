@@ -4,6 +4,7 @@ $Id$
 This module handles commands and parsing input
 
 #TODO: use decorators to handle the adding of commands?
+#TODO: group commands
 """
 import shlex
 import argparse
@@ -78,9 +79,14 @@ class Plugin(BasePlugin):
       if retval == False:
         msg.append('')
         msg.extend(cmd['parser'].format_help().split('\n'))
-      self.api.get('output.client')('\n'.join(self.formatretmsg(
+      else:
+        if cmd['noformat']:
+          self.api.get('output.client')(msg, preamble=cmd['preamble'])
+        else:
+          self.api.get('output.client')('\n'.join(self.formatretmsg(
                                                   msg, cmd['sname'],
-                                                  cmd['commandname'])))
+                                                  cmd['commandname'])),
+                                        preamble=cmd['preamble'])
 
     return retval
 
@@ -211,6 +217,10 @@ class Plugin(BasePlugin):
     args['sname'] = sname
     args['lname'] = lname
     args['commandname'] = cmdname
+    if not ('preamble' in args):
+      args['preamble'] = True
+    if not ('noformat' in args):
+      args['noformat'] = False
     self.cmds[sname][cmdname] = args
 
   # remove a command
