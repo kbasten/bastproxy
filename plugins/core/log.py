@@ -215,8 +215,8 @@ class Plugin(BasePlugin):
     @Ydatatype@w  = the type to toggle
     if no arguments, list types that are sent to client"""
     tmsg = []
-    if len(args.datatypes) > 0:
-      for i in args.datatypes:
+    if len(args.datatype) > 0:
+      for i in args.datatype:
         if i in self.sendtoclient and i != 'frommud':
           self.sendtoclient[i] = not self.sendtoclient[i]
           if self.sendtoclient[i]:
@@ -258,8 +258,8 @@ class Plugin(BasePlugin):
     @Ydatatype@w  = the type to toggle, can be multiple (list)
     if no arguments, list types that are sent to console"""
     tmsg = []
-    if len(args.datatypes) > 0:
-      for i in args.datatypes:
+    if len(args.datatype) > 0:
+      for i in args.datatype:
         if i in self.sendtoconsole and i != 'frommud':
           self.sendtoconsole[i] = not self.sendtoconsole[i]
           if self.sendtoconsole[i]:
@@ -399,7 +399,7 @@ class Plugin(BasePlugin):
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="toggle datatypes to clients")
-    parser.add_argument('datatypes', help='a list of datatypes to toggle', default=[], nargs='*')
+    parser.add_argument('datatype', help='a list of datatypes to toggle', default=[], nargs='*')
     self.api.get('commands.add')('client', self.cmd_client,
                         lname='Logger', parser=parser)
 
@@ -413,7 +413,7 @@ class Plugin(BasePlugin):
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="toggle datatypes to the console")
-    parser.add_argument('datatypes', help='a list of datatypes to toggle', default=[], nargs='*')
+    parser.add_argument('datatype', help='a list of datatypes to toggle', default=[], nargs='*')
     self.api.get('commands.add')('console', self.cmd_console,
                         lname='Logger', parser=parser)
 

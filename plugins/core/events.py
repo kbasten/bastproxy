@@ -269,7 +269,7 @@ class Plugin(BasePlugin):
 
     parser = argparse.ArgumentParser(add_help=False,
                  description='get details of an event')
-    parser.add_argument('event', help='list only events that have this argument in their name', default=[], nargs='*')
+    parser.add_argument('event', help='the event name to get details for', default=[], nargs='*')
     self.api.get('commands.add')('detail', self.cmd_detail,
                                  parser=parser)
 
