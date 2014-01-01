@@ -85,7 +85,9 @@ class Plugin(AardwolfBasePlugin):
     #totald = 0
     totalm = 0
     totalh = 0
-    for i in damages:
+    tkeys = damages.keys()
+    tkeys.sort()
+    for i in tkeys:
       if i != 'enemy' and i != 'starttime' and i != 'finishtime':
         vdict = args['damage'][i]
         #totald = totald + vdict['damage']
