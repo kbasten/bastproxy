@@ -79,8 +79,11 @@ class Plugin(BasePlugin):
       if retval == False:
         msg.append('')
         msg.extend(cmd['parser'].format_help().split('\n'))
+        self.api.get('output.client')('\n'.join(self.formatretmsg(
+                                                  msg, cmd['sname'],
+                                                  cmd['commandname'])))
       else:
-        if cmd['noformat']:
+        if not cmd['format']:
           self.api.get('output.client')(msg, preamble=cmd['preamble'])
         else:
           self.api.get('output.client')('\n'.join(self.formatretmsg(
@@ -153,8 +156,10 @@ class Plugin(BasePlugin):
     @Ycmdname@w  = the base that the api should be under
     @Yfunc@w   = the function that should be run when this command is executed
     @Ykeyword arguments@w
-      @Yshelp@w  = the short help, a brief description of what the command does
-      @Ylhelp@w  = a longer description of what the command does
+      @Yshelp@w    = the short help, a brief description of what the command does
+      @Ylhelp@w    = a longer description of what the command does
+      @Ypreamble@w = show the preamble for this command (default: True)
+      @Yformat@w   = format this command (default: True)
 
     The command will be added as sname.cmdname
 
@@ -163,9 +168,7 @@ class Plugin(BasePlugin):
 
     this function returns no values"""
 
-    # if parser, autoadd -h, -?, --help, -help to set help=True
     args = kwargs.copy()
-
 
     lname = None
     if not func:
@@ -207,6 +210,7 @@ class Plugin(BasePlugin):
                                             (sname, cmdname),
                                             secondary=sname)
       return
+
     self.api.get('output.msg')('added cmd %s.%s' % \
                                             (sname, cmdname),
                                             secondary=sname)
@@ -219,8 +223,8 @@ class Plugin(BasePlugin):
     args['commandname'] = cmdname
     if not ('preamble' in args):
       args['preamble'] = True
-    if not ('noformat' in args):
-      args['noformat'] = False
+    if not ('format' in args):
+      args['format'] = True
     self.cmds[sname][cmdname] = args
 
   # remove a command
