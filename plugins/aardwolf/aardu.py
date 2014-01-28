@@ -107,6 +107,46 @@ DAMAGESREV = {}
 for i in DAMAGES:
   DAMAGESREV[i] = DAMAGES.index(i)
 
+WEARLOCS = [
+ 'light',
+ 'head',
+ 'eyes',
+ 'lear',
+ 'rear',
+ 'neck1',
+ 'neck2',
+ 'back',
+ 'medal1',
+ 'medal2',
+ 'medal3',
+ 'medal4',
+ 'torso',
+ 'body',
+ 'waist',
+ 'arms',
+ 'lwrist',
+ 'rwrist',
+ 'hands',
+ 'lfinger',
+ 'rfinger',
+ 'legs',
+ 'feet',
+ 'shield',
+ 'wielded',
+ 'second',
+ 'hold',
+ 'float',
+ 'tattoo1',
+ 'tattoo2',
+ 'above',
+ 'portal',
+ 'sleeping',
+]
+
+WEARLOCSREV = {}
+for i in WEARLOCS:
+  WEARLOCSREV[i] = WEARLOCS.index(i)
+
 class Plugin(AardwolfBasePlugin):
   """
   a plugin to handle aardwolf cp events
@@ -119,6 +159,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('classabb', self.api_classabb)
     self.api.get('api.add')('rewardtable', self.api_rewardtable)
     self.api.get('api.add')('parsedamageline', self.api_parsedamageline)
+    self.api.get('api.add')('wearlocs', self.api_getwearlocs)
 
   def load(self):
     """
@@ -235,3 +276,13 @@ class Plugin(AardwolfBasePlugin):
 
     this function returns a dictionary of rewards"""
     return REWARDTABLE
+
+  # get the wear locations table
+  def api_getwearlocs(self, rev=False):
+    """  get the wear locations table
+    @Yrev@w  = if True, return the reversed table
+    """
+    if rev:
+      return WEARLOCSREV
+    else:
+      return WEARLOCS
