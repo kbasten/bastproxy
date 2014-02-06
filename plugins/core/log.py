@@ -4,7 +4,6 @@ $Id$
 This module will do both debugging and logging, didn't know what
 else to name it
 
-#TODO: fix so that full paths aren't saved in sendtofile
 """
 from __future__ import print_function
 import sys
@@ -377,7 +376,7 @@ class Plugin(BasePlugin):
     """
     if 'frommud' in self.sendtofile and self.sendtofile['frommud']['file']:
       if args['eventname'] == 'from_mud_event':
-        data = args['nocolordata']
+        data = args['noansi']
       elif args['eventname'] == 'to_mud_event':
         data = 'tomud: ' + args['data'].strip()
       self.logtofile(data, 'frommud')
