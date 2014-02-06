@@ -10,6 +10,10 @@ import re
 from libs.api import API
 from libs import color
 
+api = API()
+
+errors = []
+
 # send a message
 def api_msg(tmsg, primary='default', secondary='None'):
   """  send a message through the log plugin
@@ -21,7 +25,7 @@ def api_msg(tmsg, primary='default', secondary='None'):
   this function returns no values"""
   try:
     api.get('log.msg')({'msg':tmsg}, {'primary':primary, 'secondary':secondary})
-  except AttributeError: #%s - %-10s :
+  except (AttributeError, RuntimeError): #%s - %-10s :
     print '%s - %-10s : %s' % (time.strftime(api.timestring,
                                           time.localtime()), primary, tmsg)
 
@@ -38,6 +42,7 @@ def api_traceback(message=""):
     message = message + "\n" + exc
   else:
     message = exc
+
   api.get('output.error')(message)
 
 # write and format an error
@@ -51,6 +56,9 @@ def api_error(text):
   for i in text.split('\n'):
     test.append(color.convertcolors('@x136%s@w' % i))
   tmsg = '\n'.join(test)
+  errors.append({'timestamp':time.strftime(api.timestring,
+                                          time.localtime()),
+                 'msg':tmsg})
   try:
     api.get('log.msg')({'msg':tmsg, 'primary':'error'})
   except (AttributeError, TypeError):
@@ -77,7 +85,7 @@ def api_client(text, raw=False, preamble=True):
     text = test
 
   try:
-    api.get('events.eraise')('to_client_event', {'todata':'\n'.join(text),
+    api.get('events.eraise')('to_client_event', {'original':'\n'.join(text),
                                     'raw':raw, 'dtype':'fromproxy'})
   except (NameError, TypeError, AttributeError):
     api.get('output.msg')("couldn't send msg to client: %s" % '\n'.join(text), primary='error')
@@ -110,9 +118,21 @@ def api_execute(command):
       api.get('output.msg')('sending %s to the mud' % data.strip(), primary='inputparse')
       api.get('events.eraise')('to_mud_event', {'data':data, 'dtype':'fromclient'})
 
-api = API()
+# send data directly to the mud
+def api_tomud(data):
+  """ send data directly to the mud
+
+  This does not go through the interpreter
+    @Ydata@w     = the data to send
+
+  this function returns no values
+  """
+  api.get('events.eraise')('to_mud_event', {'data':data, 'dtype':'fromclient'})
+
+
 api.add('output', 'msg', api_msg)
 api.add('output', 'error', api_error)
 api.add('output', 'traceback', api_traceback)
 api.add('output', 'client', api_client)
+api.add('output', 'tomud', api_tomud)
 api.add('input', 'execute', api_execute)
