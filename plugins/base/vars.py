@@ -102,7 +102,7 @@ class Plugin(BasePlugin):
     datan = templ.safe_substitute(self._variables)
     if datan != data:
       self.api.get('output.msg')('replacing "%s" with "%s"' % (data.strip(), datan.strip()))
-      args['original'] = datan
+      args['fromdata'] = datan
     return args
 
   def cmd_add(self, args):
