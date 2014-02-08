@@ -120,14 +120,14 @@ class ProxyClient(Telnet):
           if not proxy.connected:
             proxy.connectmud()
           else:
-            self.addtooutbufferevent({'todata':convertcolors(
+            self.addtooutbufferevent({'original':convertcolors(
                     '@R#BP@W: @GThe proxy is already connected to the mud@w')})
         elif vpw and data == vpw:
           self.api.get('output.msg')('Successful view password from %s : %s' % \
                               (self.host, self.port), 'net')
           self.state = CONNECTED
           self.viewonly = True
-          self.addtooutbufferevent({'todata':convertcolors(
+          self.addtooutbufferevent({'original':convertcolors(
                             '@R#BP@W: @GYou are connected in view mode@w')})
           proxy.addclient(self)
           self.api.get('events.eraise')('client_connected_view',
@@ -137,7 +137,7 @@ class ProxyClient(Telnet):
         else:
           self.pwtries += 1
           if self.pwtries == 5:
-            self.addtooutbufferevent({'todata':convertcolors(
+            self.addtooutbufferevent({'original':convertcolors(
                         '@R#BP@w: @RYou have been BANNED for 10 minutes:@w'),
                         'dtype':'passwd'})
             self.api.get('output.msg')('%s has been banned.' % self.host, 'net')
@@ -145,7 +145,7 @@ class ProxyClient(Telnet):
             proxy.addbanned(self.host)
             self.close()
           else:
-            self.addtooutbufferevent({'todata':convertcolors(
+            self.addtooutbufferevent({'original':convertcolors(
                     '@R#BP@w: @RPlease try again! Proxy Password:@w'),
                     'dtype':'passwd'})
 
