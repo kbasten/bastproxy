@@ -51,6 +51,8 @@ class Proxy(Telnet):
         tosend = i
         tnoansi = strip_ansi(tosend)
         tconvertansi = convertansi(tosend)
+        if tosend != tconvertansi:
+          self.api.get('output.msg')('converted %s to %s' % (repr(tosend), tconvertansi), 'ansi')
         newdata = self.api.get('events.eraise')('from_mud_event',
             {'original':tosend, 'dtype':'frommud',
                     'noansi':tnoansi,
