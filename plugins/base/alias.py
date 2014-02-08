@@ -111,7 +111,7 @@ class Plugin(BasePlugin):
         if datan != data:
           self.api.get('output.msg')('replacing "%s" with "%s"' % (data.strip(), datan.strip()))
           args['fromdata'] = datan
-          
+
     return args
 
   def lookup_alias(self, alias):
@@ -229,7 +229,8 @@ class Plugin(BasePlugin):
     return a table of strings that list aliases
     """
     tmsg = []
-    for item in self._aliases:
+    for s in sorted(self._aliases.iteritems(), key=lambda (x, y): y['num']):
+      item = s[0]
       if not match or match in item:
         tmsg.append("%4s %2s  %-20s : %s@w" % (self._aliases[item]['num'],
                       'Y' if self._aliases[item]['enabled'] else 'N',
