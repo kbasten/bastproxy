@@ -99,24 +99,40 @@ def api_execute(command):
 
   this function returns no values"""
   data = None
+  api.get('output.msg')('got command %s from client' % repr(command), primary='inputparse')
 
-  newdata = api.get('events.eraise')('from_client_event', {'fromdata':command})
+  if command == '\r\n':
+    api.get('output.msg')('sending %s to the mud' % repr(command), primary='inputparse')
+    api.get('events.eraise')('to_mud_event', {'data':command, 'dtype':'fromclient'})
+    return
 
-  if 'fromdata' in newdata:
-    data = newdata['fromdata']
+  command = command.strip()
+  #if '\r\n' in command:
+    #api.get('output.msg')('(has rn) got command %s from client' % repr(command), primary='inputparse')
+  #else:
+    #api.get('output.msg')('got command %s from client' % repr(command), primary='inputparse')
 
-  if data:
-    datalist = re.split(api.splitre, data)
-    if len(datalist) > 1:
-      api.get('output.msg')('broke %s into %s' % (data, datalist), primary='inputparse')
-      for cmd in datalist:
-        api_execute(cmd)
-    else:
-      data = data.replace('||', '|')
-      if data[-1] != '\n':
-        data = data + '\n'
-      api.get('output.msg')('sending %s to the mud' % data.strip(), primary='inputparse')
-      api.get('events.eraise')('to_mud_event', {'data':data, 'dtype':'fromclient'})
+  commands = command.split('\r\n')
+
+  for command in commands:
+    newdata = api.get('events.eraise')('from_client_event', {'fromdata':command})
+
+    if 'fromdata' in newdata:
+      command = newdata['fromdata']
+      command = command.strip()
+
+    if command:
+      datalist = re.split(api.splitre, command)
+      if len(datalist) > 1:
+        api.get('output.msg')('broke %s into %s' % (command, datalist), primary='inputparse')
+        for cmd in datalist:
+          api_execute(cmd)
+      else:
+        command = command.replace('||', '|')
+        if command[-1] != '\n':
+          command = command + '\n'
+        api.get('output.msg')('sending %s to the mud' % command.strip(), primary='inputparse')
+        api.get('events.eraise')('to_mud_event', {'data':command, 'dtype':'fromclient'})
 
 # send data directly to the mud
 def api_tomud(data):
