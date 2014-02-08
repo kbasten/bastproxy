@@ -319,7 +319,7 @@ class Telnet(asyncore.dispatcher):
 
   def convert_outdata(self, outbuffer):
     """
-    override this to convert something from the outbugger
+    override this to convert something from the outbuffer
     """
     return outbuffer
 
