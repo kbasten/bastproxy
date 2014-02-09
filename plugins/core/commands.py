@@ -9,6 +9,7 @@ This module handles commands and parsing input
 import shlex
 import argparse
 
+from libs.utils import DotDict
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Commands'
@@ -61,6 +62,9 @@ class Plugin(BasePlugin):
     retval = False
 
     args, other_args = cmd['parser'].parse_known_args(targs)
+
+    #TODO: change this to just be a dictionary
+    args = DotDict(vars(args))
     if args.help:
       msg = cmd['parser'].format_help().split('\n')
       self.api.get('output.client')('\n'.join(self.formatretmsg(

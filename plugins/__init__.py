@@ -13,7 +13,6 @@ import argparse
 
 from libs.utils import find_files, verify, convert
 from libs.persistentdict import PersistentDict
-from libs.utils import DotDict
 from libs.api import API
 from plugins._baseplugin import BasePlugin
 

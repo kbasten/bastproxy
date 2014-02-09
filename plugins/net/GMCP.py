@@ -139,7 +139,7 @@ class Plugin(BasePlugin):
     tlen = len(mods)
 
     currenttable = self.gmcpcache
-    #previoustable = DotDict()
+
     for i in range(0, tlen):
       if not (mods[i] in currenttable):
         return None
@@ -176,15 +176,15 @@ class Plugin(BasePlugin):
       tlen = len(mods)
 
       currenttable = self.gmcpcache
-      previoustable = DotDict()
+      previoustable = {}
       for i in range(0, tlen):
         if not (mods[i] in currenttable):
-          currenttable[mods[i]] = DotDict()
+          currenttable[mods[i]] = {}
 
         previoustable = currenttable
         currenttable = currenttable[mods[i]]
 
-      previoustable[mods[tlen - 1]] = DotDict()
+      previoustable[mods[tlen - 1]] = {}
       datatable = previoustable[mods[tlen - 1]]
 
       for i in args['data']:
