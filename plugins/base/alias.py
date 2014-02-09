@@ -113,7 +113,7 @@ class Plugin(BasePlugin):
             try:
               datan = self._aliases[mem]['alias'].format(*tlistn)
             except:
-              self.api.get('output.traceback')('alias %s had an issue' % (mem))
+              self.api.get('send.traceback')('alias %s had an issue' % (mem))
         else:
           p = re.compile('^%s' % mem)
           datan = p.sub(self._aliases[mem]['alias'], data)

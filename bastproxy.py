@@ -66,7 +66,7 @@ class Listener(asyncore.dispatcher):
     """
     show the traceback for an error in the listener
     """
-    api.get('output.traceback')("Forwarder error:")
+    api.get('send.traceback')("Forwarder error:")
 
   def handle_accept(self):
     """
@@ -96,7 +96,7 @@ class Listener(asyncore.dispatcher):
         from libs.net.client import ProxyClient
         ProxyClient(client_connection, source_addr[0], source_addr[1])
     except:
-      api.get('output.traceback')('Error handling client')
+      api.get('send.traceback')('Error handling client')
 
 
 def start(listen_port, server_address, server_port):
@@ -142,7 +142,7 @@ def main():
     CONFIG.read(config)
     api.get('output.msg')('Config - loaded', 'startup')
   except:
-    api.get('output.traceback')('Error parsing config!')
+    api.get('send.traceback')('Error parsing config!')
     sys.exit(1)
 
   api.get('output.msg')('Plugin Manager - loading', 'startup')

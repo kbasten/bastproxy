@@ -128,7 +128,7 @@ class PersistentDict(dict):
           return self.update(loader(fileobj))
       except:
         #if not ('log' in self.filename):
-        #  api.get('output.traceback')("Error when loading %s" % loader)
+        #  api.get('send.traceback')("Error when loading %s" % loader)
         #else:
         #  pass
         pass

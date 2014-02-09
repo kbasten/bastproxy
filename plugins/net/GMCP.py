@@ -197,7 +197,7 @@ class Plugin(BasePlugin):
           msg.append('datatable: %s' % datatable)
           msg.append('args: %s' % args)
           msg.append('args[data]: %s' % args['data'])
-          self.api.get('output.traceback')('\n'.join(msg))
+          self.api.get('send.traceback')('\n'.join(msg))
 
     self.api.get('output.msg')('%s : %s' % (args['module'], args['data']))
     self.api.get('events.eraise')('GMCP', args)
@@ -297,7 +297,7 @@ class SERVER(BaseTelnetOption):
         newdata = json.loads(data.decode('utf-8','ignore'), object_hook=convert)
       except (UnicodeDecodeError, ValueError) as e:
         newdata = {}
-        self.api.get('output.traceback')('Could not decode: %s' % data)
+        self.api.get('send.traceback')('Could not decode: %s' % data)
       self.telnetobj.msg(modname, data, level=2, mtype='GMCP')
       self.telnetobj.msg(type(newdata), newdata, level=2, mtype='GMCP')
       tdata = {}

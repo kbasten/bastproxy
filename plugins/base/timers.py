@@ -323,7 +323,7 @@ class Plugin(BasePlugin):
               self.api.get('output.msg')('Timer fired: %s' % timer,
                                          secondary=timer.plugin.sname)
             except:
-              self.api.get('output.traceback')('A timer had an error')
+              self.api.get('send.traceback')('A timer had an error')
           self.timerevents[i].remove(timer)
           if not timer.onetime:
             timer.nextcall = timer.nextcall + timer.seconds

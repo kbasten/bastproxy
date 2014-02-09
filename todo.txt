@@ -5,9 +5,9 @@ Overall:
   #TODO: anytime an action is performed, (Trigger matched, timer goes off, function is called from an event, command called, variable changed)
               send output.msg with the owning plugins sname
   #TODO: add ability to see memory usage of python process (psutil?)
+  #TODO: add a debug command
   #TODO: add a debug event (in a debug plugin, summary command), so we can get all stats for various plugins
   #TODO: add sys.getsizeof to stats for plugins (either the pluginclass or module, etc)
-  #TODO: save errors in a queue to show later
 
 Python3:
   #TODO: convert to run under python3
@@ -25,6 +25,12 @@ New Plugins:
     #TODO: create a potion manager plugin
     #TODO: create a moonbot plugin
 
+io:
+  change api to send.*
+
+client:
+  #TODO: change from_client_event to work like from_mud_event, use original instead of fromdata for dictionary key
+
 alias:
   #TODO: add stats
 
@@ -38,7 +44,6 @@ timers:
 
 triggers:
   #TODO: add ability to manually add triggers from #bp.triggers.add
-  #TODO: be able to check colors
   #TODO: make reloadable, either have original plugins reload or copy the structures somewhere
 
 watch:
@@ -51,9 +56,6 @@ Events:
 CmdMan:
   #TODO: use fnmatch to match commands
     count them so that duplicate commands are not run
-
-color:
-  #TODO: get closest color client does not support 256 colors
 
 sqlitedb:
   #TODO: load the db into memory and then when adding something, fork and save
@@ -75,7 +77,6 @@ afk:
 
 ct:
   #TODO: add dodges
-  #TODO: sort damage
 
 statdb:
   #TODO: create commands to get specific info for a cp/gq/quest/mobk

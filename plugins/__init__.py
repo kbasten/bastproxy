@@ -269,7 +269,7 @@ class PluginMgr(object):
           #check dependencies here
           self.loadplugin(i)
         except:
-          self.api.get('output.traceback')(
+          self.api.get('send.traceback')(
                         "load: had problems running the load method for %s." % i.fullimploc)
           del sys.modules[i.fullimploc]
 
@@ -323,7 +323,7 @@ class PluginMgr(object):
       if fullimploc in sys.modules:
         del sys.modules[fullimploc]
 
-      self.api.get('output.traceback')("Module '%s' refuses to import/load." % fullimploc)
+      self.api.get('send.traceback')("Module '%s' refuses to import/load." % fullimploc)
       return False, 'error'
 
   def unload_module(self, fullimploc):
@@ -341,7 +341,7 @@ class PluginMgr(object):
             try:
               _module.unload()
             except:
-              self.api.get('output.traceback')(
+              self.api.get('send.traceback')(
                     "unload: module %s didn't unload properly." % fullimploc)
 
           if not self.remove_plugin(_module.SNAME):
@@ -351,7 +351,7 @@ class PluginMgr(object):
         self.api.get('send.client')("unload: unloaded %s." % fullimploc)
 
       except:
-        self.api.get('output.traceback')(
+        self.api.get('send.traceback')(
                       "unload: had problems unloading %s." % fullimploc)
         return False
     else:
@@ -421,7 +421,7 @@ class PluginMgr(object):
         #check dependencies here
         self.loadplugin(plugin)
       except:
-        self.api.get('output.traceback')(
+        self.api.get('send.traceback')(
                       "load: had problems running the load method for %s." % fullimploc)
         del sys.modules[fullimploc]
         return False
@@ -443,7 +443,7 @@ class PluginMgr(object):
       try:
         plugin.unload()
       except:
-        self.api.get('output.traceback')(
+        self.api.get('send.traceback')(
                       "unload: had problems running the unload method for %s." % plugin.sname)
         return False
 

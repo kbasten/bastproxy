@@ -43,7 +43,7 @@ def api_traceback(message=""):
   else:
     message = exc
 
-  api.get('output.error')(message)
+  api.get('send.error')(message)
 
 # write and format an error
 def api_error(text):
@@ -147,8 +147,8 @@ def api_tomud(data):
 
 
 api.add('output', 'msg', api_msg)
-api.add('output', 'error', api_error)
-api.add('output', 'traceback', api_traceback)
+api.add('send', 'error', api_error)
+api.add('send', 'traceback', api_traceback)
 api.add('send', 'client', api_client)
 api.add('output', 'tomud', api_tomud)
 api.add('send', 'execute', api_execute)

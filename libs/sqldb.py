@@ -373,7 +373,7 @@ class Sqldb(object):
         self.versionfuncs[i]()
         self.api.get('output.msg')('updated to version %s' % i)
       except:
-        self.api.get('output.traceback')('could not upgrade db: %s' % self.dbloc)
+        self.api.get('send.traceback')('could not upgrade db: %s' % self.dbloc)
         return
     self.setversion(newversion)
     self.api.get('output.msg')('Done upgrading!')
@@ -388,7 +388,7 @@ class Sqldb(object):
       for row in cur.execute(selectstmt):
         result.append(row)
     except:
-      self.api.get('output.traceback')('could not run sql statement : %s' % \
+      self.api.get('send.traceback')('could not run sql statement : %s' % \
                             selectstmt)
     cur.close()
     return result
@@ -404,7 +404,7 @@ class Sqldb(object):
       for row in cur.execute(selectstmt):
         result[row[keyword]] = row
     except:
-      self.api.get('output.traceback')('could not run sql statement : %s' % \
+      self.api.get('send.traceback')('could not run sql statement : %s' % \
                                       selectstmt)
     cur.close()
     return result

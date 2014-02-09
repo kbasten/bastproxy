@@ -75,7 +75,7 @@ class Plugin(BasePlugin):
           'added watch %s for plugin %s' % \
                       (watchname, plugin), secondary=plugin)
     except:
-      self.api.get('output.traceback')(
+      self.api.get('send.traceback')(
           'Could not compile regex for cmd watch: %s : %s' % \
                 (watchname, regex))
 

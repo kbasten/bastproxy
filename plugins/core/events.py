@@ -185,7 +185,7 @@ class Plugin(BasePlugin):
               if tnargs:
                 nargs = tnargs
             except:
-              self.api.get('output.traceback')(
+              self.api.get('send.traceback')(
                       "error when calling function for event %s" % eventname)
     else:
       pass

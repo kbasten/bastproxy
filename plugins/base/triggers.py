@@ -130,7 +130,7 @@ class Plugin(BasePlugin):
             'added trigger %s for plugin %s' % \
                     (triggername, plugin), secondary=plugin)
     except:
-      self.api.get('output.traceback')(
+      self.api.get('send.traceback')(
               'Could not compile regex for trigger: %s : %s' % \
                       (triggername, args['regex']))
 
