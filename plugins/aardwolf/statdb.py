@@ -602,7 +602,7 @@ class Plugin(AardwolfBasePlugin):
     if state == 3:
       self.api.get('events.unregister')('GMCP:char.status', self.checkstats)
       if not self.statdb.getstat('monsterskilled'):
-        self.api.get('input.execute')('whois')
+        self.api.get('send.execute')('whois')
 
   def _format_row(self, rowname, data1, data2, datacolor="@W",
                     headercolor="@C"):

@@ -76,7 +76,7 @@ class Plugin(AardwolfBasePlugin):
     """
     show the report
     """
-    self.api.get('input.execute')('#bp.statmn.rep')
+    self.api.get('send.execute')('#bp.statmn.rep')
     #retval, msg = self.cmd_rep()
 
     #self.api.get('send.client')('\n'.join(msg), preamble=False)

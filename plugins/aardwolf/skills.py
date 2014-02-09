@@ -210,8 +210,8 @@ class Plugin(AardwolfBasePlugin):
     """
     self.skills.clear()
     self.recoveries.clear()
-    self.api.get('input.execute')('slist noprompt')
-    self.api.get('input.execute')('slist spellup noprompt')
+    self.api.get('send.execute')('slist noprompt')
+    self.api.get('send.execute')('slist spellup noprompt')
     msg = ['Refreshing spells and skills']
     return True, msg
 
@@ -230,7 +230,7 @@ class Plugin(AardwolfBasePlugin):
         self.cmd_refresh({})
       else:
         self.resetskills()
-        self.api.get('input.execute')('slist affected noprompt')
+        self.api.get('send.execute')('slist affected noprompt')
 
   def resetskills(self):
     """
@@ -456,11 +456,11 @@ class Plugin(AardwolfBasePlugin):
     if skill:
       if skill['type'] == 'spell':
         self.api.get('output.msg')('casting %s' % skill['name'])
-        self.api.get('input.execute')('cast %s' % skill['sn'])
+        self.api.get('send.execute')('cast %s' % skill['sn'])
       else:
         name = skill['name'].split()[0]
         self.api.get('output.msg')('sending skill %s' % skill['name'])
-        self.api.get('input.execute')(name)
+        self.api.get('send.execute')(name)
 
   def api_canuse(self, sn):
     """

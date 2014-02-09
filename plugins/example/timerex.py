@@ -43,7 +43,7 @@ class Plugin(BasePlugin):
     send a message to the mud and client
     """
     self.api.get('send.client')('@RHere is the timer that fires every 600 seconds!')
-    self.api.get('input.execute')('look')
+    self.api.get('send.execute')('look')
 
   def test_to_user(self):
     """

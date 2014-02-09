@@ -213,7 +213,7 @@ class Plugin(AardwolfBasePlugin):
     handle cpmobdead
     """
     self.api.get('events.register')('aard_mobkill', self._mobkillevent)
-    #self.api.get('input.execute')("cp check")
+    #self.api.get('send.execute')("cp check")
 
   def _cpcomplete(self, _=None):
     """
@@ -297,7 +297,7 @@ class Plugin(AardwolfBasePlugin):
                         copy.deepcopy({'mobsleft':self.mobsleft}))
     else:
       self.api.get('output.msg')("CP: could not find mob: %s" % args['name'])
-      self.api.get('input.execute')("cp check")
+      self.api.get('send.execute')("cp check")
 
   def savestate(self):
     """

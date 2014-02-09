@@ -95,7 +95,7 @@ class ProxyClient(Telnet):
             proxy.connectmud()
 
           if len(data) > 0:
-            self.api.get('input.execute')(data)
+            self.api.get('send.execute')(data)
 
       elif self.state == PASSWORD:
         data = data.strip()

@@ -174,7 +174,7 @@ class Plugin(AardwolfBasePlugin):
     if self.api.get('setting.gets')('joined'):
       self.gqinfo['starttime'] = time.time()
       self.api.get('triggers.togglegroup')("gqin", True)
-      self.api.get('input.execute')("gq check")
+      self.api.get('send.execute')("gq check")
 
   def _gqitem(self, args):
     """
@@ -245,7 +245,7 @@ class Plugin(AardwolfBasePlugin):
                         copy.deepcopy({'mobsleft':self.mobsleft}))
     else:
       self.api.get('output.msg')("GQ: could not find mob: %s" % args['name'])
-      self.api.get('input.execute')("gq check")
+      self.api.get('send.execute')("gq check")
 
   def _gqwon(self, _=None):
     """

@@ -37,5 +37,5 @@ class Plugin(AardwolfBasePlugin):
     """
     show that the trigger fired
     """
-    self.api.get('input.execute')('look')
+    self.api.get('send.execute')('look')
 

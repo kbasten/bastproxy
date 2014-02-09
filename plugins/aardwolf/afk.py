@@ -78,7 +78,7 @@ class Plugin(AardwolfBasePlugin):
     """
     if self.api.get('setting.gets')('lasttitle'):
       title = self.api.get('setting.gets')('lasttitle')
-      self.api.get('input.execute')('title %s' % title)
+      self.api.get('send.execute')('title %s' % title)
 
   def _titlesetevent(self, args):
     """
@@ -170,7 +170,7 @@ class Plugin(AardwolfBasePlugin):
     afktitle = self.api.get('setting.gets')('afktitle')
     self.api.get('setting.change')('isafk', True)
     self.api.get('events.register')('GMCP:comm.channel', self.checkfortell)
-    self.api.get('input.execute')('title %s' % afktitle)
+    self.api.get('send.execute')('title %s' % afktitle)
 
   def disableafk(self):
     """
@@ -178,7 +178,7 @@ class Plugin(AardwolfBasePlugin):
     """
     self.api.get('setting.change')('isafk', False)
     lasttitle = self.api.get('setting.gets')('lasttitle')
-    self.api.get('input.execute')('title %s' % lasttitle)
+    self.api.get('send.execute')('title %s' % lasttitle)
     try:
       self.api.get('events.unregister')('GMCP:comm.channel', self.checkfortell)
     except KeyError:
