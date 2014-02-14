@@ -235,7 +235,10 @@ class Plugin(AardwolfBasePlugin):
     if args['to']['num'] in nocastrooms:
       self.api.get('setting.change')('nocast', True)
     else:
+      lastval = self.api.get('setting.gets')('nocast')
       self.api.get('setting.change')('nocast', False)
+      if lastval:
+        self.nextspell()
 
   def _charvitals(self, args):
     """
