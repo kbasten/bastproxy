@@ -80,6 +80,20 @@ class PluginMgr(object):
     self.api.add(self.sname, 'getp', self.api_getp)
     self.api.add(self.sname, 'module', self.api_getmodule)
 
+  def findplugin(self, plugin):
+    """
+    find a plugin
+    """
+    if plugin and plugin in self.plugins:
+      return plugin
+
+    fullimploc = 'plugins.' + plugin
+    for tplugin in self.plugins:
+      if self.plugins[tplugin].fullimploc == fullimploc:
+        return tplugin
+
+    return None
+
   # get a plugin instance
   def api_getmodule(self, pluginname):
     """  returns the module of a plugin
@@ -194,7 +208,13 @@ class PluginMgr(object):
         @Yplugin@w    = the shortname of the plugin to load
     """
     tmsg = []
-    plugin = args['plugin']
+    plugina = args['plugin']
+
+    if not plugina:
+      return False, ['@Rplease specify a plugin@w']
+
+    plugin = self.findplugin(plugina)
+
     if plugin and plugin in self.plugins:
       if self.plugins[plugin].canreload:
         if self.unload_module(self.plugins[plugin].fullimploc):
@@ -218,9 +238,12 @@ class PluginMgr(object):
         @Yplugin@w    = the shortname of the plugin to reload
     """
     tmsg = []
-    plugin = args['plugin']
-    if not plugin:
+    plugina = args['plugin']
+
+    if not plugina:
       return False, ['@Rplease specify a plugin@w']
+
+    plugin = self.findplugin(plugina)
 
     if plugin and plugin in self.plugins:
       if self.plugins[plugin].canreload:
