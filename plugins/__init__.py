@@ -80,7 +80,7 @@ class PluginMgr(object):
     self.api.add(self.sname, 'getp', self.api_getp)
     self.api.add(self.sname, 'module', self.api_getmodule)
 
-  def findplugin(self, plugin):
+  def findloadedplugin(self, plugin):
     """
     find a plugin
     """
@@ -213,7 +213,7 @@ class PluginMgr(object):
     if not plugina:
       return False, ['@Rplease specify a plugin@w']
 
-    plugin = self.findplugin(plugina)
+    plugin = self.findloadedplugin(plugina)
 
     if plugin and plugin in self.plugins:
       if self.plugins[plugin].canreload:
@@ -243,7 +243,7 @@ class PluginMgr(object):
     if not plugina:
       return False, ['@Rplease specify a plugin@w']
 
-    plugin = self.findplugin(plugina)
+    plugin = self.findloadedplugin(plugina)
 
     if plugin and plugin in self.plugins:
       if self.plugins[plugin].canreload:
