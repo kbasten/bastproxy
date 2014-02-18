@@ -2,15 +2,6 @@
 $Id$
 
 This plugin keeps up spells/skills for Aardwolf
-
-#TODO: add a summary command that has an output like the brief command from my mushclient plugin
-#TODO: add clanskills
-#TODO: add spells that are not designated spellups by the mud
-#TODO: add export
-togglespellup   : toggle a spell to be a spellup regardless of what the mud says
-toggleclan      : toggle a spell/skill to be a clan skill
-searg           : add an argument to be cast with a spell
-
 """
 import copy
 import time
@@ -106,6 +97,11 @@ class Plugin(AardwolfBasePlugin):
     parser.add_argument('spell', help='the spells to disable, use \'all\' to disable all spellups', default=[], nargs='*')
     self.api.get('commands.add')('sdis', self.cmd_sdis,
               shelp='disable a spellup on self')
+
+    parser = argparse.ArgumentParser(add_help=False,
+              description='check all information to cast spells')
+    self.api.get('commands.add')('check', self.cmd_check,
+              shelp='check data status for casting')
 
     self.api.get('events.register')('GMCP:char.vitals', self._charvitals)
     self.api.get('events.register')('GMCP:char.status', self._charstatus)
@@ -493,6 +489,35 @@ class Plugin(AardwolfBasePlugin):
       return True, msg
 
     return False, []
+
+  def cmd_check(self, args):
+    """
+    list all items that are need for spellups and whether they are known
+    """
+    tmsg = []
+    tformat = '%-25s : %-10s - %s'
+    tmsg.append(tformat % ('enabled',
+                                     self.api.get('setting.gets')('enabled'),
+                                     'should be True to cast spells'))
+    tmsg.append(tformat % ('waiting',
+                                     self.api.get('setting.gets')('waiting'),
+                                     'the spell that was last cast, should be -1 to cast spells'))
+    tmsg.append(tformat % ('nocast',
+                                     self.api.get('setting.gets')('nocast'),
+                                     'the current room is nocast, should be False to cast spells'))
+    tmsg.append(tformat % ('nomoves',
+                                     self.api.get('setting.gets')('nomoves'),
+                                     'ran out of moves, should be False to cast spells'))
+    tmsg.append(tformat % ('nomana',
+                                     self.api.get('setting.gets')('nomana'),
+                                     'ran out of mana, should be False to cast spells'))
+    tmsg.append(tformat % ('Skills are up to date',
+                                     self.api.get('skills.isuptodate')(),
+                                     'should be True to cast spells'))
+    tmsg.append(tformat % ('Char state',
+                                     self.api.get('GMCP.getv')('char.status.state'),
+                                     'should be 3 to cast spells'))
+    return True, tmsg
 
   def reset(self):
     """
