@@ -325,7 +325,7 @@ class PluginMgr(object):
       modpath = fullpath.replace(self.basepath, '')
 
       imploc, modname = get_module_name(modpath)
-      
+
       if not modname.startswith("_"):
         fullimploc = "plugins" + '.' + imploc
         if fullimploc in sys.modules:
@@ -597,4 +597,6 @@ class PluginMgr(object):
 
     self.api.get('commands.default')(self.sname, 'list')
     self.api.get('events.register')('savestate', self.savestate, plugin=self.sname)
+
+    self.api.get('timers.add')('save', self.savestate, 60, nodupe=True)
 
