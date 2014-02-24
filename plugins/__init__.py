@@ -28,35 +28,6 @@ def get_module_name(modpath):
   else:
     return '.'.join([base, mod]), mod
 
-def findplugin(name):
-  """
-  find a plugin file
-  """
-  basepath = ''
-  index = __file__.rfind(os.sep)
-
-  if index == -1:
-    basepath = "." + os.sep
-  else:
-    basepath = __file__[:index]
-
-  if '.' in name:
-    tlist = name.split('.')
-    name = tlist[-1]
-    del tlist[-1]
-    npath = os.sep.join(tlist)
-
-  _module_list = find_files( basepath, name + ".py")
-
-  if len(_module_list) == 1:
-    return _module_list[0], basepath
-  else:
-    for i in _module_list:
-      if npath in i:
-        return i, basepath
-
-  return False, ''
-
 class PluginMgr(object):
   """
   a class to manage plugins
@@ -69,6 +40,13 @@ class PluginMgr(object):
     self.pluginl = {}
     self.pluginm = {}
     self.options = {}
+
+    index = __file__.rfind(os.sep)
+    if index == -1:
+      self.basepath = "." + os.sep
+    else:
+      self.basepath = __file__[:index]
+
     self.api = API()
     self.savefile = os.path.join(self.api.BASEPATH, 'data',
                                           'plugins', 'loadedplugins.txt')
@@ -79,6 +57,27 @@ class PluginMgr(object):
     self.api.add(self.sname, 'isinstalled', self.api_isinstalled)
     self.api.add(self.sname, 'getp', self.api_getp)
     self.api.add(self.sname, 'module', self.api_getmodule)
+
+  def findplugin(self, name):
+    """
+    find a plugin file
+    """
+    if '.' in name:
+      tlist = name.split('.')
+      name = tlist[-1]
+      del tlist[-1]
+      npath = os.sep.join(tlist)
+
+    _module_list = find_files( self.basepath, name + ".py")
+
+    if len(_module_list) == 1:
+      return _module_list[0], self.basepath
+    else:
+      for i in _module_list:
+        if npath in i:
+          return i, self.basepath
+
+    return False, ''
 
   def findloadedplugin(self, plugin):
     """
@@ -136,7 +135,7 @@ class PluginMgr(object):
 
       self.api.get('send.msg')('%s: loading dependency %s' % (pluginname, i), pluginname)
 
-      name, path = findplugin(i)
+      name, path = self.findplugin(i)
       if name:
         modpath = name.replace(path, '')
         self.load_module(modpath, path, force=True)
@@ -148,16 +147,20 @@ class PluginMgr(object):
       @CUsage@w: list
     """
     msg = []
-    tkeys = self.plugins.keys()
-    tkeys.sort()
-    msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
-                        ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
-    msg.append('-' * 75)
-    for plugin in tkeys:
-      tpl = self.plugins[plugin]
+
+    if args['notloaded']:
+      return True, ['unimplemented']
+    else:
+      tkeys = self.plugins.keys()
+      tkeys.sort()
       msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
-                  (plugin, tpl.name, tpl.author, tpl.version, tpl.purpose))
-    return True, msg
+                          ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
+      msg.append('-' * 75)
+      for plugin in tkeys:
+        tpl = self.plugins[plugin]
+        msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
+                    (plugin, tpl.name, tpl.author, tpl.version, tpl.purpose))
+      return True, msg
 
   def cmd_load(self, args):
     """
@@ -170,15 +173,9 @@ class PluginMgr(object):
     tmsg = []
     plugin = args['plugin']
     if plugin:
-      basepath = ''
-      index = __file__.rfind(os.sep)
-      if index == -1:
-        basepath = "." + os.sep
-      else:
-        basepath = __file__[:index]
 
       fname = plugin.replace('.', os.sep)
-      _module_list = find_files( basepath, fname + ".py")
+      _module_list = find_files( self.basepath, fname + ".py")
 
       if len(_module_list) > 1:
         tmsg.append('There is more than one module that matches: %s' % \
@@ -186,8 +183,8 @@ class PluginMgr(object):
       elif len(_module_list) == 0:
         tmsg.append('There are no modules that match: %s' % plugin)
       else:
-        modpath = _module_list[0].replace(basepath, '')
-        sname, reason = self.load_module(modpath, basepath, True)
+        modpath = _module_list[0].replace(self.basepath, '')
+        sname, reason = self.load_module(modpath, self.basepath, True)
         if sname:
           if reason == 'already':
             tmsg.append('Module %s is already loaded' % sname)
@@ -264,13 +261,7 @@ class PluginMgr(object):
     """
     load modules in all directories under plugins
     """
-    index = __file__.rfind(os.sep)
-    if index == -1:
-      basepath = "." + os.sep
-    else:
-      basepath = __file__[:index]
-
-    _module_list = find_files( basepath, tfilter)
+    _module_list = find_files( self.basepath, tfilter)
     _module_list.sort()
 
     pluginlist = {}
@@ -278,11 +269,11 @@ class PluginMgr(object):
     load = False
 
     for fullpath in _module_list:
-      modpath = fullpath.replace(basepath, '')
+      modpath = fullpath.replace(self.basepath, '')
       force = False
       if modpath in self.loadedplugins:
         force = True
-      modname, status = self.load_module(modpath, basepath, force=force, runload=load)
+      modname, status = self.load_module(modpath, self.basepath, force=force, runload=load)
 
       if modname == 'log':
         self.api.get('log.adddtype')(self.sname)
