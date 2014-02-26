@@ -84,7 +84,7 @@ class Plugin(BasePlugin):
                                  parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='toggle enabled flag')
+                 description='get detail for an alias')
     parser.add_argument('alias', help='the alias to get details for', default='', nargs='?')
     self.api.get('commands.add')('detail', self.cmd_detail,
                                  parser=parser)
