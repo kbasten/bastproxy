@@ -38,6 +38,13 @@ class Plugin(BasePlugin):
 
     self._charstatus()
 
+  def disconnect(self, _=None):
+    """
+    reattach to GMCP:char.status
+    """
+    BasePlugin.disconnect(self)
+    self.api.get('events.register')('GMCP:char.status', self._charstatus)
+
   # returns the firstactive flag
   def api_firstactive(self):
     """  return the firstactive flag

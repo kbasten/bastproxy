@@ -104,6 +104,13 @@ class BasePlugin(object):
       self.api.get('events.register')('firstactive', self.afterfirstactive)
 
     self.api.get('events.register')('shutdown', self.unload)
+    self.api.get('events.register')('muddisconnect', self.disconnect)
+
+  def disconnect(self, _=None):
+    """
+    re-register to firstactive on disconnect
+    """
+    self.api.get('events.register')('firstactive', self.afterfirstactive)
 
   # get the vaule of a setting
   def api_settinggets(self, setting):
