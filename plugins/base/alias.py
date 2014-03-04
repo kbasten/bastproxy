@@ -113,10 +113,13 @@ class Plugin(BasePlugin):
       if self._aliases[mem]['enabled']:
         datan = data
         if '(.*)' in mem:
-          if re.match(mem, data):
+          matchd = re.match(mem, data)
+          if matchd:
+
             self.api.get('send.msg')('matched input on %s' % mem)
-            tlist = shlex.split(data)
-            tlistn = ['"%s"' % i for i in tlist]
+            tlistn = [data]
+            for i in xrange(1, len(matchd.groups()) + 1):
+              tlistn.append(matchd.group(i))
             self.api.get('send.msg')('args: %s' % tlistn)
             try:
               datan = self._aliases[mem]['alias'].format(*tlistn)
@@ -134,7 +137,11 @@ class Plugin(BasePlugin):
           self._aliases[mem]['hits'] = self._aliases[mem]['hits'] + 1
           self.sessionhits[mem] = self.sessionhits[mem] + 1
           self.api.get('send.msg')('replacing "%s" with "%s"' % (data.strip(), datan.strip()))
-          args['fromdata'] = datan
+          if datan[0:3] == '#bp':
+            self.api.get('send.execute')(datan)
+            args['fromdata'] = ''
+          else:
+            args['fromdata'] = datan
 
     return args
 
