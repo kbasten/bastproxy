@@ -40,6 +40,32 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('default', self.api_setdefault)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
 
+  def load(self):
+    """
+    load external stuff
+    """
+    BasePlugin.load(self)
+    self.api.get('managers.add')(self.sname, self)
+    self.api.get('log.adddtype')(self.sname)
+    self.api.get('log.console')(self.sname)
+
+    self.api.get('setting.add')('spamcount', 20, int,
+                      'the # of times a command can be run before an antispam command')
+    self.api.get('setting.add')('antispamcommand', 'look', str,
+                      'the antispam command to send')
+    self.api.get('setting.add')('cmdcount', 0, int,
+                      'the # of times the current command has been run', readonly=True)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='list commands in a category')
+    parser.add_argument('category', help='the category to see help for', default='', nargs='?')
+    parser.add_argument('cmd', help='the command in the category (can be left out)', default='', nargs='?')
+    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands', parser=parser)
+
+    self.api.get('commands.default')('list')
+    self.api.get('events.register')('from_client_event', self.chkcmd, prio=1)
+    self.api.get('events.eraise')('plugin_cmdman_loaded', {})
+
   def formatretmsg(self, msg, sname, cmd):
     """
     format a return message
@@ -143,9 +169,16 @@ class Plugin(BasePlugin):
       return {'fromdata':''}
     else:
       if tdat.strip() == self.lastcmd:
+        self.api.get('setting.change')('cmdcount', self.api.get('setting.gets')('cmdcount') + 1)
+        if self.api.get('setting.gets')('cmdcount') == self.api.get('setting.gets')('spamcount'):
+          data['fromdata'] = self.api.get('setting.gets')('antispamcommand') + '|' + tdat
+          self.api.get('send.msg')('adding look for 20 commands')
+          self.api.get('setting.change')('cmdcount', 0)
         if tdat in self.nomultiplecmds:
           data['fromdata'] = ''
-      self.lastcmd = tdat.strip()
+      else:
+        self.api.get('setting.change')('cmdcount', 0)
+        self.lastcmd = tdat.strip()
 
       return data
 
@@ -299,23 +332,4 @@ class Plugin(BasePlugin):
       for i in tkeys:
         tmsg.append('  %s' % i)
     return True, tmsg
-
-  def load(self):
-    """
-    load external stuff
-    """
-    BasePlugin.load(self)
-    self.api.get('managers.add')(self.sname, self)
-    self.api.get('log.adddtype')(self.sname)
-    self.api.get('log.console')(self.sname)
-
-    parser = argparse.ArgumentParser(add_help=False,
-                 description='list commands in a category')
-    parser.add_argument('category', help='the category to see help for', default='', nargs='?')
-    parser.add_argument('cmd', help='the command in the category (can be left out)', default='', nargs='?')
-    self.api.get('commands.add')('list', self.cmd_list, shelp='list commands', parser=parser)
-
-    self.api.get('commands.default')('list')
-    self.api.get('events.register')('from_client_event', self.chkcmd, prio=1)
-    self.api.get('events.eraise')('plugin_cmdman_loaded', {})
 
