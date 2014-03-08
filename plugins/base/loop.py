@@ -25,7 +25,7 @@ AUTOLOAD = True
 
 class Plugin(BasePlugin):
   """
-  a plugin to do simple substitution
+  a plugin to handle looping of commands
   """
   def __init__(self, *args, **kwargs):
     """

@@ -29,7 +29,7 @@ AUTOLOAD = True
 
 class Plugin(BasePlugin):
   """
-  a class to manage internal commands
+  a class to manage logging
   """
   def __init__(self, *args, **kwargs):
     """

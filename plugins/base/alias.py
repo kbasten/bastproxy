@@ -33,7 +33,7 @@ AUTOLOAD = True
 
 class Plugin(BasePlugin):
   """
-  a plugin to do simple substitution
+  a plugin to handle user aliases
   """
   def __init__(self, *args, **kwargs):
     """

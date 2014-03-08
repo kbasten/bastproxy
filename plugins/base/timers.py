@@ -87,7 +87,7 @@ class TimerEvent(Event):
 
 class Plugin(BasePlugin):
   """
-  a plugin to show connection information
+  a plugin to handle timers
   """
   def __init__(self, *args, **kwargs):
     """
