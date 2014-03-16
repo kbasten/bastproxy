@@ -267,7 +267,7 @@ class Plugin(AardwolfBasePlugin):
               colors=infocolor))
 
     if self.api.get('plugins.isinstalled')('statdb'):
-      stmt = "SELECT count(*) as count, AVG(xp + bonusxp) as average FROM " \
+      stmt = "SELECT count(*) as count, AVG(totalxp) as average FROM " \
             "mobkills where time > %d and time < %d and xp > 0" % \
              (args['starttime'], args['finishtime'])
       tst = self.api.get('statdb.runselect')(stmt)
