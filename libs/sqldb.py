@@ -373,7 +373,9 @@ class Sqldb(object):
         self.versionfuncs[i]()
         self.api.get('send.msg')('updated to version %s' % i)
       except:
-        self.api.get('send.traceback')('could not upgrade db: %s' % self.dbloc)
+        self.api.get('send.traceback')(
+                      'could not upgrade db: %s in plugin: %s' % (self.dbname,
+                                                          self.plugin.sname))
         return
     self.setversion(newversion)
     self.api.get('send.msg')('Done upgrading!')
