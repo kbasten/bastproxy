@@ -122,6 +122,8 @@ class Plugin(AardwolfBasePlugin):
               "^\[(.*)\] Your (.*) \[(.*)\]$")
     self.api.get('triggers.add')('mobdamage2',
               "^Your (.*) \[(.*)\]$")
+    self.api.get('triggers.add')('bsincombat',
+              "^You spin around (.*), catching (.*) off guard, and execute a vicious double backstab.$")
 
     self.api.get('events.register')('trigger_mobxp', self.mobxp)
     self.api.get('events.register')('trigger_mobxpptless', self.mobxpptless)
@@ -145,6 +147,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_mobbanish', self.mobbanish)
     self.api.get('events.register')('trigger_mobdamage', self.mobdamage)
     self.api.get('events.register')('trigger_mobdamage2', self.mobdamage)
+    self.api.get('events.register')('trigger_bsincombat', self.bsincombat)
 
     self.api.get('events.register')('GMCP:char.status', self.gmcpcharstatus)
 
@@ -349,14 +352,15 @@ class Plugin(AardwolfBasePlugin):
 
     self.reset_kill()
 
-  def incombat(self):
+  def bsincombat(self, _=None):
     """
     just saw an incombat backstab
     """
+    self.api.get('send.msg')('saw bs in combat')
     if not ('backstab' in self.kill_info['damage']):
       self.kill_info['damage']['backstab'] = damagedefault()
 
-    self.kill_info.damage['backstab']['incombat'] = True
+    self.kill_info['damage']['backstab']['incombat'] = True
 
   def immunity(self, args):
     """
