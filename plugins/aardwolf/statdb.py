@@ -484,6 +484,9 @@ class Statdb(Sqldb):
     """
     add rare xp into the database
     """
+    if not self.checktableexists('mobkills'):
+      return
+
     oldmobst = self.runselect('SELECT * FROM mobkills ORDER BY mk_id ASC')
 
     cur = self.dbconn.cursor()
@@ -1278,6 +1281,9 @@ class Plugin(AardwolfBasePlugin):
     msg.append(self._format_row("Gold",
                 readablenumber(stats['gold']),
                 "%d/kill" % stats['avegold']))
+    msg.append(self._format_row("TP",
+                stats['tp'],
+                format_float(stats['tp'] / float(stats['indb']), "/kill")))
 
     avetype = stats['vorpal'] / float(stats['indb'])
     msg.append(self._format_row("Vorpal",
