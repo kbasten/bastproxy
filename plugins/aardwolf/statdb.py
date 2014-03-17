@@ -31,7 +31,7 @@ def format_float(item, addto=""):
 
 class Statdb(Sqldb):
   """
-  a class to manage sqlite3 databases
+  a class to manage a sqlite database for aardwolf events
   """
   def __init__(self, plugin, dbname=None, dbdir=None):
     """
@@ -531,7 +531,7 @@ class Statdb(Sqldb):
 
 class Plugin(AardwolfBasePlugin):
   """
-  a plugin to monitor aardwolf events
+  a plugin to catch aardwolf stats and add them to a database
   """
   def __init__(self, *args, **kwargs):
     """
