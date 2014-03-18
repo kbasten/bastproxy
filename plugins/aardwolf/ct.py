@@ -17,7 +17,7 @@ AUTOLOAD = False
 
 class Plugin(AardwolfBasePlugin):
   """
-  a plugin to monitor aardwolf events
+  a plugin to show combat stats after a mob kill
   """
   def __init__(self, *args, **kwargs):
     """
