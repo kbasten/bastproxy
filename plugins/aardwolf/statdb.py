@@ -562,7 +562,7 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('setting.add')('backupstart', '0000', 'miltime',
                       'the time for a db backup, like 1200 or 2000')
-    self.api.get('setting.add')('backupinterval', 60*60*4, int,
+    self.api.get('setting.add')('backupinterval', '4h', 'timelength',
                       'the interval to backup the db, default every 4 hours')
 
     parser = argparse.ArgumentParser(add_help=False,

@@ -44,9 +44,9 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
     self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
-    self.api.get('setting.add')('showminutes', 5, int,
-                    'show the report every x minutes, set to 0 to turn off')
-    self.api.get('setting.add')('reportminutes', 60, int,
+    self.api.get('setting.add')('show', '5m', 'timelength',
+                    'show the report every x time')
+    self.api.get('setting.add')('reportminutes', '60m', 'timelength',
                       'the # of minutes for the report to show')
     self.api.get('setting.add')('exppermin', 20, int,
                 'the threshhold for showing exp per minute')
@@ -64,12 +64,13 @@ class Plugin(AardwolfBasePlugin):
     """
     do something when the reportminutes changes
     """
-    self.api.get('timers.remove')('statrep')
     if int(args['newvalue']) > 0:
+      self.api.get('timers.remove')('statrep')
       self.api.get('timers.add')('statrep', self.timershow,
                 int(args['newvalue']) * 60,
                 nodupe=True)
     else:
+      self.api.get('timers.remove')('statrep')
       self.api.get('send.client')('Turning off the statmon report')
 
   def timershow(self):
