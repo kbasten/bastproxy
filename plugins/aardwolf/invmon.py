@@ -431,18 +431,10 @@ class Plugin(AardwolfBasePlugin):
 
     return True, self.build_container(args)
 
-  def build_container(self, args):
+  def build_containerheader(self, args):
     """
-    build a container
+    build the container header
     """
-    self.api.get('send.msg')('build_container args: %s' % args)
-
-    try:
-      container = int(args['container'])
-    except ValueError:
-      container = args['container']
-
-    msg = ['Items in %s:' % container]
     header = []
 
     if not args['nogroup']:
@@ -479,7 +471,23 @@ class Plugin(AardwolfBasePlugin):
 
     header.append('  ')
 
-    msg.append(''.join(header))
+    return ''.join(header)
+
+  def build_container(self, args):
+    """
+    build a container
+    """
+    self.api.get('send.msg')('build_container args: %s' % args)
+
+    try:
+      container = int(args['container'])
+    except ValueError:
+      container = args['container']
+
+    msg = ['Items in %s:' % container]
+
+    msg.append(self.build_containerheader(args))
+
     msg.append('@B' + '-' * 80)
 
     if not (container in self.invdata) or not self.invdata[container]:
@@ -672,7 +680,6 @@ class Plugin(AardwolfBasePlugin):
 
     msg.append('@B' + '-' * 80)
 
-    #for serial in self.eqdata:
     for i in xrange(0, len(wearlocs)):
       if self.eqdata[i] != -1:
         serial = self.eqdata[i]
