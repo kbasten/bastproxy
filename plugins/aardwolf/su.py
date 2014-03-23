@@ -1,7 +1,7 @@
 """
 $Id$
 
-This plugin keeps up spells/skills for Aardwolf
+This plugin does spellups for Aardwolf
 """
 import copy
 import time
@@ -21,7 +21,7 @@ AUTOLOAD = False
 
 class Plugin(AardwolfBasePlugin):
   """
-  a plugin to monitor aardwolf events
+  a plugin that does spellups
   """
   def __init__(self, *args, **kwargs):
     """
@@ -89,14 +89,15 @@ class Plugin(AardwolfBasePlugin):
     parser = argparse.ArgumentParser(add_help=False,
               description='enable spellups on self')
     parser.add_argument('spell', help='the spells to enable, use \'all\' to enable all spellups', default=[], nargs='*')
-    self.api.get('commands.add')('en', self.cmd_sen,
+    self.api.get('commands.add')('en', self.cmd_en,
               parser=parser, group='Spellups on Self')
 
     parser = argparse.ArgumentParser(add_help=False,
-              description='disable spell son self')
+              description='disable spells on self')
     parser.add_argument('spell', help='the spells to disable, use \'all\' to disable all spellups', default=[], nargs='*')
-    self.api.get('commands.add')('sdis', self.cmd_sdis,
-              shelp='disable a spellup on self', group='Spellups on Self')
+    self.api.get('commands.add')('dis', self.cmd_dis,
+              shelp='disable a spellup on self',
+              parser=parser, group='Spellups on Self')
 
     parser = argparse.ArgumentParser(add_help=False,
               description='check all information to cast spells')
@@ -113,6 +114,9 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('su_enabled', self.enabledchange)
     self.api.get('events.register')('skills_affected_update', self.nextspell)
     self.api.get('events.register')('aard_skill_gain', self.skillgain)
+
+    if self.api.get('skills.isuptodate')():
+      self._charstatus()
 
   def skillgain(self, args=None):
     """
@@ -430,7 +434,7 @@ class Plugin(AardwolfBasePlugin):
       self.savestate()
       return True, msg
 
-  def cmd_sen(self, args):
+  def cmd_en(self, args):
     """
     enable a spellup
     """
@@ -461,7 +465,7 @@ class Plugin(AardwolfBasePlugin):
 
     return False, []
 
-  def cmd_sdis(self, args):
+  def cmd_dis(self, args):
     """
     enable a spellup
     """
