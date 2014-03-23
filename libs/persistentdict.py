@@ -171,8 +171,8 @@ class PersistentDictEvent(PersistentDict):
     key = convert(key)
     val = convert(val)
     dict.__setitem__(self, key, val)
-    eventname = '%s_%s' % (self.plugin.sname, key)
-    if not self.plugin.resetflag:
+    eventname = 'var_%s_%s' % (self.plugin.sname, key)
+    if not self.plugin.resetflag and key != '_version':
       self.api.get('events.eraise')(eventname, {'var':key,
                                         'newvalue':val})
 
