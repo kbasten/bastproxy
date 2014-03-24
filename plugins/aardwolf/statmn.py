@@ -40,7 +40,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_gq_won', self.compgq)
     self.api.get('events.register')('aard_gq_done', self.compgq)
     self.api.get('events.register')('aard_gq_completed', self.compgq)
-    self.api.get('events.register')('statmn_showminutes', self.showchange)
+    self.api.get('events.register')('var_statmn_show', self.showchange)
 
     self.api.get('setting.add')('statcolor', '@W', 'color', 'the stat color')
     self.api.get('setting.add')('infocolor', '@x33', 'color', 'the info color')
@@ -53,21 +53,21 @@ class Plugin(AardwolfBasePlugin):
 
     parser = argparse.ArgumentParser(add_help=False,
                  description='show report')
-    parser.add_argument('minutes', help='the number of minutes in the report', default=60, nargs='?')
+    parser.add_argument('minutes', help='the number of minutes in the report', default='60m', nargs='?')
     self.api.get('commands.add')('rep', self.cmd_rep,
               parser=parser, format=False, preamble=False)
 
     self.api.get('timers.add')('statrep', self.timershow,
-                               5*60, nodupe=True)
+                               self.api.get('setting.gets')('show'), nodupe=True)
 
   def showchange(self, args):
     """
-    do something when the reportminutes changes
+    do something when show changes
     """
     if int(args['newvalue']) > 0:
       self.api.get('timers.remove')('statrep')
       self.api.get('timers.add')('statrep', self.timershow,
-                int(args['newvalue']) * 60,
+                int(args['newvalue']),
                 nodupe=True)
     else:
       self.api.get('timers.remove')('statrep')
@@ -345,7 +345,7 @@ class Plugin(AardwolfBasePlugin):
     hourtotals['type'] = 'Total'
 
     minutes = tminutes or reportminutes
-    starttime = finishtime - (minutes * 60)
+    starttime = finishtime - minutes
 
     timestr = '%s' % utils.timedeltatostring(starttime,
               finishtime,
@@ -441,7 +441,7 @@ class Plugin(AardwolfBasePlugin):
     """
     minutes = self.api.get('setting.gets')('reportminutes')
     if args and args['minutes']:
-      minutes = int(args['minutes'])
+      minutes = utils.verify(args['minutes'], 'timelength')
 
     msg = self.statreport(minutes)
 
