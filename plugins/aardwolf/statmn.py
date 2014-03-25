@@ -64,10 +64,11 @@ class Plugin(AardwolfBasePlugin):
     """
     do something when show changes
     """
-    if int(verify(args['newvalue'], 'timelength')) > 0:
+    newtime = utils.verify(args['newvalue'], 'timelength')
+    if newtime > 0:
       self.api.get('timers.remove')('statrep')
       self.api.get('timers.add')('statrep', self.timershow,
-                int(verify(args['newvalue'], 'timelength')),
+                newtime,
                 nodupe=True)
     else:
       self.api.get('timers.remove')('statrep')
