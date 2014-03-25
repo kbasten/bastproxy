@@ -121,7 +121,7 @@ class BasePlugin(object):
 
     this function returns the value of the setting, None if not found"""
     try:
-      return self.settingvalues[setting]
+      return verify(self.settingvalues[setting], self.settings[setting]['stype'])
     except KeyError:
       return None
 
