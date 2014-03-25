@@ -118,6 +118,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('convertlevel', self.api_convertlevel)
     self.api.get('api.add')('classabb', self.api_classabb)
     self.api.get('api.add')('rewardtable', self.api_rewardtable)
+    self.api.get('api.add')('parsedamageline', self.api_parsedamageline)
 
   def load(self):
     """
