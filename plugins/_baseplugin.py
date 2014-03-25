@@ -136,12 +136,16 @@ class BasePlugin(object):
 
   # change the value of a setting
   def api_settingchange(self, setting, value):
-    """  add a depencency
-    @Ydependency@w    = the name of the plugin that will be a dependency
+    """  change a setting
+    @Ysetting@w    = the name of the setting to change
+    @Yvalue@w      = the value to set it as
 
     this function returns True if the value was changed, False otherwise"""
+    if value == 'default':
+      value = self.settings[setting]['default']
     if setting in self.settings:
-      self.settingvalues[setting] = value
+      self.settingvalues[setting] = verify(value, self.settings[setting]['stype'])
+      self.settingvalues.sync()
       return True
 
     return False
@@ -247,12 +251,8 @@ class BasePlugin(object):
               and self.settings[var]['readonly']:
           return True, ['%s is a readonly setting' % var]
         else:
-          if val == 'default':
-            val = self.settings[var]['default']
           try:
-            val = verify(val, self.settings[var]['stype'])
-            self.settingvalues[var] = val
-            self.settingvalues.sync()
+            self.api.get('setting.change')(var, val)
             tvar = self.settingvalues[var]
             if self.settings[var]['nocolor']:
               tvar = tvar.replace('@', '@@')
