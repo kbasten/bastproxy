@@ -32,6 +32,7 @@ class API(object):
     self.overload('api', 'add', self.add)
     self.overload('api', 'remove', self.remove)
     self.overload('api', 'getchildren', self.api_getchildren)
+    self.overload('api', 'has', self.api_has)
 
   # add a function to the api
   def add(self, ptype, name, function):
@@ -129,6 +130,16 @@ class API(object):
       apilist.extend(self.overloadedapi[toplevel].keys())
 
     return list(set(apilist))
+
+  def api_has(self, api):
+    """
+    see if something exists in the api
+    """
+    try:
+      self.api.get(api)
+      return True
+    except AttributeError:
+      return False
 
 
 if __name__ == '__main__':
