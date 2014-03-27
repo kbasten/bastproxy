@@ -91,6 +91,7 @@ ct:
 
 statdb:
   #TODO: create commands to get specific info for a cp/gq/quest/mobk
+  #TODO: create compare command
 
 mobk:
   #TODO: get weapon for vorpals, primary and secondary
