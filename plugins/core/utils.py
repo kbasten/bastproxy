@@ -38,7 +38,6 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('timelengthtosecs', self.api_timelengthtosecs)
     self.api.get('api.add')('verify', self.api_verify)
 
-
   def load(self):
     """
     load the plugins
@@ -124,7 +123,7 @@ class Plugin(BasePlugin):
     format a length of time into a string
     """
     msg = []
-    dtime = self.api_secondstodhms(length)
+    dtime = self.api.get('utils.secondstodhms')(length)
     years = False
     days = False
     hours = False
@@ -200,7 +199,7 @@ class Plugin(BasePlugin):
     try:
       ttime = int(usertime)
     except ValueError:
-      ttime = self.api_timelengthtosecs(usertime)
+      ttime = self.api.get('utils.timelengthtosecs')(usertime)
 
     if ttime != 0 and not ttime:
       raise ValueError
@@ -270,7 +269,7 @@ class Plugin(BasePlugin):
 
     return tdict
 
-  def api_timelengthtosecs(timel):
+  def api_timelengthtosecs(self, timel):
     """
     converts a time length to seconds
 
