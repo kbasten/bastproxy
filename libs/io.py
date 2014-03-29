@@ -54,7 +54,7 @@ def api_error(text):
   test = []
   for i in text.split('\n'):
     if api.get('api.has')('colors.convertcolors'):
-      test.append(self.api.get('colors.convertcolors')('@x136%s@w' % i))
+      test.append(api.get('colors.convertcolors')('@x136%s@w' % i))
     else:
       test.append(i)
   tmsg = '\n'.join(test)
@@ -83,7 +83,7 @@ def api_client(text, raw=False, preamble=True):
     for i in text:
       if preamble:
         i = '@C#BP@w: ' + i
-      test.append(self.api.get('colors.convertcolors')(i))
+      test.append(api.get('colors.convertcolors')(i))
     text = test
 
   try:
