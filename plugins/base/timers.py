@@ -9,7 +9,6 @@ import argparse
 from plugins._baseplugin import BasePlugin
 from libs.timing import timeit
 from libs.event import Event
-from libs.utils import secondstodhms
 
 #these 5 are required
 NAME = 'timers'
@@ -62,7 +61,7 @@ class TimerEvent(Event):
       tnext = now.replace(hour=ttime.tm_hour, minute=ttime.tm_min, second=0)
       diff = tnext - now
       while diff.days < 0:
-        tstuff = secondstodhms(self.seconds)
+        tstuff = self.plugin.api.get('utils.secondstodhms')(self.seconds)
         tnext = tnext + datetime.timedelta(days=tstuff['days'],
                                           hours=tstuff['hours'],
                                           minutes=tstuff['mins'],

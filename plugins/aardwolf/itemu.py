@@ -7,7 +7,6 @@ It adds functions to exported.aardu
 import math
 import re
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
-from libs.utils import strip_ansi
 
 NAME = 'Aardwolf Item Utils'
 SNAME = 'itemu'
@@ -127,6 +126,6 @@ class Plugin(AardwolfBasePlugin):
       titem[v] = value
 
     if layoutname == 'eqdata':
-      titem['name'] = strip_ansi(titem['cname'])
+      titem['name'] = self.api.get('colors.stripansi')(titem['cname'])
 
     return titem

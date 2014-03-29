@@ -14,7 +14,6 @@ import zipfile
 import argparse
 
 from libs.persistentdict import PersistentDict
-from libs import utils
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Logging'

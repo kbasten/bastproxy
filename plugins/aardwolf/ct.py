@@ -3,8 +3,6 @@ $Id$
 
 This plugin includes a combat tracker for aardwolf
 """
-import math
-from libs import utils
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'CombatTracker'
@@ -53,7 +51,8 @@ class Plugin(AardwolfBasePlugin):
     damages = args['damage']
     totald = sum(damages[d]['damage'] for d in damages)
     if args['finishtime'] and args['starttime']:
-      timestr = '%s' % utils.timedeltatostring(args['starttime'],
+      timestr = '%s' % self.api.get('utils.timedeltatostring')(
+              args['starttime'],
               args['finishtime'],
               colorn=statcolor,
               colors=infocolor)
@@ -67,7 +66,7 @@ class Plugin(AardwolfBasePlugin):
             time=timestr,
             xp=xpstr
             )
-    tstr = infocolor + utils.center(namestr, '-', linelen)
+    tstr = infocolor + self.api.get('utils.center')(namestr, '-', linelen)
 
     msg.append(tstr)
     msg.append(infocolor + '-' * linelen)

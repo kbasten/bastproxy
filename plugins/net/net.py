@@ -4,7 +4,6 @@ $Id$
 This plugin will show information about connections to the proxy
 """
 import time
-from libs import utils
 from plugins._baseplugin import BasePlugin
 
 #these 5 are required
@@ -56,7 +55,7 @@ class Plugin(BasePlugin):
     if proxy:
       if proxy.connectedtime:
         tmsg.append('PROXY: connected for %s' %
-                      utils.timedeltatostring(proxy.connectedtime,
+                self.api.get('utils.timedeltatostring')(proxy.connectedtime,
                                             time.mktime(time.localtime())))
       else:
         tmsg.append('PROXY: disconnected')
@@ -66,13 +65,13 @@ class Plugin(BasePlugin):
                                             'Client', 'Connected'))
       tmsg.append('@B' + 60 * '-')
       for i in proxy.clients:
-        ttime = utils.timedeltatostring(i.connectedtime,
+        ttime = self.api.get('utils.timedeltatostring')(i.connectedtime,
                                           time.mktime(time.localtime()))
 
         tmsg.append(clientformat % ('Active', i.host[:17], i.port,
                                           i.ttype[:17], ttime))
       for i in proxy.vclients:
-        ttime = utils.timedeltatostring(i.connectedtime,
+        ttime = self.api.get('utils.timedeltatostring')(i.connectedtime,
                                           time.mktime(time.localtime()))
         tmsg.append(clientformat % ('View', i.host[:17], i.port,
                                           i.ttype[:17], ttime))

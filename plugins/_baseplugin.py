@@ -8,7 +8,6 @@ import os
 import sys
 import argparse
 import textwrap
-from libs.utils import verify, convert, center, format_time
 from libs.persistentdict import PersistentDictEvent
 from libs.api import API
 
@@ -121,7 +120,8 @@ class BasePlugin(object):
 
     this function returns the value of the setting, None if not found"""
     try:
-      return verify(self.settingvalues[setting], self.settings[setting]['stype'])
+      return self.api.get('utils.verify')(self.settingvalues[setting],
+                                          self.settings[setting]['stype'])
     except KeyError:
       return None
 
@@ -144,7 +144,8 @@ class BasePlugin(object):
     if value == 'default':
       value = self.settings[setting]['default']
     if setting in self.settings:
-      self.settingvalues[setting] = verify(value, self.settings[setting]['stype'])
+      self.settingvalues[setting] = self.api.get('utils.verify')(value,
+                                          self.settings[setting]['stype'])
       self.settingvalues.sync()
       return True
 
@@ -172,7 +173,7 @@ class BasePlugin(object):
     stats = self.getstats()
     tmsg = []
     for header in stats:
-      tmsg.append(center(header, '=', 60))
+      tmsg.append(self.api.get('utils.center')(header, '=', 60))
       for subtype in stats[header]['showorder']:
         tmsg.append('%-20s : %s' % (subtype, stats[header][subtype]))
 
@@ -259,7 +260,8 @@ class BasePlugin(object):
             elif self.settings[var]['stype'] == 'color':
               tvar = '%s%s@w' % (val, val.replace('@', '@@'))
             elif self.settings[var]['stype'] == 'timelength':
-              tvar = format_time(verify(val, 'timelength'))
+              tvar = self.api.get('utils.formattime')(
+                          self.api.get('utils.verify')(val, 'timelength'))
             return True, ['set %s to %s' % (var, tvar)]
           except ValueError:
             msg = ['Cannot convert %s to %s' % \
@@ -295,7 +297,8 @@ class BasePlugin(object):
         elif self.settings[i]['stype'] == 'color':
           val = '%s%s@w' % (val, val.replace('@', '@@'))
         elif self.settings[i]['stype'] == 'timelength':
-          val = format_time(verify(val, 'timelength'))
+          val = self.api.get('utils.formattime')(
+                          self.api.get('utils.verify')(val, 'timelength'))
         tmsg.append(tform % (i, val, self.settings[i]['help']))
     return tmsg
 

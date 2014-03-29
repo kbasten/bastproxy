@@ -7,7 +7,6 @@ import time
 import re
 import copy
 import argparse
-from libs import utils
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Error Plugin'

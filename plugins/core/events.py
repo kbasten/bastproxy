@@ -7,7 +7,6 @@ This plugin handles events.
 import inspect
 import argparse
 from libs.api import API
-from libs import utils
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Event Handler'
@@ -203,7 +202,7 @@ class Plugin(BasePlugin):
     eventstuff = self.api.get('events.gete')(eventname)
     plugins = []
     tmsg.append('%-13s : %s' % ('Event', eventname))
-    tmsg.append('@B' + utils.center('Registrations', '-', 60))
+    tmsg.append('@B' + self.api.get('utils.center')('Registrations', '-', 60))
     tmsg.append('%-4s : %-15s - %-s' % ('prio',
                                         'plugin',
                                         'function name'))

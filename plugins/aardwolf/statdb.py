@@ -8,7 +8,6 @@ import time
 import argparse
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.sqldb import Sqldb
-from libs.utils import readablenumber, format_time
 
 NAME = 'StatDB'
 SNAME = 'statdb'
@@ -739,9 +738,9 @@ class Plugin(AardwolfBasePlugin):
     msg.append(self._format_row("QP Per Quest", "",
         format_float(stats['dboverallave'], "/quest")))
     msg.append(self._format_row("Gold",
-          readablenumber(stats['gold'], 2),
+          self.api.get('utils.readablenumber')(stats['gold'], 2),
           "%d/quest" % stats['avegold']))
-    msg.append(self._format_row("Time", "", format_time(stats['avetime'])))
+    msg.append(self._format_row("Time", "", self.api.get('utils.formattime')(stats['avetime'])))
     msg.append('')
     msg.append(self._format_row("Bonus Rewards", "Total",
                               "Average", '@G', '@G'))
@@ -772,7 +771,7 @@ class Plugin(AardwolfBasePlugin):
 
           leveld = self.api.get('aardu.convertlevel')(item['level'])
 
-          ttime = format_time(item['finishtime'] - item['starttime'])
+          ttime = self.api.get('utils.formattime')(item['finishtime'] - item['starttime'])
           if int(item['failed']) == 1:
             ttime = 'Failed'
           msg.append("%-6s %2s %2s %2s %2s %3s" \
@@ -879,12 +878,12 @@ class Plugin(AardwolfBasePlugin):
                 levels['totalpracs'], ""))
 
     if levels['avetime']:
-      lavetime = format_time(levels['avetime'])
+      lavetime = self.api.get('utils.formattime')(levels['avetime'])
     else:
       lavetime = ""
 
     if pups['avetime']:
-      pavetime = format_time(pups['avetime'])
+      pavetime = self.api.get('utils.formattime')(pups['avetime'])
     else:
       pavetime = ""
 
@@ -911,7 +910,7 @@ class Plugin(AardwolfBasePlugin):
           leveld = self.api.get('aardu.convertlevel')(item['level'])
 
           if item['finishtime'] != '-1' and item['starttime'] != '-1':
-            ttime = format_time(item['finishtime'] - item['starttime'])
+            ttime = self.api.get('utils.formattime')(item['finishtime'] - item['starttime'])
           else:
             ttime = ''
 
@@ -988,7 +987,7 @@ class Plugin(AardwolfBasePlugin):
                 stats['totalqp'] or 0,
                 format_float(stats['aveqp'], "/CP")))
     if stats['totalgold']:
-      tempg = readablenumber(stats['totalgold'])
+      tempg = self.api.get('utils.readablenumber')(stats['totalgold'])
     else:
       tempg = 0
 
@@ -996,7 +995,7 @@ class Plugin(AardwolfBasePlugin):
                 tempg,
                 "%d/CP" % stats['avegold']))
     if stats['avetime']:
-      atime = format_time(stats['avetime'])
+      atime = self.api.get('utils.formattime')(stats['avetime'])
     else:
       atime = ""
 
@@ -1037,7 +1036,7 @@ class Plugin(AardwolfBasePlugin):
                               leveld['level'])
 
           if item['finishtime'] != '-1' and item['starttime'] != '-1':
-            ttime = format_time(item['finishtime'] - item['starttime'])
+            ttime = self.api.get('utils.formattime')(item['finishtime'] - item['starttime'])
           else:
             ttime = ''
 
@@ -1132,13 +1131,13 @@ class Plugin(AardwolfBasePlugin):
                 format_float(stats['won']['qpmobsave'], "/GQ")))
 
     if stats['won']['avetime']:
-      atime = format_time(stats['won']['avetime'])
+      atime = self.api.get('utils.formattime')(stats['won']['avetime'])
     else:
       atime = ""
 
     msg.append(self._format_row("Time", "", atime))
     msg.append(self._format_row("Gold",
-                readablenumber(stats['won']['gold']),
+                self.api.get('utils.readablenumber')(stats['won']['gold']),
                 "%d/GQ" % stats['won']['avegold']))
     msg.append(self._format_row("TP",
                 stats['won']['tp'],
@@ -1178,7 +1177,7 @@ class Plugin(AardwolfBasePlugin):
                               leveld['level'])
 
           if item['finishtime'] != '-1' and item['starttime'] != '-1':
-            ttime = format_time(item['finishtime'] - item['starttime'])
+            ttime = self.api.get('utils.formattime')(item['finishtime'] - item['starttime'])
           else:
             ttime = ''
 
@@ -1280,7 +1279,7 @@ class Plugin(AardwolfBasePlugin):
                 stats['totalxp'],
                 format_float(stats['avetotalxp'], "/kill")))
     msg.append(self._format_row("Gold",
-                readablenumber(stats['gold']),
+                self.api.get('utils.readablenumber')(stats['gold']),
                 "%d/kill" % stats['avegold']))
     msg.append(self._format_row("TP",
                 stats['tp'],

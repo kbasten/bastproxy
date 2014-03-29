@@ -6,7 +6,7 @@ This plugins handles TCP option 201, GMCP (aardwolf implementation)
 from libs.net._basetelnetoption import BaseTelnetOption
 from plugins._baseplugin import BasePlugin
 from libs.net.telnetlib import WILL, DO, IAC, SE, SB
-from libs.utils import convert
+from libs.persistentdict import convert
 
 GMCP = chr(201)
 

@@ -7,7 +7,6 @@ import time
 import re
 import copy
 import argparse
-from libs import utils
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'AFK plugin'

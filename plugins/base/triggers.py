@@ -8,7 +8,6 @@ import sys
 import argparse
 from plugins._baseplugin import BasePlugin
 from libs.timing import timeit
-from libs import utils
 
 #these 5 are required
 NAME = 'triggers'

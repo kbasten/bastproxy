@@ -2,15 +2,6 @@
 $Id$
 
 This plugin is an example plugin to show how to use gmcp
-
-#BUG:
-#BP: Sun Oct 20 2013 18:18:51 - error      : error when calling function for event GMCP:char
-#BP: Traceback (most recent call last):
-#BP:   File "/home/endavis/games/proxy/testproxy/libs/event.py", line 408, in raiseevent
-#BP:     tnargs = i(nargs)
-#BP:   File "/home/endavis/games/proxy/testproxy/plugins/example/gmcpex.py", line 75, in testchar
-#BP:     self.msg('\n'.join(msg))
-#BP: TypeError: sequence item 1: expected string, DotDict found
 """
 import argparse
 from plugins._baseplugin import BasePlugin

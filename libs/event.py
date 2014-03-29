@@ -3,10 +3,6 @@ $Id$
 
 This plugin has the base event class
 """
-import inspect
-from libs.api import API
-from libs import utils
-
 class Event(object):
   """
   a basic event class

@@ -7,7 +7,6 @@ import time
 import os
 import copy
 import re
-from libs import utils
 from libs.persistentdict import PersistentDict
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
@@ -196,7 +195,7 @@ class Plugin(AardwolfBasePlugin):
     handle cpmob
     """
     name = args['mob']
-    mobdead = utils.verify(args['dead'], bool)
+    mobdead = self.api.get('utils.verify')(args['dead'], bool)
     location = args['location']
 
     if not name or not location:

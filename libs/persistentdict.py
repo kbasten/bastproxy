@@ -9,9 +9,21 @@ import json
 import csv
 import os
 import shutil
-from libs.utils import convert
 from libs.api import API
 api = API()
+
+def convert(tinput):
+  """
+  converts input to ascii (utf-8)
+  """
+  if isinstance(tinput, dict):
+    return {convert(key): convert(value) for key, value in tinput.iteritems()}
+  elif isinstance(tinput, list):
+    return [convert(element) for element in tinput]
+  elif isinstance(tinput, unicode):
+    return tinput.encode('utf-8')
+  else:
+    return tinput
 
 def convertkeystoint(tdict):
   new = {}

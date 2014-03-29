@@ -10,11 +10,27 @@ import sys
 import inspect
 import operator
 import argparse
+import fnmatch
 
-from libs.utils import find_files
 from libs.persistentdict import PersistentDict
 from libs.api import API
 from plugins._baseplugin import BasePlugin
+
+
+def find_files(directory, filematch):
+  """
+  find files in a directory that match a filter
+  """
+  matches = []
+  if os.sep in filematch:
+    tstuff = filematch.split(os.sep)
+    directory = os.path.join(directory, tstuff[0])
+    filematch = tstuff[-1]
+  for root, _, filenames in os.walk(directory):
+    for filename in fnmatch.filter(filenames, filematch):
+      matches.append(os.path.join(root, filename))
+
+  return matches
 
 def get_module_name(modpath):
   """

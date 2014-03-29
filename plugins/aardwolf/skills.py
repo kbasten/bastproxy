@@ -10,7 +10,6 @@ import fnmatch
 import argparse
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.persistentdict import PersistentDict
-from libs import utils
 from libs.timing import timeit
 
 NAME = 'Aardwolf Skills'
@@ -185,7 +184,7 @@ class Plugin(AardwolfBasePlugin):
       msg.append('%-8s : %s' % ('Percent', skill['percent']))
       if skill['duration'] > 0:
         msg.append('%-8s : %s' % ('Duration',
-            utils.timedeltatostring(time.time(),
+            self.api.get('utils.timedeltatostring')(time.time(),
               skill['duration'])))
       msg.append('%-8s : %s' % ('Target', skill['target']))
       msg.append('%-8s : %s' % ('Spellup', skill['spellup']))
@@ -193,7 +192,7 @@ class Plugin(AardwolfBasePlugin):
       if skill['recovery']:
         recov = skill['recovery']
         if recov['duration'] > 0:
-          duration =  utils.timedeltatostring(time.time(),
+          duration =  self.api.get('utils.timedeltatostring')(time.time(),
               recov['duration'])
           msg.append('%-8s : %s (%s)' % ('Recovery',
                                       recov['name'], duration))
@@ -436,7 +435,7 @@ class Plugin(AardwolfBasePlugin):
 
     if not tskill and name:
       #self.api.get('send.msg')('trying name')
-      tlist = utils.checklistformatch(name, self.skillsnamelookup.keys())
+      tlist = self.api.get('utils.checklistformatch')(name, self.skillsnamelookup.keys())
       if len(tlist) == 1:
         tskill = copy.deepcopy(self.skills[self.skillsnamelookup[tlist[0]]])
 

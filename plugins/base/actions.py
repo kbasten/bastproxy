@@ -13,7 +13,6 @@ from string import Template
 from plugins._baseplugin import BasePlugin
 from libs.timing import timeit
 from libs.persistentdict import PersistentDict
-from libs import utils
 
 #these 5 are required
 NAME = 'Actions'

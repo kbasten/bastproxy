@@ -6,7 +6,6 @@ This plugin shows stats for events on Aardwolf
 import time
 import copy
 import argparse
-from libs import utils
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'StatMonitor'
@@ -119,7 +118,7 @@ class Plugin(AardwolfBasePlugin):
             args['pracs'], infocolor))
     msg.append('. It took %s%s%s.' % (
          statcolor,
-         utils.timedeltatostring(args['starttime'], args['finishtime'],
+         self.api.get('utils.timedeltatostring')(args['starttime'], args['finishtime'],
          fmin=True, colorn=statcolor,
          colors=infocolor),
          infocolor))
@@ -170,7 +169,7 @@ class Plugin(AardwolfBasePlugin):
             args['pracs'], infocolor))
     msg.append('. %sIt took %s.' % (
          infocolor,
-         utils.timedeltatostring(args['starttime'], args['finishtime'],
+         self.api.get('utils.timedeltatostring')(args['starttime'], args['finishtime'],
          fmin=True, colorn=statcolor,
          colors=infocolor)))
 
@@ -202,7 +201,7 @@ class Plugin(AardwolfBasePlugin):
     msg.append('.')
     msg.append(' %sIt took %s.' % (
          infocolor,
-         utils.timedeltatostring(args['starttime'], args['finishtime'],
+         self.api.get('utils.timedeltatostring')(args['starttime'], args['finishtime'],
          fmin=True, colorn=statcolor,
          colors=infocolor)))
 
@@ -259,7 +258,7 @@ class Plugin(AardwolfBasePlugin):
       msg.append(' %sbonus ' % infocolor)
 
     if args['starttime'] > 0 and args['finishtime'] > 0:
-      msg.append(utils.timedeltatostring(args['starttime'],
+      msg.append(self.api.get('utils.timedeltatostring')(args['starttime'],
               args['finishtime'], fmin=True,
               colorn=statcolor,
               colors=infocolor))
@@ -344,7 +343,7 @@ class Plugin(AardwolfBasePlugin):
     minutes = tminutes or reportminutes
     starttime = finishtime - minutes
 
-    timestr = '%s' % utils.timedeltatostring(starttime,
+    timestr = '%s' % self.api.get('utils.timedeltatostring')(starttime,
               finishtime,
               colorn=statcolor,
               colors=infocolor,
@@ -406,7 +405,7 @@ class Plugin(AardwolfBasePlugin):
                   timestr=timestr)
 
     msg.append(infocolor + \
-                  utils.center(namestr, '-', linelen))
+                  self.api.get('utils.center')(namestr, '-', linelen))
     fstring = "{infocolor}{type:<10} | {total:>6} " \
               "{xp:>6} {qp:>5} {tp:>5} {gold:>10}"
     msg.append(fstring.format(type='Type',
@@ -438,7 +437,7 @@ class Plugin(AardwolfBasePlugin):
     """
     minutes = self.api.get('setting.gets')('reportminutes')
     if args and args['minutes']:
-      minutes = utils.verify(args['minutes'], 'timelength')
+      minutes = self.api.get('utils.verify')(args['minutes'], 'timelength')
 
     msg = self.statreport(minutes)
 
