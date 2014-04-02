@@ -35,6 +35,7 @@ class Plugin(AardwolfBasePlugin):
     self.showid = {}
     self.itemcache = {}
     self.pastkeywords = False
+    self.dividercount = 0
 
     self.currentitem = {}
 
@@ -69,13 +70,17 @@ class Plugin(AardwolfBasePlugin):
       enabled=True, group='invdetails')
 
     self.api.get('triggers.add')('identifyon',
-      "\+-----------------------------------------------------------------\+",
-      enabled=False, group='identify')
+      "\+-*\+",
+      enabled=False, group='identify', omit=True)
+
+    self.api.get('triggers.add')('identify1',
+      '^\|\s*(?P<data>.*)\s*\|$', group='identifydata',
+      enabled=False, omit=True)
 
     self.api.get('events.register')('trigger_invdetailsstart', self.invdetailsstart)
     self.api.get('events.register')('trigger_invdetailsend', self.invdetailsend)
     self.api.get('events.register')('trigger_identifyon', self.identifyon)
-
+    self.api.get('events.register')('trigger_identify1', self.identifyline)
 
   def cmd_showinternal(self, args):
     """
@@ -149,37 +154,46 @@ class Plugin(AardwolfBasePlugin):
   def identifyon(self, args):
     """
     """
-    self.pastkeywords = False
-    self.api.get('send.msg')('found {invdetails}')
-    self.api.get('triggers.togglegroup')('identify', False)
-    self.api.get('events.register')('trigger_all', self.identifyline)
+    self.dividercount = self.dividercount + 1
+    if self.dividercount == 1:
+      self.api.get('send.msg')('found identify')
+      self.api.get('triggers.togglegroup')('identifydata', True)
+      #self.api.get('events.register')('trigger_all', self.identifyline)
+      self.api.get('events.register')('trigger_emptyline', self.identifyend)
+    elif self.dividercount == 2:
+      self.pastkeywords = True
 
   def identifyline(self, args):
     """
     """
-    if not args['line'].strip():
-      self.api.get('events.unregister')('trigger_all', self.identifyline)
-      if self.waitingforid[self.currentitem['serial']]:
-        del self.waitingforid[self.currentitem['serial']]
-        self.showitem(self.currentitem['serial'])
-    elif args['line'][0] in ['|', '+']:
-      if 'Keywords' in args['line']:
-        keywords = args['line'].split(' : ')[1].replace('|', '').strip()
-        self.currentitem['keywords'] = keywords
-      elif 'Found at' in args['line']:
-        foundat = args['line'].split(' : ')[1].replace('|', '').strip()
-        self.currentitem['foundat'] = foundat
-      elif '-----' in args['line'] and 'keywords' in self.currentitem:
-        self.pastkeywords = True
-      elif self.pastkeywords:
-        tline = args['line'][2:]
-        if not (tline[0] == ' '):
-          if 'Stats' in tline or 'Resist' in tline or 'Skills' in tline:
-            pass
-          else:
-            if not ('notes' in self.currentitem):
-              self.currentitem['notes'] = []
-            self.currentitem['notes'].append(tline.replace('|', '').strip())
+    print args
+    data = args['data']
+    if 'Keywords' in data:
+      keywords = data.split(' : ')[1].strip()
+      self.currentitem['keywords'] = keywords
+    elif 'Found at' in data:
+      foundat = data.split(' : ')[1].strip()
+      self.currentitem['foundat'] = foundat
+    elif self.pastkeywords:
+      if args['line'][2] != ' ':
+        if 'Mods' in data:
+          pass
+        else:
+          if not ('notes' in self.currentitem):
+            self.currentitem['notes'] = []
+          self.currentitem['notes'].append(data.strip())
+
+  def identifyend(self, args):
+    """
+    """
+    self.api.get('events.unregister')('trigger_emptyline', self.identifyend)
+    self.api.get('triggers.togglegroup')('identify', False)
+    self.api.get('triggers.togglegroup')('identifydata', False)
+    self.pastkeywords = False
+    self.dividercount = 0
+    if self.waitingforid[self.currentitem['serial']]:
+      del self.waitingforid[self.currentitem['serial']]
+      self.showitem(self.currentitem['serial'])
 
   def cmd_id(self, args):
     """
