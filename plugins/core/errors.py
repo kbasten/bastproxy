@@ -1,5 +1,5 @@
 """
-$Id: afk.py 272 2013-12-29 18:41:16Z endavis $
+$Id$
 
 This plugin shows and clears errors seen during plugin execution
 """

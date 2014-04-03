@@ -65,16 +65,16 @@ for i in CONVERTCOLORS.keys():
   CONVERTANSI[CONVERTCOLORS[i]] = i
 
 #xterm colors
-for i in xrange(0,256):
+for i in xrange(0, 256):
   CONVERTANSI['38;5;%d' % i] = 'x%d' % i
   CONVERTANSI['39;5;%d' % i] = 'z%d' % i
 
 #backgrounds
-for i in xrange(40,48):
-  CONVERTANSI['%s' % i] = CONVERTANSI['39;5;%d'% (i - 40)]
+for i in xrange(40, 48):
+  CONVERTANSI['%s' % i] = CONVERTANSI['39;5;%d' % (i - 40)]
 
 #foregrounds
-for i in xrange(30,38):
+for i in xrange(30, 38):
   CONVERTANSI['%s' % i] = CONVERTANSI['0;%d' % i]
 
 def genrepl(match):

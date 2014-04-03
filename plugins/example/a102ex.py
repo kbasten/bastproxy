@@ -31,7 +31,7 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     self.api.get('events.register')('A102', self.test)
-    self.api.get('events.register')('A102:101',self.test101)
+    self.api.get('events.register')('A102:101', self.test101)
 
   def test(self, args):
     """

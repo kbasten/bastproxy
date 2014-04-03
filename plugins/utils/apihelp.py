@@ -174,7 +174,7 @@ class Plugin(BasePlugin):
       tkeys2 = apilist[i].keys()
       tkeys2.sort()
       for k in tkeys2:
-        apif = self.api.get('%s.%s' % (i,k))
+        apif = self.api.get('%s.%s' % (i, k))
         comments = inspect.getcomments(apif)
         if comments:
           comments = comments.strip()

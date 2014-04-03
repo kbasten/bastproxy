@@ -237,7 +237,7 @@ class Plugin(BasePlugin):
     tparser.add_argument("-h", "--help", help="show help",
                   action="store_true")
 
-    tparser.prog='@B#bp.%s.%s@w' % (sname, cmdname)
+    tparser.prog = '@B#bp.%s.%s@w' % (sname, cmdname)
 
     if not ('group' in args):
       args['group'] = 'Default'
