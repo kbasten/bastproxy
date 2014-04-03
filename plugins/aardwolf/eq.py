@@ -212,7 +212,7 @@ class Plugin(AardwolfBasePlugin):
         container = self.itemcache[serial]['origcontainer']
     try:
       container = int(container)
-    except ValueError:
+    except ValueError, TypeError:
       pass
 
     self.api_putininventory(serial)
