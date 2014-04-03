@@ -318,7 +318,7 @@ class Plugin(AardwolfBasePlugin):
     spell = self.api.get('skills.gets')(sn)
 
     if not spell:
-      msg.append('%-20s: does not exist' % tspell)
+      msg.append('%-20s: does not exist' % sn)
       return msg
 
     if not override and not self.api.get('skills.isspellup')(spell['sn']):
