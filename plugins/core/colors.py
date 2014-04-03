@@ -119,6 +119,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('ansicode', self.api_ansicode)
     self.api.get('api.add')('stripansi', self.api_stripansi)
     self.api.get('api.add')('stripcolor', self.api_stripcolor)
+    self.api.get('api.add')('lengthdiff', self.api_getlengthdiff)
 
   def load(self):
     """
@@ -134,6 +135,14 @@ class Plugin(BasePlugin):
                  description='show color examples')
     self.api.get('commands.add')('example', self.cmd_example,
                                     parser=parser)
+
+  def api_getlengthdiff(self, colorstring):
+    """
+    get the length difference of a colored string and its noncolor equivalent
+    """
+    lennocolor = len(self.api.get('colors.stripcolor')(colorstring))
+    lencolor = len(colorstring)
+    return lencolor - lennocolor
 
   def api_iscolor(self, color):
     """
