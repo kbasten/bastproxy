@@ -32,8 +32,7 @@ class TimerEvent(Event):
     time should be military time, "1430"
 
     """
-    Event.__init__(self, name, plugin)
-    self.func = func
+    Event.__init__(self, name, plugin, func)
     self.seconds = seconds
 
     self.onetime = False
@@ -219,6 +218,7 @@ class Plugin(BasePlugin):
       @Ytime@w      = The time to start this timer, e.g. 1300 for 1PM
 
     returns an Event instance"""
+    plugin = None
     try:
       plugin = func.im_self
     except AttributeError:
@@ -228,6 +228,9 @@ class Plugin(BasePlugin):
       plugin = self.api.get('plugins.getp')(kwargs['plugin'])
 
     args = {}
+    if not plugin:
+      self.api.get('send.msg')('timer %s has no plugin, not adding' % name)
+      return
     if seconds <= 0:
       self.api.get('send.msg')('timer %s has seconds <= 0, not adding' % name,
                                     secondary=plugin)

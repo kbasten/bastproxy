@@ -7,13 +7,14 @@ class Event(object):
   """
   a basic event class
   """
-  def __init__(self, name, plugin):
+  def __init__(self, name, plugin, func):
     """
     init the class
     """
     self.name = name
     self.plugin = plugin
     self.timesfired = 0
+    self.func = func
 
   def execute(self):
     """
