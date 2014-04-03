@@ -210,7 +210,10 @@ class Plugin(AardwolfBasePlugin):
         pass
 
       if layoutname == 'invheader' and v == 'type':
-        value = value.lower()
+        try:
+          value = value.lower()
+        except AttributeError:
+          pass
 
       titem[v] = value
 
