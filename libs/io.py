@@ -83,7 +83,10 @@ def api_client(text, raw=False, preamble=True):
     for i in text:
       if preamble:
         i = '@C#BP@w: ' + i
-      test.append(api.get('colors.convertcolors')(i))
+      if api.get('api.has')('colors.convertcolors'):
+        test.append(api.get('colors.convertcolors')(i))
+      else:
+        test.append(i)
     text = test
 
   try:
