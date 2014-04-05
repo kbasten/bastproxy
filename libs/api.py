@@ -126,16 +126,15 @@ class API(object):
 
     return list(set(apilist))
 
-  def api_has(self, api):
+  def api_has(self, apiname):
     """
     see if something exists in the api
     """
     try:
-      self.api.get(api)
+      self.get(apiname)
       return True
     except AttributeError:
       return False
-
 
 if __name__ == '__main__':
   def testapi():
@@ -154,10 +153,12 @@ if __name__ == '__main__':
   print 'dict api.overloadedapi', api.overloadedapi
   print 'over.api', api.get('over.api')()
   api.overload('test', 'over', testover)
-  print 'dict api.api', api.api
-  print 'dict api.overloadapi', api.overloadedapi
   print 'test.over', api.get('test.over')()
   print 'test.api', api.get('test.api')()
+  print 'api.has', api.get('api.has')('test.over')
+  print 'api.has', api.get('api.has')('test.over2')
+  print 'dict api.api', api.api
+  print 'dict api.overloadapi', api.overloadedapi
   #print 'test.three', api.test.three()
 
   api2 = API()
@@ -172,5 +173,7 @@ if __name__ == '__main__':
   print 'api2 dict api.overloadapi', api2.overloadedapi
   print 'api2 test.over', api2.get('test.over')()
   print 'api2 test.api', api2.get('test.api')()
+  print 'api_has', api2.api_has('test.three')
   print 'test.three', api2.get('test.three')()
+
 
