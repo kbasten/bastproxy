@@ -44,6 +44,10 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('dependency.add')('aardu')
 
+    self.api.get('api.add')('identify', self.api_identify)
+    self.api.get('api.add')('format', self.api_formatitem)
+    self.api.get('api.add')('show', self.api_showitem)
+
   def load(self):
     """
     load the plugins
@@ -235,9 +239,33 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.togglegroup')('identifydata', False)
     self.pastkeywords = False
     self.dividercount = 0
-    if self.waitingforid[self.currentitem['serial']]:
+    if self.currentitem['serial'] in self.waitingforid:
       del self.waitingforid[self.currentitem['serial']]
-      self.showitem(self.currentitem['serial'])
+    self.api.get('events.eraise')('itemid_%s' % self.currentitem['serial'],
+                            self.currentitem)
+
+  def api_identify(self, serial):
+    """
+    """
+    titem = self.api.get('eq.getitem')(serial)
+    if titem['serial'] in self.itemcache:
+      return self.itemcache[titem['serial']]
+    else:
+      self.waitingforid[serial] = True
+      if titem['curcontainer'] != 'Inventory':
+        self.api.get('eq.get')(serial)
+      self.sendcmd('invdetails %s' % serial)
+      self.api.get('triggers.togglegroup')('invdetails', False)
+      self.api.get('triggers.togglegroup')('identify', True)
+      self.sendcmd('identify %s' % serial)
+      if titem['curcontainer'] != 'Inventory':
+        self.api.get('eq.put')(serial)
+
+  def event_showitem(self, args):
+    """
+    """
+    self.api.get('events.unregister')(args['eventname'], self.event_showitem)
+    self.api.get('itemid.show')(args['serial'])
 
   def cmd_id(self, args):
     """
@@ -253,18 +281,12 @@ class Plugin(AardwolfBasePlugin):
         else:
           serial = titem['serial']
           if titem['serial'] in self.itemcache:
-            self.showitem(serial)
+            self.api.get('itemid.showitem')(serial)
           else:
             msg.append('We have item %s' % args['serial'])
-            self.waitingforid[serial] = True
-            if titem['curcontainer'] != 'Inventory':
-              self.api.get('eq.get')(serial)
-            self.sendcmd('invdetails %s' % serial)
-            self.api.get('triggers.togglegroup')('invdetails', False)
-            self.api.get('triggers.togglegroup')('identify', True)
-            self.sendcmd('identify %s' % serial)
-            if titem['curcontainer'] != 'Inventory':
-              self.api.get('eq.put')(serial)
+            self.api.get('events.register')('itemid_%s' % serial,
+                                            self.event_showitem)
+            self.api.get('itemid.identify')(serial)
       except ValueError:
         msg.append('%s is not a serial number' % args['serial'])
     else:
@@ -445,7 +467,7 @@ class Plugin(AardwolfBasePlugin):
 
     return ttext
 
-  def formatitem(self, serial):
+  def api_formatitem(self, serial):
     """
     """
     divider = '+' + '-' * 65 + '+'
@@ -639,8 +661,8 @@ class Plugin(AardwolfBasePlugin):
 
     return iteml
 
-  def showitem(self, serial):
-    tstuff = self.formatitem(serial)
+  def api_showitem(self, serial):
+    tstuff = self.api.get('itemid.format')(serial)
 
     self.api.get('send.client')('\n'.join(tstuff), preamble=False)
 
