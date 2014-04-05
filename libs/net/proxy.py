@@ -48,8 +48,14 @@ class Proxy(Telnet):
       self.lastmsg = ndatal[-1]
       for i in ndatal[:-1]:
         tosend = i
-        tnoansi = self.api.get('colors.stripansi')(tosend)
-        tconvertansi = self.api.get('colors.convertansi')(tosend)
+        if self.api.get('api.has')('colors.stripansi'):
+          tnoansi = self.api.get('colors.stripansi')(tosend)
+        else:
+          tnoansi = tosend
+        if self.api.get('api.has')('colors.convertansi'):
+          tconvertansi = self.api.get('colors.convertansi')(tosend)
+        else:
+          tconvertansi = tosend
         if tosend != tconvertansi:
           self.api.get('send.msg')('converted %s to %s' % (repr(tosend), tconvertansi), 'ansi')
         newdata = self.api.get('events.eraise')('from_mud_event',
@@ -59,6 +65,9 @@ class Proxy(Telnet):
 
         if 'original' in newdata:
           tosend = newdata['original']
+
+        #if 'omit' in newdata and newdata['omit']:
+          #return
 
         if tosend != None:
           #data cannot be transformed here
