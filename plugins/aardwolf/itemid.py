@@ -103,10 +103,16 @@ class Plugin(AardwolfBasePlugin):
     return True, msg
 
   def sendcmd(self, cmd):
+    """
+    send a command
+    """
     self.api.get('send.msg')('sending cmd: %s' % cmd)
     self.api.get('send.execute')(cmd)
 
   def addmod(self, ltype, mod):
+    """
+    add a mod to an item (stat, skills, resist, etc)
+    """
     if not (ltype in self.currentitem):
       self.currentitem[ltype] = {}
 
@@ -114,7 +120,7 @@ class Plugin(AardwolfBasePlugin):
 
   def invdetailsstart(self, args):
     """
-    show that the trigger fired
+    start gathering the invdetails data
     """
     self.currentitem = {}
     self.api.get('send.msg')('found {invdetails}')
@@ -149,7 +155,7 @@ class Plugin(AardwolfBasePlugin):
 
   def invdetailsend(self, args):
     """
-    reset current when seeing a spellheaders ending
+    reset current when seeing an {/invdetails}
     """
     titem = self.api.get('eq.getitem')(self.currentitem['serial'])
     if titem:
@@ -162,6 +168,7 @@ class Plugin(AardwolfBasePlugin):
 
   def identifyon(self, args):
     """
+    start gathering the identify data
     """
     self.dividercount = self.dividercount + 1
     if self.dividercount == 1:
@@ -176,8 +183,10 @@ class Plugin(AardwolfBasePlugin):
 
   def identifyline(self, args):
     """
+    parse an identify line, we only want a couple of things that don't
+    appear in invdetails: Keywords, Found, Material, Leads, Affect Mods and
+    any item notes
     """
-    print args
     data = args['data']
     if 'Keywords' in data:
       item = data.split(' : ')[1]
@@ -233,6 +242,9 @@ class Plugin(AardwolfBasePlugin):
 
   def identifyend(self, args):
     """
+    stop gathering identify data
+
+    this raise an itemid_<serial> event
     """
     self.api.get('events.unregister')('trigger_emptyline', self.identifyend)
     self.api.get('triggers.togglegroup')('identify', False)
@@ -244,9 +256,13 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.eraise')('itemid_%s' % self.currentitem['serial'],
                             self.currentitem)
 
+  # identify an item
   def api_identify(self, serial):
-    """
-    """
+    """  remove a command
+    @Yserial@w    = the serial # if the item to identify
+
+    this function returns None if the identify data has to gathered,
+    or the item if is in the cache"""
     titem = self.api.get('eq.getitem')(serial)
     if titem['serial'] in self.itemcache:
       return self.itemcache[titem['serial']]
@@ -260,9 +276,12 @@ class Plugin(AardwolfBasePlugin):
       self.sendcmd('identify %s' % serial)
       if titem['curcontainer'] != 'Inventory':
         self.api.get('eq.put')(serial)
+      return None
 
   def event_showitem(self, args):
     """
+    this function is for showing an item when using the id command,
+    it registers with itemid_<serial>
     """
     self.api.get('events.unregister')(args['eventname'], self.event_showitem)
     self.api.get('itemid.show')(args['serial'])
@@ -273,7 +292,7 @@ class Plugin(AardwolfBasePlugin):
     """
     msg = []
     if args['serial']:
-      try:
+      #try:
         serial = int(args['serial'])
         titem = self.api.get('eq.getitem')(serial)
         if not titem:
@@ -281,20 +300,24 @@ class Plugin(AardwolfBasePlugin):
         else:
           serial = titem['serial']
           if titem['serial'] in self.itemcache:
-            self.api.get('itemid.showitem')(serial)
+            self.api.get('itemid.show')(serial)
           else:
             msg.append('We have item %s' % args['serial'])
             self.api.get('events.register')('itemid_%s' % serial,
                                             self.event_showitem)
             self.api.get('itemid.identify')(serial)
-      except ValueError:
-        msg.append('%s is not a serial number' % args['serial'])
+      #except ValueError:
+        #msg.append('%s is not a serial number' % args['serial'])
     else:
       msg.append('Please supply a serial #')
 
     return True, msg
 
   def formatsingleline(self, linename, linecolour, data, datacolor=None):
+    """
+    format a single data line
+     | Keywords   : aylorian dagger thin blade dirk                    |
+    """
     if not datacolor:
       datacolor = '@W'
 
@@ -309,6 +332,10 @@ class Plugin(AardwolfBasePlugin):
     return ttext
 
   def formatdoubleline(self, linename, linecolour, data, linename2, data2):
+    """
+    format a double data line
+     | Worth      : 20                       Weight : 4                |
+    """
     if not linecolour:
       linecolour = '@W'
 
@@ -325,6 +352,10 @@ class Plugin(AardwolfBasePlugin):
                           linecolour, linename2, data2)
 
   def formatspecialline(self, linename, linecolour, data, linename2='', data2=''):
+    """
+    format a special text line
+     | Skill Mods : Modifies Dagger by +2                              |
+    """
     if not linecolour:
       linecolour = '@W'
 
@@ -349,11 +380,19 @@ class Plugin(AardwolfBasePlugin):
     return ttext
 
   def formatstatsheader(self):
+    """
+    format the stats header
+     |     DR   HR    Str Int Wis Dex Con Luc   Sav   HP   MN   MV     |
+    """
     return '|     @w%-4s %-4s  %-3s %-3s %-3s %-3s %-3s %-3s   %-3s   %-4s %-4s %-4s   |' % (
                             'DR', 'HR', 'Str', 'Int', 'Wis',
                             'Dex', 'Con', 'Luc', 'Sav', 'HP', 'MN', 'MV')
 
   def formatstats(self, stats):
+    """
+    format all stats
+     |     -    2     -   -   -   -   -   -     -     -    -    -      |
+    """
     colors = {}
     for i in stats:
       if int(stats[i]) > 0:
@@ -369,34 +408,47 @@ class Plugin(AardwolfBasePlugin):
       if i in stats:
         if int(stats[i]) > 0:
           colors[i] = '@G'
-        else:
+        elif int(stats[i]) < 0:
           colors[i] = '@R'
+        else:
+          colors[i] = '@w'
 
       else:
-        stats[i] = '-'
+        stats[i] = 0
         colors[i] = '@w'
 
     return '|     %s%-4s@w %s%-4s@w  %s%-3s@w %s%-3s@w %s%-3s@w %s%-3s@w %s%-3s@w %s%-3s@w   %s%-3s@w   %s%-4s@w %s%-4s@w %s%-4s@w   |' % (
-                colors['Damage roll'], stats['Damage roll'],
-                colors['Hit roll'], stats['Hit roll'],
-                colors['Strength'], stats['Strength'],
-                colors['Intelligence'], stats['Intelligence'],
-                colors['Wisdom'], stats['Wisdom'],
-                colors['Dexterity'], stats['Dexterity'],
-                colors['Constitution'], stats['Constitution'],
-                colors['Luck'], stats['Luck'],
-                colors['Saves'], stats['Saves'],
-                colors['Hit points'], stats['Hit points'],
-                colors['Mana'], stats['Mana'],
-                colors['Moves'], stats['Moves'])
+                colors['Damage roll'], stats['Damage roll'] or '-',
+                colors['Hit roll'], stats['Hit roll'] or '-',
+                colors['Strength'], stats['Strength'] or '-',
+                colors['Intelligence'], stats['Intelligence'] or '-',
+                colors['Wisdom'], stats['Wisdom'] or '-',
+                colors['Dexterity'], stats['Dexterity'] or '-',
+                colors['Constitution'], stats['Constitution'] or '-',
+                colors['Luck'], stats['Luck'] or '-',
+                colors['Saves'], stats['Saves'] or '-',
+                colors['Hit points'], stats['Hit points'] or '-',
+                colors['Mana'], stats['Mana'] or '-',
+                colors['Moves'], stats['Moves'] or '-')
 
   def formatresist(self, resists, divider):
+    """
+    format resists
+
+      |     Bash  Pierce  Slash    All Phys  All Mag   Diss  Poisn      |
+      |      -      -       -         13       -        -     -         |
+      +-----------------------------------------------------------------+
+      |     Acid   Air   Cold  Earth   Eltrc   Enrgy   Fire    Holy     |
+      |     100    100   100   100     100     100     100     100      |
+      |     Light  Magic Mntl  Ngtv    Shdw    Sonic   Water            |
+      |     100    100   100   100     100     100     100              |
+    """
     colors = {}
     ttext = []
     foundfirst = False
     foundsecond = False
 
-    firstline = ['Bash', 'Pierce', 'Slash', 'All Physical', 'All magic', 'Disease',
+    firstline = ['Bash', 'Pierce', 'Slash', 'All physical', 'All magic', 'Disease',
               'Poison']
 
     secondline = ['Acid', 'Air', 'Cold', 'Earth', 'Electric', 'Energy',
@@ -414,10 +466,12 @@ class Plugin(AardwolfBasePlugin):
 
         if int(resists[i]) > 0:
           colors[i] = '@G'
-        else:
+        elif int(resists[i]) < 0:
           colors[i] = '@R'
+        else:
+          colors[i] = '@w'
       else:
-          resists[i] = '-'
+          resists[i] = 0
           colors[i] = '@w'
 
     if foundfirst:
@@ -425,13 +479,13 @@ class Plugin(AardwolfBasePlugin):
                               '', 'Bash', 'Pierce', 'Slash', 'All Phys', 'All Mag', 'Diss', 'Poisn', ''))
       ttext.append('|%6s%s%-5s  %s%-7s %s%-7s   %s%-8s %s%-8s %s%-5s %s%-5s @w%4s|' % (
                               '',
-                              colors['Bash'], resists['Bash'],
-                              colors['Pierce'], resists['Pierce'],
-                              colors['Slash'], resists['Slash'],
-                              colors['All physical'], resists['All physical'],
-                              colors['All magic'], resists['All magic'],
-                              colors['Disease'], resists['Disease'],
-                              colors['Poison'], resists['Poison'],
+                              colors['Bash'], resists['Bash'] or '-',
+                              colors['Pierce'], resists['Pierce'] or '-',
+                              colors['Slash'], resists['Slash'] or '-',
+                              colors['All physical'], resists['All physical'] or '-',
+                              colors['All magic'], resists['All magic'] or '-',
+                              colors['Disease'], resists['Disease'] or '-',
+                              colors['Poison'], resists['Poison'] or '-',
                               ''))
 
     if foundsecond:
@@ -441,14 +495,14 @@ class Plugin(AardwolfBasePlugin):
 
       ttext.append('|%5s%s%-5s  %s%-5s %s%-5s %s%-5s   %s%-5s   %s%-5s   %s%-5s   %s%-5s@w %3s|' % (
                             '',
-                            colors['Acid'], resists['Acid'],
-                            colors['Air'], resists['Air'],
-                            colors['Cold'], resists['Cold'],
-                            colors['Earth'], resists['Earth'],
-                            colors['Electric'], resists['Electric'],
-                            colors['Energy'], resists['Energy'],
-                            colors['Fire'], resists['Fire'],
-                            colors['Holy'], resists['Holy'],
+                            colors['Acid'], resists['Acid'] or '-',
+                            colors['Air'], resists['Air'] or '-',
+                            colors['Cold'], resists['Cold'] or '-',
+                            colors['Earth'], resists['Earth'] or '-',
+                            colors['Electric'], resists['Electric'] or '-',
+                            colors['Energy'], resists['Energy'] or '-',
+                            colors['Fire'], resists['Fire'] or '-',
+                            colors['Holy'], resists['Holy'] or '-',
                             ''))
 
       ttext.append('|%4s %-5s  %-5s %-5s %-5s   %-5s   %-5s   %-5s @w %10s|' % (
@@ -456,20 +510,23 @@ class Plugin(AardwolfBasePlugin):
 
       ttext.append('|%4s %s%-5s  %s%-5s %s%-5s %s%-5s   %s%-5s   %s%-5s   %s%-5s@w %11s|' % (
                             '',
-                            colors['Light'], resists['Light'],
-                            colors['Magic'], resists['Magic'],
-                            colors['Mental'], resists['Mental'],
-                            colors['Negative'], resists['Negative'],
-                            colors['Shadow'], resists['Shadow'],
-                            colors['Sonic'], resists['Sonic'],
-                            colors['Water'], resists['Water'],
+                            colors['Light'], resists['Light'] or '-',
+                            colors['Magic'], resists['Magic'] or '-',
+                            colors['Mental'], resists['Mental'] or '-',
+                            colors['Negative'], resists['Negative'] or '-',
+                            colors['Shadow'], resists['Shadow'] or '-',
+                            colors['Sonic'], resists['Sonic'] or '-',
+                            colors['Water'], resists['Water'] or '-',
                             ''))
 
     return ttext
 
+  # format an item
   def api_formatitem(self, serial):
-    """
-    """
+    """  format an item
+    @Yserial@w    = the serial # if the item to identify
+
+    this function returns a list of strings that are the formatted item"""
     divider = '+' + '-' * 65 + '+'
     linelen = 50
 
@@ -477,7 +534,7 @@ class Plugin(AardwolfBasePlugin):
     nitem = self.api.get('eq.getitem')(serial)
     if nitem:
       self.itemcache[serial].update(nitem)
-    self.api.get('send.client')('%s' % self.itemcache[serial])
+    #self.api.get('send.client')('%s' % self.itemcache[serial])
 
     iteml = [divider]
     item = self.itemcache[serial]
@@ -596,9 +653,9 @@ class Plugin(AardwolfBasePlugin):
       iteml.append(self.formatstats(item['statmod']))
 
     if 'resistmod' in item and item['resistmod']:
-      item.append(divider)
+      iteml.append(divider)
       for i in self.formatresist(item['resistmod'], divider):
-        item.append(i)
+        iteml.append(i)
 
     if 'skillmod' in item and item['skillmod']:
       iteml.append(divider)
@@ -661,10 +718,18 @@ class Plugin(AardwolfBasePlugin):
 
     return iteml
 
+  # show an item to the client
   def api_showitem(self, serial):
+    """  show an item to the client
+    @Yserial@w    = the serial # of the item to show
+
+    if the serial isn't in the cache, then it is identified through the id
+    command
+
+    this function returns nothing"""
     tstuff = self.api.get('itemid.format')(serial)
 
-    self.api.get('send.client')('\n'.join(tstuff), preamble=False)
-
-
-
+    if serial in self.itemcache:
+      self.api.get('send.client')('\n'.join(tstuff), preamble=False)
+    else:
+      self.api.get('send.execute')('#bp.itemid.id %s' % serial)
