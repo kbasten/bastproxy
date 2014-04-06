@@ -69,25 +69,31 @@ class Plugin(AardwolfBasePlugin):
                                 parser=parser, format=False, preable=False)
 
     self.api.get('triggers.add')('invdetailsstart',
-      "^\{invdetails\}$",
-      enabled=True)
+      "^\{invdetails\}$", group='invdetails',
+      enabled=False, omit=True)
+
+    self.api.get('triggers.add')('invdetailsline',
+      "^\{(?!/*invdetails)(?P<header>.*)\}(?P<data>.*)$", group='invdetails',
+      enabled=False, omit=True)
 
     self.api.get('triggers.add')('invdetailsend',
       "^\{/invdetails\}$",
-      enabled=True, group='invdetails')
+      enabled=False, group='invdetails', omit=True)
 
     self.api.get('triggers.add')('identifyon',
       "\+-*\+",
       enabled=False, group='identify', omit=True)
 
     self.api.get('triggers.add')('identify1',
-      '^\|\s*(?P<data>.*)\s*\|$', group='identifydata',
+      '^\|\s*(?P<data>.*)\s*\|$', group='identify',
       enabled=False, omit=True)
 
     self.api.get('events.register')('trigger_invdetailsstart',
                                       self.invdetailsstart)
     self.api.get('events.register')('trigger_invdetailsend',
                                       self.invdetailsend)
+    self.api.get('events.register')('trigger_invdetailsline',
+                                      self.invdetailsline)
     self.api.get('events.register')('trigger_identifyon', self.identifyon)
     self.api.get('events.register')('trigger_identify1', self.identifyline)
 
@@ -107,6 +113,10 @@ class Plugin(AardwolfBasePlugin):
     send a command
     """
     self.api.get('send.msg')('sending cmd: %s' % cmd)
+    if 'invdetails' in cmd:
+      self.api.get('triggers.togglegroup')('invdetails', True)
+    elif 'identify' in cmd:
+      self.api.get('triggers.togglegroup')('identify', True)
     self.api.get('send.execute')(cmd)
 
   def addmod(self, ltype, mod):
@@ -124,34 +134,25 @@ class Plugin(AardwolfBasePlugin):
     """
     self.currentitem = {}
     self.api.get('send.msg')('found {invdetails}')
-    self.api.get('triggers.togglegroup')('invdetails', True)
-    self.api.get('events.register')('trigger_all', self.invdetailsline)
 
   def invdetailsline(self, args):
     """
     parse a line of invdetails
     """
-    line = args['line'].strip()
-    self.api.get('send.msg')('invdetails args: %s' % args)
-    if line != '{invdetails}':
-      mat = DETAILS_REC.match(line)
-      if mat:
-        matd = mat.groupdict()
-        header = matd['header']
-        data = matd['data']
-        self.api.get('send.msg')('match: %s - %s' % (header,
-                                                     data))
-        titem = self.api.get('itemu.dataparse')(matd['data'],
-                                                matd['header'])
-        if header == 'invheader':
-          self.currentitem = titem
-        elif header in ['statmod', 'resistmod', 'skillmod']:
-          self.addmod(header, titem)
-        else:
-          self.currentitem[header] = titem
-        self.api.get('send.msg')('invdetails parsed item: %s' % titem)
-      else:
-        self.api.get('send.msg')('bad invdetails line: %s' % line)
+    self.api.get('send.msg')('invdetailsline args: %s' % args)
+    header = args['header']
+    data = args['data']
+    self.api.get('send.msg')('match: %s - %s' % (header,
+                                                  data))
+    titem = self.api.get('itemu.dataparse')(data,
+                                            header)
+    if header == 'invheader':
+      self.currentitem = titem
+    elif header in ['statmod', 'resistmod', 'skillmod']:
+      self.addmod(header, titem)
+    else:
+      self.currentitem[header] = titem
+    self.api.get('send.msg')('invdetails parsed item: %s' % titem)
 
   def invdetailsend(self, args):
     """
@@ -164,7 +165,7 @@ class Plugin(AardwolfBasePlugin):
 
     #add the current item to something
     self.api.get('send.msg')('found {/invdetails}')
-    self.api.get('events.unregister')('trigger_all', self.invdetailsline)
+    self.api.get('triggers.togglegroup')('invdetails', False)
 
   def identifyon(self, args):
     """
@@ -249,7 +250,6 @@ class Plugin(AardwolfBasePlugin):
     """
     self.api.get('events.unregister')('trigger_emptyline', self.identifyend)
     self.api.get('triggers.togglegroup')('identify', False)
-    self.api.get('triggers.togglegroup')('identifydata', False)
     self.pastkeywords = False
     self.dividercount = 0
     if self.currentitem['serial'] in self.waitingforid:
@@ -272,8 +272,6 @@ class Plugin(AardwolfBasePlugin):
       if titem['curcontainer'] != 'Inventory':
         self.api.get('eq.get')(serial)
       self.sendcmd('invdetails %s' % serial)
-      self.api.get('triggers.togglegroup')('invdetails', False)
-      self.api.get('triggers.togglegroup')('identify', True)
       self.sendcmd('identify %s' % serial)
       if titem['curcontainer'] != 'Inventory':
         self.api.get('eq.put')(serial)
