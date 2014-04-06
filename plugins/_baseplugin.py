@@ -93,21 +93,27 @@ class BasePlugin(object):
     self.api.get('commands.add')('stats', self.cmd_stats,
                                  parser=parser)
 
-    proxy = self.api.get('managers.getm')('proxy')
-
-    if proxy and proxy.connected:
-      try:
-        if self.api.get('connect.firstactive'):
-          self.afterfirstactive()
-      except AttributeError:
-        self.api.get('events.register')('firstactive', self.afterfirstactive)
-    else:
-      self.api.get('events.register')('firstactive', self.afterfirstactive)
+    self.api.get('events.register')('%s_plugin_loaded' % self.sname, self.afterload)
 
     self.api.get('events.register')('shutdown', self.unload)
     self.api.get('events.register')('muddisconnect', self.disconnect)
 
     self.resetflag = False
+
+  def afterload(self, args):
+    """
+    do something after the load function is run
+    """
+    proxy = self.api.get('managers.getm')('proxy')
+
+    if proxy and proxy.connected:
+      try:
+        if self.api.get('connect.firstactive')():
+          self.afterfirstactive()
+      except AttributeError:
+        self.api.get('events.register')('firstactive', self.afterfirstactive)
+    else:
+      self.api.get('events.register')('firstactive', self.afterfirstactive)
 
   def disconnect(self, _=None):
     """
