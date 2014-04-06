@@ -301,7 +301,6 @@ class Plugin(AardwolfBasePlugin):
           if titem['serial'] in self.itemcache:
             self.api.get('itemid.show')(serial)
           else:
-            msg.append('We have item %s' % args['serial'])
             self.api.get('events.register')('itemid_%s' % serial,
                                             self.event_showitem)
             self.api.get('itemid.identify')(serial)
