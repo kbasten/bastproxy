@@ -126,7 +126,12 @@ class Plugin(AardwolfBasePlugin):
     if not (ltype in self.currentitem):
       self.currentitem[ltype] = {}
 
-    self.currentitem[ltype][mod['name']] = int(mod['value'])
+    if ltype == 'tempmod':
+      if not (mod['type'] in self.currentitem[ltype]):
+        self.currentitem[ltype][mod['type']] = []
+      self.currentitem[ltype][mod['type']].append(mod)
+    else:
+      self.currentitem[ltype][mod['name']] = int(mod['value'])
 
   def invdetailsstart(self, args):
     """
@@ -233,7 +238,8 @@ class Plugin(AardwolfBasePlugin):
           self.currentitem['affectmod'].append(i.strip())
     elif 'Mods' in data or 'Portal' in data or 'Capacity' in data or \
          'Weapon Type' in data or 'Spells' in data or \
-           'Food' in data or 'Drink' in data or 'Heal Rate' in data:
+           'Food' in data or 'Drink' in data or 'Heal Rate' in data or \
+             'Temporary Effects' in data:
       self.nonotes = True
     elif self.pastkeywords and not self.nonotes:
       if args['line'][2] != ' ':
@@ -298,7 +304,9 @@ class Plugin(AardwolfBasePlugin):
           msg.append('Could not find %s' % serial)
         else:
           serial = titem['serial']
-          if titem['serial'] in self.itemcache:
+          if serial in self.itemcache and 'container' in self.itemcache[serial]:
+            del self.itemcache[serial]
+          if serial in self.itemcache:
             self.api.get('itemid.show')(serial)
           else:
             self.api.get('events.register')('itemid_%s' % serial,
@@ -551,6 +559,9 @@ class Plugin(AardwolfBasePlugin):
 
     iteml.append(self.formatsingleline('Id', '@R', item['serial']))
 
+    if 'curcontainer' in item:
+      iteml.append(self.formatsingleline('Location', '@R', item['curcontainer']))
+
     if 'type' in item and item['type'] and 'level' in item:
       objtypes = self.api.get('itemu.objecttypes')()
       ntype = objtypes[item['type']].capitalize()
@@ -609,7 +620,7 @@ class Plugin(AardwolfBasePlugin):
       tlist = textwrap.wrap(', '.join(item['affectmod']), linelen)
       header = 'Affects'
       for i in tlist:
-        iteml.append(self.formatsingleline(header, '@W', i, '@w'))
+        iteml.append(self.formatsingleline(header, '@g', i, '@w'))
         header = ''
 
     if 'container' in item and item['container']:
