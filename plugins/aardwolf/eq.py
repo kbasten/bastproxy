@@ -17,16 +17,6 @@ VERSION = 1
 
 AUTOLOAD = False
 
-flags = ['K', 'G', 'H', 'I', 'M']
-
-flagaardcolours = {
- 'K':'R',
- 'M':'B',
- 'G':'W',
- 'H':'C',
- 'I':'w',
-}
-
 optionallocs = [8, 9, 10, 11, 25, 28, 29, 30, 31, 32]
 
 class Plugin(AardwolfBasePlugin):
@@ -569,8 +559,9 @@ class Plugin(AardwolfBasePlugin):
     if not args['noflags']:
       header.append('(')
       count = 0
-      for flag in flags:
-        colour = flagaardcolours[flag]
+      flagaardcolors = self.api.get('itemu.itemflagscolors')()
+      for flag in self.api.get('itemu.itemflags')():
+        colour = flagaardcolors[flag]
         count = count + 1
         if count == 1:
           header.append(' @' + colour + flag + '@x ')
@@ -651,8 +642,9 @@ class Plugin(AardwolfBasePlugin):
             sitem.append('(')
 
             count = 0
-            for flag in flags:
-              aardcolour = flagaardcolours[flag]
+            flagaardcolors = self.api.get('itemu.itemflagscolors')()
+            for flag in self.api.get('itemu.itemflags')():
+              aardcolour = flagaardcolors[flag]
               count = count + 1
               if flag in item['shortflags']:
                 if count == 1:
@@ -721,8 +713,9 @@ class Plugin(AardwolfBasePlugin):
       sitem.append('(')
 
       count = 0
-      for flag in flags:
-        aardcolour = flagaardcolours[flag]
+      flagaardcolors = self.api.get('itemu.itemflagscolors')()
+      for flag in self.api.get('itemu.itemflags')():
+        aardcolour = flagaardcolors[flag]
         count = count + 1
         if flag in item['shortflags']:
           if count == 1:
@@ -772,8 +765,9 @@ class Plugin(AardwolfBasePlugin):
     if not args['noflags']:
       header.append('(')
       count = 0
-      for flag in flags:
-        colour = flagaardcolours[flag]
+      flagaardcolors = self.api.get('itemu.itemflagscolors')()
+      for flag in self.api.get('itemu.itemflags')():
+        colour = flagaardcolors[flag]
         count = count + 1
         if count == 1:
           header.append(' @' + colour + flag + '@x ')
