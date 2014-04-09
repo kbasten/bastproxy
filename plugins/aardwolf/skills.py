@@ -72,6 +72,8 @@ class Plugin(AardwolfBasePlugin):
     self.current = ''
     self.isuptodatef = False
 
+    self.api.get('dependency.add')('cmdq')
+
     self.api.get('api.add')('gets', self.api_getskill)
     self.api.get('api.add')('isspellup', self.api_isspellup)
     self.api.get('api.add')('getspellups', self.api_getspellups)
@@ -102,32 +104,37 @@ class Plugin(AardwolfBasePlugin):
                                  parser=parser)
 
     self.api.get('triggers.add')('spellh_noprompt',
-            "^\{spellheaders noprompt\}$")
+            "^\{spellheaders noprompt\}$",
+            group='slist', enabled=False, omit=True)
     self.api.get('triggers.add')('spellh_spellup_noprompt',
-            "^\{spellheaders spellup noprompt\}$")
+            "^\{spellheaders spellup noprompt\}$",
+            group='slist', enabled=False, omit=True)
     self.api.get('triggers.add')('spellh_affected_noprompt',
-            "^\{spellheaders affected noprompt\}$")
+            "^\{spellheaders affected noprompt\}$",
+            group='slist', enabled=False, omit=True)
     self.api.get('triggers.add')('spellh_spellline',
             "^(?P<sn>\d+),(?P<name>.+),(?P<target>\d+)," \
               "(?P<duration>\d+),(?P<pct>\d+),(?P<rcvy>-?\d+),(?P<type>\d+)$",
-            enabled=False, group='spellhead')
+            group='spellhead', enabled=False, omit=True)
     self.api.get('triggers.add')('spellh_end_noprompt',
             "^\{/spellheaders\}$",
-            enabled=False, group='spellhead')
+            group='spellhead', enabled=False, omit=True)
     self.api.get('triggers.add')('affoff',
             "^\{affoff\}(?P<sn>\d+)$")
     self.api.get('triggers.add')('affon',
             "^\{affon\}(?P<sn>\d+),(?P<duration>\d+)$")
     self.api.get('triggers.add')('recov_noprompt',
-            "^\{recoveries noprompt\}$")
+            "^\{recoveries noprompt\}$",
+            group='slist', enabled=False, omit=True)
     self.api.get('triggers.add')('recov_affected_noprompt',
-            "^\{recoveries affected noprompt\}$")
+            "^\{recoveries affected noprompt\}$",
+            group='slist', enabled=False, omit=True)
     self.api.get('triggers.add')('spellh_recovline',
             "^(?P<sn>\d+),(?P<name>.+),(?P<duration>\d+)$",
-            enabled=False, group='recoveries')
+            group='recoveries', enabled=False, omit=True)
     self.api.get('triggers.add')('recov_end_noprompt',
             "^\{/recoveries\}$",
-            enabled=False, group='recoveries')
+            group='recoveries', enabled=False, omit=True)
     self.api.get('triggers.add')('recoff',
             "^\{recoff\}(?P<sn>\d+)$")
     self.api.get('triggers.add')('recon',
@@ -157,7 +164,26 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('events.register')('GMCP:char.status', self.checkskills)
 
+    CmdQueue = self.api.get('cmdq.baseclass')()
+
+    self.cmdqueue = CmdQueue(self)
+    self.cmdqueue.addcmdtype('slist', 'slist', "^slist\s*(.*)$",
+                       self.slistbefore, self.slistafter)
+
     self.checkskills()
+
+  def slistbefore(self):
+    """
+    stuff to do before doing slist command
+    """
+    self.api.get('triggers.togglegroup')('slist', True)
+
+  def slistafter(self):
+    """
+    stuff to do after doing slist command
+    """
+    self.savestate()
+    self.api.get('triggers.togglegroup')('slist', False)
 
   def afterfirstactive(self, _=None):
     """
@@ -209,8 +235,8 @@ class Plugin(AardwolfBasePlugin):
     """
     self.skills.clear()
     self.recoveries.clear()
-    self.api.get('send.execute')('slist noprompt')
-    self.api.get('send.execute')('slist spellup noprompt')
+    self.cmdqueue.addtoqueue('slist', 'noprompt')
+    self.cmdqueue.addtoqueue('slist', 'spellup noprompt')
     msg = ['Refreshing spells and skills']
     return True, msg
 
@@ -229,7 +255,7 @@ class Plugin(AardwolfBasePlugin):
         self.cmd_refresh({})
       else:
         self.resetskills()
-        self.api.get('send.execute')('slist affected noprompt')
+        self.cmdqueue.addtoqueue('slist', 'affected noprompt')
 
   def resetskills(self):
     """
@@ -326,7 +352,7 @@ class Plugin(AardwolfBasePlugin):
       self.isuptodatef = True
       self.api.get('send.msg')('sending skills_affected_update')
       self.api.get('events.eraise')('skills_affected_update', {})
-    self.savestate()
+    self.cmdqueue.cmddone('slist')
 
   def recoff(self, args):
     """
