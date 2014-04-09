@@ -46,7 +46,10 @@ class Plugin(AardwolfBasePlugin):
 
     self.queue = []
 
+    self.cmdqueue = None
+
     self.api.get('dependency.add')('aardwolf.itemu')
+    self.api.get('dependency.add')('cmdq')
 
     self.api.get('api.add')('getitem', self.api_getitem)
     self.api.get('api.add')('get', self.api_putininventory)
@@ -171,6 +174,48 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_invdataend', self.invdataend)
     self.api.get('events.register')('trigger_invmon', self.invmon)
 
+    CmdQueue = self.api.get('cmdq.baseclass')()
+
+    self.cmdqueue = CmdQueue(self)
+    self.cmdqueue.addcmdtype('invdata', 'invdata', "^invdata\s*(\d*)$",
+                       self.invdatabefore, self.invdataafter)
+    self.cmdqueue.addcmdtype('eqdata', 'eqdata', "^eqdata$",
+                       self.eqdatabefore, self.eqdataafter)
+    self.cmdqueue.addcmdtype('get', 'get', "^get\s*(.*)$")
+    self.cmdqueue.addcmdtype('put', 'put', "^get\s*(.*)$")
+
+  def invdatabefore(self):
+    """
+    """
+    self.api.get('send.msg')('enabling invdata triggers')
+    self.api.get('triggers.togglegroup')('invdata', True)
+    self.api.get('triggers.togglegroup')('dataline', True)
+    self.api.get('events.register')('trigger_dataline', self.invdataline)
+
+  def invdataafter(self):
+    """
+    """
+    self.api.get('send.msg')('disabling invdata triggers')
+    self.api.get('triggers.togglegroup')('invdata', False)
+    self.api.get('triggers.togglegroup')('dataline', False)
+    self.api.get('events.unregister')('trigger_dataline', self.invdataline)
+
+  def eqdatabefore(self):
+    """
+    """
+    self.api.get('send.msg')('enabling eqdata triggers')
+    self.api.get('triggers.togglegroup')('eqdata', True)
+    self.api.get('triggers.togglegroup')('dataline', True)
+    self.api.get('events.register')('trigger_dataline', self.eqdataline)
+
+  def eqdataafter(self):
+    """
+    """
+    self.api.get('send.msg')('disabling eqdata triggers')
+    self.api.get('triggers.togglegroup')('eqdata', False)
+    self.api.get('triggers.togglegroup')('dataline', False)
+    self.api.get('events.unregister')('trigger_dataline', self.eqdataline)
+
   def disconnect(self, args):
     """
     """
@@ -179,9 +224,8 @@ class Plugin(AardwolfBasePlugin):
     self.eqdata = {}
     self.invdata = {}
     self.currentcontainer = None
-    self.currentcmd = ''
 
-    self.queue = []
+    self.cmdqueue.resetqueue()
 
   def cmd_refresh(self, args):
     """
@@ -191,9 +235,9 @@ class Plugin(AardwolfBasePlugin):
     self.eqdata = {}
     self.invdata = {}
     self.currentcontainer = None
-    self.currentcmd = ''
 
-    self.queue = []
+    self.cmdqueue.resetqueue()
+
     self.getdata('Worn')
     self.getdata('Inventory')
 
@@ -222,7 +266,7 @@ class Plugin(AardwolfBasePlugin):
         self.queue.append('remove %s' % serial)
       elif container != 'Inventory':
         self.itemcache[serial]['origcontainer'] = container
-        self.addtoqueue('get %s %s' % (serial, container))
+        self.api.get('send.execute')('get %s %s' % (serial, container))
       else:
         container = ''
       return True, container
@@ -245,7 +289,7 @@ class Plugin(AardwolfBasePlugin):
     self.api_putininventory(serial)
 
     if serial in self.itemcache and container in self.itemcache:
-      self.addtoqueue('put %s %s' % (serial, container))
+      self.api.get('send.execute')('put %s %s' % (serial, container))
       return True, container
 
     return False, ''
@@ -276,37 +320,11 @@ class Plugin(AardwolfBasePlugin):
     get container or worn data
     """
     if etype == 'Inventory':
-      self.addtoqueue('invdata')
+      self.cmdqueue.addtoqueue('invdata', '')
     elif etype == 'Worn':
-      self.addtoqueue('eqdata')
+      self.cmdqueue.addtoqueue('eqdata', '')
     else:
-      self.addtoqueue('invdata %s' % etype)
-    self.checkqueue()
-
-  def checkqueue(self):
-    if len(self.queue) == 0 or self.currentcmd:
-      return
-
-    cmd = self.queue.pop(0)
-    self.api.get('send.msg')('sending cmd: %s' % cmd)
-    if 'invdata' in cmd:
-      self.api.get('send.msg')('enabling invdata triggers')
-      self.api.get('triggers.togglegroup')('invdata', True)
-      self.api.get('triggers.togglegroup')('dataline', True)
-      self.api.get('events.register')('trigger_dataline', self.invdataline)
-    elif 'eqdata' in cmd:
-      self.api.get('send.msg')('enabling eqdata triggers')
-      self.api.get('triggers.togglegroup')('eqdata', True)
-      self.api.get('triggers.togglegroup')('dataline', True)
-      self.api.get('events.register')('trigger_dataline', self.eqdataline)
-
-    self.currentcmd = cmd
-    self.api.get('send.execute')(cmd)
-
-  def addtoqueue(self, cmd):
-    if not (cmd in self.queue):
-      self.api.get('send.msg')('add %s to queue' % cmd)
-      self.queue.append(cmd)
+      self.cmdqueue.addtoqueue('invdata', etype)
 
   def dead(self, _):
     """
@@ -321,8 +339,8 @@ class Plugin(AardwolfBasePlugin):
     show internal stuff
     """
     msg = []
-    msg.append('Queue     : %s' % self.queue)
-    msg.append('Cur cmd   : %s' % self.currentcmd)
+    msg.append('Queue     : %s' % self.cmdqueue.queue)
+    msg.append('Cur cmd   : %s' % self.cmdqueue.currentcmd)
     msg.append('invdata   : %s' % self.invdata)
     msg.append('eqdata    : %s' % self.eqdata)
     msg.append('itemcache : %s' % self.itemcache)
@@ -374,11 +392,11 @@ class Plugin(AardwolfBasePlugin):
 
     tlist = ['%s' % self.find_item(x) for x in args['otherargs']]
     tlist.insert(0, '%s' % self.find_item(args['item']))
-    cmd = ' '.join(tlist)
+    args = ' '.join(tlist)
 
     # need to parse all items for identifiers
-    self.api.get('send.msg')('serial is not a number, sending \'get %s\'' % cmd)
-    self.addtoqueue('get %s' % cmd)
+    self.api.get('send.msg')('serial is not a number, sending \'get %s\'' % args)
+    self.api.get('send.execute')('get %s' % args)
 
     return True, []
 
@@ -403,10 +421,10 @@ class Plugin(AardwolfBasePlugin):
       self.api_putincontainer(item, destination)
 
     else:
-      cmd = 'put %s %s' % (item,
+      args = '%s %s' % (item,
               ' '.join(['%s' % self.find_item(x) for x in args['otherargs']]))
-      self.api.get('send.msg')('sending \'put %s\'' % cmd)
-      self.addtoqueue(cmd)
+      self.api.get('send.msg')('sending \'put %s\'' % args)
+      self.api.get('send.execute')('put %s %s' % (item, args))
 
     return True, []
 
@@ -493,13 +511,7 @@ class Plugin(AardwolfBasePlugin):
     """
     reset current when seeing a spellheaders ending
     """
-    self.api.get('send.msg')('found {/eqdata}')
-    self.api.get('triggers.togglegroup')('eqdata', False)
-    self.api.get('triggers.togglegroup')('dataline', False)
-    self.api.get('events.unregister')('trigger_dataline', self.eqdataline)
-    if 'eqdata' in self.currentcmd:
-      self.currentcmd = ''
-    self.checkqueue()
+    self.cmdqueue.cmddone('eqdata')
 
   def putitemincontainer(self, container, serial, place=-1):
     """
@@ -545,7 +557,7 @@ class Plugin(AardwolfBasePlugin):
         #self.api.get('send.msg')('invdata parsed item: %s' % titem)
         self.putitemincontainer(self.currentcontainer, titem['serial'])
         if titem['type'] == 11 and not (titem['serial'] in self.invdata):
-          self.addtoqueue('invdata %s' % titem['serial'])
+          self.cmdqueue.addtoqueue('invdata', titem['serial'])
       except (IndexError, ValueError):
         self.api.get('send.msg')('incorrect invdata line: %s' % line)
 
@@ -555,12 +567,7 @@ class Plugin(AardwolfBasePlugin):
     """
     self.currentcontainer = None
     #self.api.get('send.msg')('found {/invdata}')
-    self.api.get('triggers.togglegroup')('invdata', False)
-    self.api.get('triggers.togglegroup')('dataline', False)
-    self.api.get('events.unregister')('trigger_dataline', self.invdataline)
-    if 'invdata' in self.currentcmd:
-      self.currentcmd = ''
-    self.checkqueue()
+    self.cmdqueue.cmddone('invdata')
 
   def trigger_invitem(self, args):
     #self.api.get('send.msg')('invitem args: %s' % args)
