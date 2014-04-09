@@ -22,8 +22,8 @@ class Plugin(AardwolfBasePlugin):
     initialize the instance
     """
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('dependency.add')('gq')
-    self.api.get('dependency.add')('quest')
+    self.api.get('dependency.add')('aardwolf.gq')
+    self.api.get('dependency.add')('aardwolf.quest')
 
 
   def load(self):

@@ -42,7 +42,7 @@ class Plugin(AardwolfBasePlugin):
 
     self.currentitem = {}
 
-    self.api.get('dependency.add')('aardu')
+    self.api.get('dependency.add')('aardwolf.itemu')
 
     self.api.get('api.add')('identify', self.api_identify)
     self.api.get('api.add')('format', self.api_formatitem)

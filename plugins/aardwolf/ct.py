@@ -25,7 +25,7 @@ class Plugin(AardwolfBasePlugin):
 
     self.msgs = []
 
-    self.api.get('dependency.add')('mobk')
+    self.api.get('dependency.add')('aardwolf.mobk')
 
   def load(self):
     """

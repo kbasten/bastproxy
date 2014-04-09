@@ -544,12 +544,12 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
     self.api.get('dependency.add')('sqldb')
-    self.api.get('dependency.add')('whois')
-    self.api.get('dependency.add')('level')
-    self.api.get('dependency.add')('mobk')
-    self.api.get('dependency.add')('cp')
-    self.api.get('dependency.add')('gq')
-    self.api.get('dependency.add')('quest')
+    self.api.get('dependency.add')('aardwolf.whois')
+    self.api.get('dependency.add')('aardwolf.level')
+    self.api.get('dependency.add')('aardwolf.mobk')
+    self.api.get('dependency.add')('aardwolf.cp')
+    self.api.get('dependency.add')('aardwolf.gq')
+    self.api.get('dependency.add')('aardwolf.quest')
 
     self.statdb = None
 
