@@ -151,7 +151,8 @@ class PluginMgr(object):
       if i in self.plugins or i in self.pluginl:
         continue
 
-      self.api.get('send.msg')('%s: loading dependency %s' % (pluginname, i), pluginname)
+      self.api.get('send.msg')('%s: loading dependency %s' % (pluginname, i),
+                               pluginname)
 
       name, path = self.findplugin(i)
       if name:
@@ -203,20 +204,24 @@ class PluginMgr(object):
           desc = getattr(mod, args['package']).DESCRIPTION
         except AttributeError:
           desc = ''
-        msg.append('@GPackage: %s%s@w' % (args['package'], ' - ' + desc if desc else ''))
+        msg.append('@GPackage: %s%s@w' % (
+                          args['package'], ' - ' + desc if desc else ''))
         msg.append('@G' + '-' * 75 + '@w')
         msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
-                            ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
+                            ('Short Name', 'Name',
+                             'Author', 'Vers', 'Purpose'))
         msg.append('-' * 75)
 
         for tpl in plugins:
           msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
-                    (tpl.sname, tpl.name, tpl.author, tpl.version, tpl.purpose))
+                    (tpl.sname, tpl.name,
+                     tpl.author, tpl.version, tpl.purpose))
       else:
         msg.append('That is not a valid package')
 
     else:
-      plugins = sorted(self.plugins.values(), key=operator.attrgetter('package'))
+      plugins = sorted(self.plugins.values(),
+                          key=operator.attrgetter('package'))
       packageheader = []
       msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
                           ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
@@ -232,10 +237,12 @@ class PluginMgr(object):
             desc = getattr(mod, tpl.package).DESCRIPTION
           except AttributeError:
             desc = ''
-          msg.append('@GPackage: %s%s@w' % (tpl.package, ' - ' + desc if desc else ''))
+          msg.append('@GPackage: %s%s@w' % (
+                              tpl.package, ' - ' + desc if desc else ''))
           msg.append('@G' + '-' * 75 + '@w')
         msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
-                    (tpl.sname, tpl.name, tpl.author, tpl.version, tpl.purpose))
+                    (tpl.sname, tpl.name,
+                     tpl.author, tpl.version, tpl.purpose))
     return True, msg
 
   def cmd_load(self, args):
@@ -347,21 +354,24 @@ class PluginMgr(object):
       force = False
       if modpath in self.loadedplugins:
         force = True
-      modname, status = self.load_module(modpath, self.basepath, force=force, runload=load)
+      modname, status = self.load_module(modpath, self.basepath,
+                                         force=force, runload=load)
 
       if modname == 'log':
         self.api.get('log.adddtype')(self.sname)
         self.api.get('log.console')(self.sname)
 
     if not load:
-      testsort = sorted(self.plugins.values(), key=operator.attrgetter('priority'))
+      testsort = sorted(self.plugins.values(),
+                        key=operator.attrgetter('priority'))
       for i in testsort:
         try:
           #check dependencies here
           self.loadplugin(i)
         except:
           self.api.get('send.traceback')(
-                        "load: had problems running the load method for %s." % i.fullimploc)
+                        "load: had problems running the load method for %s." \
+                          % i.fullimploc)
           del sys.modules[i.fullimploc]
 
   def updateallplugininfo(self):
@@ -462,14 +472,16 @@ class PluginMgr(object):
       else:
         if fullimploc in sys.modules:
           del sys.modules[fullimploc]
-        self.api.get('send.msg')('Not loading %s (%s) because autoload is False' % \
+        self.api.get('send.msg')(
+                'Not loading %s (%s) because autoload is False' % \
                                     (_module.NAME, fullimploc), self.sname)
       return True, 'not autoloaded'
     except:
       if fullimploc in sys.modules:
         del sys.modules[fullimploc]
 
-      self.api.get('send.traceback')("Module '%s' refuses to import/load." % fullimploc)
+      self.api.get('send.traceback')(
+                    "Module '%s' refuses to import/load." % fullimploc)
       return False, 'error'
 
   def unload_module(self, fullimploc):
@@ -491,7 +503,8 @@ class PluginMgr(object):
                     "unload: module %s didn't unload properly." % fullimploc)
 
           if not self.remove_plugin(_module.SNAME):
-            self.api.get('send.client')('could not remove plugin %s' % fullimploc)
+            self.api.get('send.client')(
+                              'could not remove plugin %s' % fullimploc)
 
         del sys.modules[fullimploc]
         self.api.get('send.client')("unload: unloaded %s." % fullimploc)
@@ -548,7 +561,8 @@ class PluginMgr(object):
     """
     check dependencies and run the load function
     """
-    self.api.get('send.msg')('loading dependencies for %s' % plugin.fullimploc, self.sname)
+    self.api.get('send.msg')('loading dependencies for %s' % \
+                                  plugin.fullimploc, self.sname)
     self.loaddependencies(plugin.sname, plugin.dependencies)
     self.api.get('send.client')("load: loading %s" % plugin.fullimploc)
     self.api.get('send.msg')('loading %s (%s: %s)' % (plugin.fullimploc,
@@ -576,10 +590,12 @@ class PluginMgr(object):
     except AttributeError:
       pass
     if plugin.name in self.pluginl:
-      self.api.get('send.msg')('Plugin %s already exists' % plugin.name, self.sname)
+      self.api.get('send.msg')('Plugin %s already exists' % plugin.name,
+                               self.sname)
       return False
     if plugin.sname in self.plugins:
-      self.api.get('send.msg')('Plugin %s already exists' % plugin.sname, self.sname)
+      self.api.get('send.msg')('Plugin %s already exists' % plugin.sname,
+                               self.sname)
       return False
 
     if load:
@@ -588,7 +604,8 @@ class PluginMgr(object):
         self.loadplugin(plugin)
       except:
         self.api.get('send.traceback')(
-                      "load: had problems running the load method for %s." % fullimploc)
+                      "load: had problems running the load method for %s." \
+                                                % fullimploc)
         del sys.modules[fullimploc]
         return False
     self.pluginl[plugin.name] = plugin
@@ -611,7 +628,8 @@ class PluginMgr(object):
         plugin.unload()
       except:
         self.api.get('send.traceback')(
-                      "unload: had problems running the unload method for %s." % plugin.sname)
+                    "unload: had problems running the unload method for %s." \
+                                  % plugin.sname)
         return False
 
       del self.plugins[plugin.sname]
@@ -645,7 +663,8 @@ class PluginMgr(object):
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="list plugins")
-    parser.add_argument('-n', "--notloaded", help="list plugins that are not loaded",
+    parser.add_argument('-n', "--notloaded",
+              help="list plugins that are not loaded",
               action="store_true")
     parser.add_argument('package', help='the to list', default='', nargs='?')
     self.api.get('commands.add')('list', self.cmd_list,
@@ -653,24 +672,29 @@ class PluginMgr(object):
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="load a plugin")
-    parser.add_argument('plugin', help='the plugin to load, don\'t include the .py', default='', nargs='?')
+    parser.add_argument('plugin',
+                        help='the plugin to load, don\'t include the .py',
+                        default='', nargs='?')
     self.api.get('commands.add')('load', self.cmd_load,
                         lname='Plugin Manager', parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="unload a plugin")
-    parser.add_argument('plugin', help='the plugin to unload', default='', nargs='?')
+    parser.add_argument('plugin', help='the plugin to unload',
+                        default='', nargs='?')
     self.api.get('commands.add')('unload', self.cmd_unload,
                         lname='Plugin Manager', parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
                 description="reload a plugin")
-    parser.add_argument('plugin', help='the plugin to reload', default='', nargs='?')
+    parser.add_argument('plugin', help='the plugin to reload',
+                        default='', nargs='?')
     self.api.get('commands.add')('reload', self.cmd_reload,
                         lname='Plugin Manager', parser=parser)
 
     self.api.get('commands.default')(self.sname, 'list')
-    self.api.get('events.register')('savestate', self.savestate, plugin=self.sname)
+    self.api.get('events.register')('savestate', self.savestate,
+                                    plugin=self.sname)
 
     self.api.get('timers.add')('save', self.savestate, 60, nodupe=True)
 
