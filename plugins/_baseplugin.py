@@ -74,8 +74,10 @@ class BasePlugin(object):
 
           if there are no arguments or 'list' is the first argument then
           it will list the settings for the plugin"""))
-    setparser.add_argument('name', help='the setting name', default='list', nargs='?')
-    setparser.add_argument('value', help='the new value of the setting', default='', nargs='?')
+    setparser.add_argument('name', help='the setting name',
+                           default='list', nargs='?')
+    setparser.add_argument('value', help='the new value of the setting',
+                           default='', nargs='?')
     self.api.get('commands.add')('set', self.cmd_set, parser=setparser)
 
     parser = argparse.ArgumentParser(add_help=False,
@@ -93,7 +95,8 @@ class BasePlugin(object):
     self.api.get('commands.add')('stats', self.cmd_stats,
                                  parser=parser)
 
-    self.api.get('events.register')('%s_plugin_loaded' % self.sname, self.afterload)
+    self.api.get('events.register')('%s_plugin_loaded' % self.sname,
+                                                self.afterload)
 
     self.api.get('events.register')('shutdown', self.unload)
     self.api.get('events.register')('muddisconnect', self.disconnect)
@@ -107,10 +110,10 @@ class BasePlugin(object):
     proxy = self.api.get('managers.getm')('proxy')
 
     if proxy and proxy.connected:
-      try:
+      if self.api.get('api.has')('connect.firstactive'):
         if self.api.get('connect.firstactive')():
           self.afterfirstactive()
-      except AttributeError:
+      else:
         self.api.get('events.register')('firstactive', self.afterfirstactive)
     else:
       self.api.get('events.register')('firstactive', self.afterfirstactive)
@@ -119,6 +122,7 @@ class BasePlugin(object):
     """
     re-register to firstactive on disconnect
     """
+    self.api.get('send.msg')('baseplugin, disconnect')
     self.api.get('events.register')('firstactive', self.afterfirstactive)
 
   # get the vaule of a setting
@@ -166,7 +170,8 @@ class BasePlugin(object):
     stats = {}
     stats['Base Sizes'] = {}
     stats['Base Sizes']['showorder'] = ['Class', 'Variables', 'Api']
-    stats['Base Sizes']['Variables'] = '%s bytes' % sys.getsizeof(self.settingvalues)
+    stats['Base Sizes']['Variables'] = '%s bytes' % \
+                                      sys.getsizeof(self.settingvalues)
     stats['Base Sizes']['Class'] = '%s bytes' % sys.getsizeof(self)
     stats['Base Sizes']['Api'] = '%s bytes' % sys.getsizeof(self.api)
 
@@ -225,7 +230,8 @@ class BasePlugin(object):
     """
     add triggers
     """
-    self.api.get('triggers.add', True)(triggername, regex, self.sname, **kwargs)
+    self.api.get('triggers.add', True)(triggername, regex,
+                                       self.sname, **kwargs)
 
   def api_watchadd(self, triggername, regex, **kwargs):
     """
@@ -360,6 +366,7 @@ class BasePlugin(object):
     """
     if we are connected do
     """
+    self.api.get('send.msg')('baseplugin, firstactive')
     self.api.get('events.unregister')('firstactive', self.afterfirstactive)
 
   # set the default command
