@@ -4,6 +4,7 @@ $Id$
 This plugin runs gmcp commands after connecting to aardwolf
 """
 import time
+from string import Template
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Repop'
@@ -32,6 +33,9 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('setting.add')('channel', 'gt', str,
                         'the channel to send the repop message')
+    self.api.get('setting.add')('format',
+                        "@r[@RRepop@r]@w ${zone} @R@@ @w${time}", str,
+                        'the format of the message')
 
     self.api.get('events.register')('GMCP:comm.repop', self.repop)
 
@@ -40,11 +44,10 @@ class Plugin(AardwolfBasePlugin):
     do something on repop
     """
     zone = args['data']['zone']
-
     ttime = time.strftime('%X', time.localtime())
-
-    tformat = "@r[@RRepop@r]@w %s @R@@ @w%s" % (zone, ttime)
-
     chan = self.api.get('setting.gets')('channel')
 
-    self.api.get('send.execute')(chan + ' ' + tformat)
+    templ = Template(self.api.get('setting.gets')('format'))
+    datan = templ.safe_substitute({'zone':zone, 'time':ttime})
+
+    self.api.get('send.execute')(chan + ' ' + datan)
