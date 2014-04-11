@@ -43,9 +43,7 @@ class Plugin(AardwolfBasePlugin):
     """
     AardwolfBasePlugin.load(self)
 
-    CmdQueue = self.api.get('cmdq.baseclass')()
-
-    self.cmdqueue = CmdQueue(self)
+    self.cmdqueue = self.api.get('cmdq.baseclass')()(self)
 
     self.cmdqueue.addcmdtype('cpcheck', 'campaign check', "^campaign check$",
                        self.cpcheckbefore, self.cpcheckafter)

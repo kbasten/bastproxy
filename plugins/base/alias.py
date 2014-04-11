@@ -140,8 +140,8 @@ class Plugin(BasePlugin):
             except:
               self.api.get('send.traceback')('alias %s had an issue' % (mem))
         else:
-          p = re.compile('^%s' % mem)
-          datan = p.sub(self._aliases[mem]['alias'], data)
+          cre = re.compile('^%s' % mem)
+          datan = cre.sub(self._aliases[mem]['alias'], data)
         if datan != data:
           if not 'hits' in self._aliases[mem]:
             self._aliases[mem]['hits'] = 0
@@ -329,6 +329,9 @@ class Plugin(BasePlugin):
     return alias
 
   def togglealias(self, item):
+    """
+    toggle an alias
+    """
     alias = self.lookup_alias(item)
     if alias:
       self._aliases[alias]['enabled'] = not self._aliases[alias]['enabled']
@@ -340,8 +343,9 @@ class Plugin(BasePlugin):
     return a table of strings that list aliases
     """
     tmsg = []
-    for s in sorted(self._aliases.iteritems(), key=lambda (x, y): y['num']):
-      item = s[0]
+    for alias in sorted(self._aliases.iteritems(),
+                                    key=lambda (x, y): y['num']):
+      item = alias[0]
       if not match or match in item:
         lalias = self.api.get('colors.stripansi')(self._aliases[item]['alias'])
         if len(lalias) > 30:

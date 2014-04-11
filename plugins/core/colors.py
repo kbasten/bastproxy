@@ -202,19 +202,22 @@ class Plugin(BasePlugin):
     convert ansi color escape sequences to @colors
     """
     def single_sub(match):
-        argsdict = match.groupdict()
-        tstr = ''
-        tstr = tstr + argsdict['arg_1']
-        if argsdict['arg_2']:
-          tstr = tstr + ';%d' % int(argsdict['arg_2'])
+      """
+      do a single substitution
+      """
+      argsdict = match.groupdict()
+      tstr = ''
+      tstr = tstr + argsdict['arg_1']
+      if argsdict['arg_2']:
+        tstr = tstr + ';%d' % int(argsdict['arg_2'])
 
-        if argsdict['arg_3']:
-          tstr = tstr + ';%d' % int(argsdict['arg_3'])
+      if argsdict['arg_3']:
+        tstr = tstr + ';%d' % int(argsdict['arg_3'])
 
-        try:
-          return '@%s' % CONVERTANSI[tstr]
-        except KeyError:
-          print 'could not lookup color %s for text %s' % (tstr, repr(text))
+      try:
+        return '@%s' % CONVERTANSI[tstr]
+      except KeyError:
+        print 'could not lookup color %s for text %s' % (tstr, repr(text))
 
     return ANSI_COLOR_REGEX.sub(single_sub, text)
 

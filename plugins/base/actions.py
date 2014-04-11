@@ -322,8 +322,8 @@ class Plugin(BasePlugin):
     return a table of strings that list actiones
     """
     tmsg = []
-    for s in sorted(self.actions.keys()):
-      item = self.actions[s]
+    for action in sorted(self.actions.keys()):
+      item = self.actions[action]
       if not match or match in item:
         regex = self.api.get('colors.stripansi')(item['regex'])
         if len(regex) > 30:
@@ -358,6 +358,9 @@ class Plugin(BasePlugin):
     return action
 
   def toggleaction(self, item):
+    """
+    toggle an action
+    """
     action = self.lookup_action(item)
     if action:
       self.actions[action]['enabled'] = not self.actions[action]['enabled']

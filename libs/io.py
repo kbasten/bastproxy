@@ -11,7 +11,7 @@ from libs.api import API
 
 api = API()
 
-errors = []
+ERRORS = []
 
 # send a message
 def api_msg(tmsg, primary='default', secondary='None'):
@@ -59,7 +59,7 @@ def api_error(text):
     else:
       test.append(i)
   tmsg = '\n'.join(test)
-  errors.append({'timestamp':time.strftime(api.timestring,
+  ERRORS.append({'timestamp':time.strftime(api.timestring,
                                           time.localtime()),
                  'msg':tmsg})
   try:
@@ -165,7 +165,7 @@ def api_geterrors():
 
   this function returns the list of errors
   """
-  return errors
+  return ERRORS
 
 # clear errors
 def api_clearerrors():
@@ -175,9 +175,9 @@ def api_clearerrors():
 
   this function returns no values
   """
-  global errors
+  global ERRORS
 
-  errors = []
+  ERRORS = []
 
 api.add('send', 'msg', api_msg)
 api.add('send', 'error', api_error)

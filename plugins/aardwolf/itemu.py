@@ -204,20 +204,20 @@ class Plugin(AardwolfBasePlugin):
     titem = {}
     if layoutname in self.invlayout:
       for i in xrange(len(self.invlayout[layoutname])):
-        v = self.invlayout[layoutname][i]
+        name = self.invlayout[layoutname][i]
         value = tlist[i]
         try:
           value = int(value)
         except ValueError:
           pass
 
-        if layoutname == 'invheader' and v == 'type':
+        if layoutname == 'invheader' and name == 'type':
           try:
             value = value.lower()
           except AttributeError:
             pass
 
-        titem[v] = value
+        titem[name] = value
 
       if layoutname == 'eqdata':
         titem['name'] = self.api.get('colors.stripcolor')(titem['cname'])

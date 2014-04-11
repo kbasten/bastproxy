@@ -138,9 +138,9 @@ def main():
 
   try:
     api.get('send.msg')('Config - loading', 'startup')
-    CONFIG = ConfigParser.RawConfigParser()
-    api.get('managers.add')('config', CONFIG)
-    CONFIG.read(config)
+    configp = ConfigParser.RawConfigParser()
+    api.get('managers.add')('config', configp)
+    configp.read(config)
     api.get('send.msg')('Config - loaded', 'startup')
   except:
     api.get('send.traceback')('Error parsing config!')
@@ -148,8 +148,8 @@ def main():
 
   api.get('send.msg')('Plugin Manager - loading', 'startup')
   from plugins import PluginMgr
-  PLUGINMGR = PluginMgr()
-  PLUGINMGR.load()
+  pluginmgr = PluginMgr()
+  pluginmgr.load()
   api.get('send.msg')('Plugin Manager - loaded', 'startup')
 
   api.get('log.adddtype')('net')
@@ -168,11 +168,11 @@ def main():
       raise
 #      sys.exit(1)
 
-  listen_port = guard(lambda:CONFIG.getint("proxy", "listen_port"),
+  listen_port = guard(lambda:configp.getint("proxy", "listen_port"),
     "listen_port is a required field")
-  server_address = guard(lambda:CONFIG.get("proxy", "server_address"),
+  server_address = guard(lambda:configp.get("proxy", "server_address"),
     "server is a required field")
-  server_port = guard(lambda:CONFIG.getint("proxy", "server_port"),
+  server_port = guard(lambda:configp.getint("proxy", "server_port"),
     "server_port is a required field")
 
   if not daemon:

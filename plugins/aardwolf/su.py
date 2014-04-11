@@ -181,7 +181,7 @@ class Plugin(AardwolfBasePlugin):
     catch a skill fail event
     """
     self.api.get('send.msg')('skillfail: %s' % args)
-    sn = args['sn']
+    spellnum = args['sn']
     waiting = self.api.get('setting.gets')('waiting')
     if args['reason'] == 'nomana':
       self.api.get('setting.change')('waiting', -1)
@@ -199,19 +199,19 @@ class Plugin(AardwolfBasePlugin):
       self.api.get('setting.change')('waiting', -1)
       self.api.get('setting.change')('nomoves', True)
       self.lastmana = self.api.get('GMCP.getv')('char.vitals.moves')
-    elif waiting == sn:
+    elif waiting == spellnum:
       if args['reason'] == 'lostconc':
         self.api.get('skills.sendcmd')(waiting)
       elif args['reason'] == 'alreadyaff':
         self.api.get('setting.change')('waiting', -1)
-        skill = self.api.get('skills.gets')(sn)
+        skill = self.api.get('skills.gets')(spellnum)
         self.api.get('send.client')(
           "@BSpellup - disabled %s because you are already affected" % \
                                   skill['name'])
-        if sn in self.spellups['self']:
-          self.spellups['self'][sn]['enabled'] = False
-        #if sn in self.spellups['other']:
-          #self.spellups['other'][sn]['enabled'] = False
+        if spellnum in self.spellups['self']:
+          self.spellups['self'][spellnum]['enabled'] = False
+        #if spellnum in self.spellups['other']:
+          #self.spellups['other'][spellnum]['enabled'] = False
         self.nextspell()
       elif args['reason'] == 'recblock':
         # do stuff when blocked by a recovery
@@ -227,14 +227,14 @@ class Plugin(AardwolfBasePlugin):
         self.nextspell()
       elif args['reason'] == 'disabled':
         self.api.get('setting.change')('waiting', -1)
-        skill = self.api.get('skills.gets')(sn)
+        skill = self.api.get('skills.gets')(spellnum)
         self.api.get('send.client')(
           "@BSpellup - disabled %s because it is disabled mudside" % \
                                   skill['name'])
-        if sn in self.spellups['self']:
-          self.spellups['self'][sn]['enabled'] = False
-        if sn in self.spellups['other']:
-          self.spellups['other'][sn]['enabled'] = False
+        if spellnum in self.spellups['self']:
+          self.spellups['self'][spellnum]['enabled'] = False
+        if spellnum in self.spellups['other']:
+          self.spellups['other'][spellnum]['enabled'] = False
         self.nextspell()
 
   def _moved(self, args):
@@ -323,15 +323,15 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.savestate(self)
     self.spellups.sync()
 
-  def _addselfspell(self, sn, place=-1, override=False):
+  def _addselfspell(self, spellnum, place=-1, override=False):
     """
     add a spell internally
     """
     msg = []
-    spell = self.api.get('skills.gets')(sn)
+    spell = self.api.get('skills.gets')(spellnum)
 
     if not spell:
-      msg.append('%-20s: does not exist' % sn)
+      msg.append('%-20s: does not exist' % spellnum)
       return msg
 
     if not override and not self.api.get('skills.isspellup')(spell['sn']):
@@ -436,11 +436,11 @@ class Plugin(AardwolfBasePlugin):
           msg.append('%s does not exist' % spella)
           continue
 
-        sn = spell['sn']
-        if sn in self.spellups['sorder']:
-          self.spellups['sorder'].remove(sn)
-        if sn in self.spellups['self']:
-          del self.spellups['self'][sn]
+        spellnum = spell['sn']
+        if spellnum in self.spellups['sorder']:
+          self.spellups['sorder'].remove(spellnum)
+        if spellnum in self.spellups['self']:
+          del self.spellups['self'][spellnum]
 
         msg.append('Removed %s from spellups to self' % spell['name'])
 
@@ -463,8 +463,8 @@ class Plugin(AardwolfBasePlugin):
       msg.append('All spellups enabled')
 
     else:
-      for sn in args['spell']:
-        skill = self.api.get('skills.gets')(sn)
+      for spellnum in args['spell']:
+        skill = self.api.get('skills.gets')(spellnum)
         if skill:
           if skill['sn'] in self.spellups['sorder']:
             self.spellups['self'][skill['sn']]['enabled'] = True
@@ -472,7 +472,7 @@ class Plugin(AardwolfBasePlugin):
           else:
             msg.append('%s: not in self spellup list' % skill['name'])
         else:
-          msg.append('%s: could not find spell' % sn)
+          msg.append('%s: could not find spell' % spellnum)
       self.nextspell()
       return True, msg
 
@@ -493,8 +493,8 @@ class Plugin(AardwolfBasePlugin):
       msg.append('All spellups disabled')
 
     else:
-      for sn in args['spell']:
-        skill = self.api.get('skills.gets')(sn)
+      for spellnum in args['spell']:
+        skill = self.api.get('skills.gets')(spellnum)
         if skill:
           if skill['sn'] in self.spellups['sorder']:
             self.spellups['self'][skill['sn']]['enabled'] = False
@@ -502,7 +502,7 @@ class Plugin(AardwolfBasePlugin):
           else:
             msg.append('%s: not in self spellup list' % skill['name'])
         else:
-          msg.append('%s: could not find spell' % sn)
+          msg.append('%s: could not find spell' % spellnum)
       return True, msg
 
     return False, []

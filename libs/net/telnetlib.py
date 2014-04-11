@@ -179,7 +179,7 @@ class Telnet(asyncore.dispatcher):
     self.cookedq = ''
     self.eof = 0
     self.iacseq = '' # Buffer for IAC sequence.
-    self.sb = 0 # flag for SB and SE sequence.
+    self.sbse = 0 # flag for SB and SE sequence.
     self.sbdataq = ''
     self.outbuffer = ''
     self.options = {}
@@ -290,7 +290,7 @@ class Telnet(asyncore.dispatcher):
     self.options = {}
     self.eof = 1
     self.iacseq = ''
-    self.sb = 0
+    self.sbse = 0
 
   def handle_write(self):
     """
@@ -400,7 +400,7 @@ class Telnet(asyncore.dispatcher):
           if tchar == "\021":
             continue
           if tchar != IAC:
-            buf[self.sb] = buf[self.sb] + tchar
+            buf[self.sbse] = buf[self.sbse] + tchar
             continue
           else:
             self.iacseq += tchar
@@ -412,13 +412,13 @@ class Telnet(asyncore.dispatcher):
 
           self.iacseq = ''
           if tchar == IAC:
-            buf[self.sb] = buf[self.sb] + tchar
+            buf[self.sbse] = buf[self.sbse] + tchar
           else:
             if tchar == SB: # SB ... SE start.
-              self.sb = 1
+              self.sbse = 1
               self.sbdataq = ''
             elif tchar == SE:
-              self.sb = 0
+              self.sbse = 0
               self.sbdataq = self.sbdataq + buf[1]
               buf[1] = ''
               if len(self.sbdataq) == 1:
@@ -458,7 +458,7 @@ class Telnet(asyncore.dispatcher):
             self.send(IAC + DONT + opt)
     except EOFError: # raised by self.rawq_getchar()
       self.iacseq = '' # Reset on EOF
-      self.sb = 0
+      self.sbse = 0
 
     self.cookedq = self.cookedq + buf[0]
     self.sbdataq = self.sbdataq + buf[1]

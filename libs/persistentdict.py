@@ -26,6 +26,9 @@ def convert(tinput):
     return tinput
 
 def convertkeystoint(tdict):
+  """
+  convert all keys in int if they are numbers
+  """
   new = {}
   for i in tdict:
     nkey = i

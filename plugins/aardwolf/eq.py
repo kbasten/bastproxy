@@ -17,7 +17,7 @@ VERSION = 1
 
 AUTOLOAD = False
 
-optionallocs = [8, 9, 10, 11, 25, 28, 29, 30, 31, 32]
+OPTIONALLOCS = [8, 9, 10, 11, 25, 28, 29, 30, 31, 32]
 
 class Plugin(AardwolfBasePlugin):
   """
@@ -181,9 +181,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_invdataend', self.invdataend)
     self.api.get('events.register')('trigger_invmon', self.invmon)
 
-    CmdQueue = self.api.get('cmdq.baseclass')()
-
-    self.cmdqueue = CmdQueue(self)
+    self.cmdqueue = self.api.get('cmdq.baseclass')()(self)
     self.cmdqueue.addcmdtype('invdata', 'invdata', "^invdata\s*(\d*)$",
                        self.invdatabefore, self.invdataafter)
     self.cmdqueue.addcmdtype('eqdata', 'eqdata', "^eqdata$",
@@ -193,6 +191,7 @@ class Plugin(AardwolfBasePlugin):
 
   def invdatabefore(self):
     """
+    this will be called before the invdata command
     """
     self.api.get('send.msg')('enabling invdata triggers')
     self.api.get('triggers.togglegroup')('invdata', True)
@@ -201,6 +200,7 @@ class Plugin(AardwolfBasePlugin):
 
   def invdataafter(self):
     """
+    this will be called after the invdata command
     """
     self.api.get('send.msg')('disabling invdata triggers')
     self.api.get('triggers.togglegroup')('invdata', False)
@@ -209,6 +209,7 @@ class Plugin(AardwolfBasePlugin):
 
   def eqdatabefore(self):
     """
+    this will be called before the eqdata command
     """
     self.api.get('send.msg')('enabling eqdata triggers')
     self.api.get('triggers.togglegroup')('eqdata', True)
@@ -217,6 +218,7 @@ class Plugin(AardwolfBasePlugin):
 
   def eqdataafter(self):
     """
+    this will be called after the eqdata command
     """
     self.api.get('send.msg')('disabling eqdata triggers')
     self.api.get('triggers.togglegroup')('eqdata', False)
@@ -225,6 +227,7 @@ class Plugin(AardwolfBasePlugin):
 
   def disconnect(self, args):
     """
+    called when the mud disconnects
     """
     AardwolfBasePlugin.disconnect(self)
     self.itemcache = {}
@@ -439,6 +442,9 @@ class Plugin(AardwolfBasePlugin):
     return True, []
 
   def checkvaliditem(self, item):
+    """
+    check to see if an item is valid
+    """
     if item['serial'] == "" or \
       item['level'] == "" or \
       item['type'] == "" or \
@@ -447,30 +453,6 @@ class Plugin(AardwolfBasePlugin):
         return False
 
     return True
-
-  def cmd_sell(self, args):
-    self.api.get('send.msg')('got sell with args: %s' % args)
-    pline = shlex.split(args['data'])
-    self.api.get('send.msg')('shlex returned %s' % pline)
-    if pline[1] == 'all':
-      self.api.get('send.msg')('setting sellall')
-      self.sellall = True
-    elif 'all.' in pline[1]:
-      self.api.get('send.msg')('setting sellall')
-      self.sellall = True
-
-  def cmd_buy(self, args):
-    self.api.get('send.msg')('got buy with args: %s' % args)
-    pline = shlex.split(args['data'])
-    self.api.get('send.msg')('shlex returned %s' % pline)
-    try:
-      num = int(pline[1])
-      if num > 20:
-        self.api.get('send.msg')('setting buyall')
-        self.buyall = True
-
-    except ValueError:
-      pass
 
   def resetworneq(self):
     """
@@ -490,6 +472,9 @@ class Plugin(AardwolfBasePlugin):
     self.eqdata.insert(wearloc, serial)
 
   def takeoffitem(self, serial):
+    """
+    take off an item
+    """
     self.itemcache[serial]['curcontainer'] = 'Inventory'
     try:
       location = self.eqdata.index(serial)
@@ -580,6 +565,9 @@ class Plugin(AardwolfBasePlugin):
     self.cmdqueue.cmddone('invdata')
 
   def trigger_invitem(self, args):
+    """
+    run when an invitem is seen
+    """
     #self.api.get('send.msg')('invitem args: %s' % args)
     titem = self.api.get('itemu.dataparse')(args['data'], 'eqdata')
     self.itemcache[titem['serial']] = titem
@@ -863,7 +851,7 @@ class Plugin(AardwolfBasePlugin):
         msg.append(self.build_wornitem(item, i, args))
       else:
         doit = True
-        if i in optionallocs:
+        if i in OPTIONALLOCS:
           doit = False
         if (i == 23 or i == 26) and self.eqdata[25] != -1:
           doit = False

@@ -296,7 +296,7 @@ class SERVER(BaseTelnetOption):
         import json
         newdata = json.loads(data.decode('utf-8','ignore'),
                                 object_hook=convert)
-      except (UnicodeDecodeError, ValueError) as e:
+      except (UnicodeDecodeError, ValueError) as etype:
         newdata = {}
         self.api.get('send.traceback')('Could not decode: %s' % data)
       self.telnetobj.msg(modname, data, level=2, mtype='GMCP')

@@ -138,9 +138,15 @@ class API(object):
 
 if __name__ == '__main__':
   def testapi():
+    """
+    a test api
+    """
     print 'testapi'
 
   def testover():
+    """
+    a test overloaded api
+    """
     print 'testover'
 
   api = API()

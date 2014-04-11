@@ -26,7 +26,7 @@ def format_float(item, addto=""):
     tempt = 0
   return tempt
 
-fieldstocomp = ['totallevels',
+FIELDSTOCOMP = ['totallevels',
                 'qpearned',
                 'questscomplete',
                 'questsfailed',
@@ -42,12 +42,12 @@ fieldstocomp = ['totallevels',
                 'powerupsall',
                 'totaltrivia']
 
-def dbcreate(Sqldb, plugin, **kwargs):
+def dbcreate(sqldb, plugin, **kwargs):
   """
   create the statdb class, this is needed because the Sqldb baseclass
   can be reloaded since it is a plugin
   """
-  class Statdb(Sqldb):
+  class Statdb(sqldb):
     """
     a class to manage a sqlite database for aardwolf events
     """
@@ -55,7 +55,7 @@ def dbcreate(Sqldb, plugin, **kwargs):
       """
       initialize the class
       """
-      Sqldb.__init__(self, plugin, **kwargs)
+      sqldb.__init__(self, plugin, **kwargs)
 
       self.version = 13
 
@@ -210,6 +210,9 @@ def dbcreate(Sqldb, plugin, **kwargs):
       self.postinit()
 
     def turnonpragmas(self):
+      """
+      turn on pragmas for the database
+      """
       #-- PRAGMA foreign_keys = ON;
       self.dbconn.execute("PRAGMA foreign_keys=On;")
       #-- PRAGMA journal_mode=WAL
@@ -799,7 +802,7 @@ class Plugin(AardwolfBasePlugin):
 
     msg.append('@g' + '-' * 60)
 
-    for i in fieldstocomp:
+    for i in FIELDSTOCOMP:
       msg.append(tformat % (i, milestone1[i], milestone2[i],
                                   milestone2[i] - milestone1[i]))
     return msg

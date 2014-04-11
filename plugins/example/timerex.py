@@ -28,7 +28,7 @@ class Plugin(BasePlugin):
     load the plugins
     """
     BasePlugin.load(self)
-    
+
     self.api.get('timers.add')('test_timer', self.test,
                                     600, onetime=False)
     self.api.get('timers.add')('test_touser_timer', self.test_to_user,
@@ -42,7 +42,8 @@ class Plugin(BasePlugin):
     """
     send a message to the mud and client
     """
-    self.api.get('send.client')('@RHere is the timer that fires every 600 seconds!')
+    self.api.get('send.client')(
+                '@RHere is the timer that fires every 600 seconds!')
     self.api.get('send.execute')('look')
 
   def test_to_user(self):

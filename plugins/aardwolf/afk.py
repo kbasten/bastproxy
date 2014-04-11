@@ -18,11 +18,11 @@ VERSION = 1
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = False
 
-titlematch = '^Your title is: (?P<title>.*)\.$'
-titlere = re.compile(titlematch)
+TITLEMATCH = '^Your title is: (?P<title>.*)\.$'
+TITLERE = re.compile(TITLEMATCH)
 
-titlesetmatch = 'Title now set to: (?P<title>.*)$'
-titleset = re.compile(titlesetmatch)
+TITLESETMATCH = 'Title now set to: (?P<title>.*)$'
+TITLESET = re.compile(TITLESETMATCH)
 
 class Plugin(AardwolfBasePlugin):
   """
@@ -95,7 +95,7 @@ class Plugin(AardwolfBasePlugin):
     get the titleline
     """
     line = args['line'].strip()
-    tmatch = titleset.match(line)
+    tmatch = TITLESET.match(line)
     if line:
       if tmatch:
         newtitle = tmatch.groupdict()['title']
