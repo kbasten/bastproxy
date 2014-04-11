@@ -295,21 +295,21 @@ class Plugin(AardwolfBasePlugin):
     msg = []
     if args['serial']:
       #try:
-        serial = int(args['serial'])
-        titem = self.api.get('eq.getitem')(serial)
-        if not titem:
-          msg.append('Could not find %s' % serial)
+      serial = int(args['serial'])
+      titem = self.api.get('eq.getitem')(serial)
+      if not titem:
+        msg.append('Could not find %s' % serial)
+      else:
+        serial = titem['serial']
+        if serial in self.itemcache and \
+                    'container' in self.itemcache[serial]:
+          del self.itemcache[serial]
+        if serial in self.itemcache:
+          self.api.get('itemid.show')(serial)
         else:
-          serial = titem['serial']
-          if serial in self.itemcache and \
-                      'container' in self.itemcache[serial]:
-            del self.itemcache[serial]
-          if serial in self.itemcache:
-            self.api.get('itemid.show')(serial)
-          else:
-            self.api.get('events.register')('itemid_%s' % serial,
-                                            self.event_showitem)
-            self.api.get('itemid.identify')(serial)
+          self.api.get('events.register')('itemid_%s' % serial,
+                                          self.event_showitem)
+          self.api.get('itemid.identify')(serial)
       #except ValueError:
         #msg.append('%s is not a serial number' % args['serial'])
     else:
@@ -479,8 +479,8 @@ class Plugin(AardwolfBasePlugin):
         else:
           colors[i] = '@w'
       else:
-          resists[i] = 0
-          colors[i] = '@w'
+        resists[i] = 0
+        colors[i] = '@w'
 
     if foundfirst:
       ttext.append('|%5s@w%-5s %-7s %-7s  %-8s  %-8s  %-5s %-5s %5s|' % (

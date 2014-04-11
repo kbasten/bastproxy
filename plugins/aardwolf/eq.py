@@ -443,11 +443,11 @@ class Plugin(AardwolfBasePlugin):
     check to see if an item is valid
     """
     if item['serial'] == "" or \
-      item['level'] == "" or \
-      item['type'] == "" or \
-      item['name'] == "" or \
-      item['cname'] == "":
-        return False
+        item['level'] == "" or \
+        item['type'] == "" or \
+        item['name'] == "" or \
+        item['cname'] == "":
+      return False
 
     return True
 
