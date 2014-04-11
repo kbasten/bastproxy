@@ -3,10 +3,7 @@ $Id$
 
 This plugin reads and parses id and invdetails from Aardwolf
 """
-import copy
-import time
 import argparse
-import shlex
 import re
 import textwrap
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

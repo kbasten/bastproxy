@@ -5,8 +5,6 @@ This plugin is a utility plugin for aardwolf functions
 It adds functions to exported.aardu
 """
 from plugins._baseplugin import BasePlugin
-import math
-import re
 
 NAME = 'Aardwolf Firstactive'
 SNAME = 'connect'
@@ -24,6 +22,7 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, *args, **kwargs)
 
     self.firstactive = False
+    self.connected = False
 
     # the firstactive flag
     self.api.get('api.add')('firstactive', self.api_firstactive)

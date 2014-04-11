@@ -4,8 +4,6 @@ $Id$
 This plugin is a utility plugin for aardwolf functions
 It adds functions to exported.aardu
 """
-import math
-import re
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Item Utils'
@@ -45,8 +43,8 @@ OBJECTTYPES = [
   'campfire'
 ]
 OBJECTTYPESREV = {}
-for i in OBJECTTYPES:
-  OBJECTTYPESREV[i] = OBJECTTYPES.index(i)
+for objectt in OBJECTTYPES:
+  OBJECTTYPESREV[objectt] = OBJECTTYPES.index(objectt)
 
 WEARLOCS = [
  'light',
@@ -85,8 +83,8 @@ WEARLOCS = [
 ]
 
 WEARLOCSREV = {}
-for i in WEARLOCS:
-  WEARLOCSREV[i] = WEARLOCS.index(i)
+for wearlocs in WEARLOCS:
+  WEARLOCSREV[wearlocs] = WEARLOCS.index(wearlocs)
 
 ITEMFLAGS = ['K', 'G', 'H', 'I', 'M']
 

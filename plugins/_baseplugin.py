@@ -118,7 +118,7 @@ class BasePlugin(object):
     else:
       self.api.get('events.register')('firstactive', self.afterfirstactive)
 
-  def disconnect(self, _=None):
+  def disconnect(self, args=None):
     """
     re-register to firstactive on disconnect
     """

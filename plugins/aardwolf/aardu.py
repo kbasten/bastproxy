@@ -29,8 +29,8 @@ CLASSABB = {
 
 # the reverse of CLASSABB
 CLASSABBREV = {}
-for i in CLASSABB:
-  CLASSABBREV[CLASSABB[i]] = i
+for classn in CLASSABB:
+  CLASSABBREV[CLASSABB[classn]] = classn
 
 # a table of rewards
 REWARDTABLE = {
@@ -104,8 +104,8 @@ DAMAGES = [
 
 # the reverse of DAMAGES
 DAMAGESREV = {}
-for i in DAMAGES:
-  DAMAGESREV[i] = DAMAGES.index(i)
+for damagen in DAMAGES:
+  DAMAGESREV[damagen] = DAMAGES.index(damagen)
 
 class Plugin(AardwolfBasePlugin):
   """

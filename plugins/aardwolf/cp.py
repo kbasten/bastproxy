@@ -35,6 +35,8 @@ class Plugin(AardwolfBasePlugin):
     self.linecount = 0
     self.nextdeath = False
 
+    self.cmdqueue = None
+
     self.api.get('dependency.add')('cmdq')
 
   def load(self):

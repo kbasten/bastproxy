@@ -5,7 +5,6 @@ This plugin adds the ability to do user defined actions when text is
 seen from the mud
 """
 import re
-import sys
 import argparse
 import os
 from string import Template

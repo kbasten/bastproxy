@@ -4,13 +4,9 @@ $Id$
 This plugin loops commands for a specified number of times
 
 """
-import os
-import re
 import argparse
-
 from string import Template
 from plugins._baseplugin import BasePlugin
-from libs.persistentdict import PersistentDict
 
 #these 5 are required
 NAME = 'Loop'
@@ -61,7 +57,6 @@ class Plugin(BasePlugin):
     if count < 1 or count > 50:
       return True, ['Count has to be between 1 and 50']
     if args['cmd']:
-      start = 1
       templ = Template(args['cmd'])
       for i in xrange(1, count + 1):
         datan = templ.safe_substitute({'num':i, 'count':i})

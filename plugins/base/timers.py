@@ -7,7 +7,6 @@ import time
 import datetime
 import argparse
 from plugins._baseplugin import BasePlugin
-from libs.timing import timeit
 from libs.event import Event
 
 #these 5 are required
@@ -136,7 +135,7 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('stats', self.cmd_stats,
                                  parser=parser)
 
-  def cmd_stats(self, args):
+  def cmd_stats(self, args=None):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       show timer stats

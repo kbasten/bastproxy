@@ -105,7 +105,6 @@ def api_execute(command, fromclient=False):
     @Ycommand@w      = the command to send through the interpreter
 
   this function returns no values"""
-  data = None
   api.get('send.msg')('got command %s from client' % repr(command),
                       primary='inputparse')
 

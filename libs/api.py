@@ -3,9 +3,6 @@ $Id$
 
 this module handles the api for all other modules
 """
-import sys
-import time
-#from decorator import decorator
 
 class API(object):
   """

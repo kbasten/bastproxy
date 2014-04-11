@@ -144,13 +144,11 @@ class Plugin(BasePlugin):
       if i in self.api.api:
         apilist[i] = {}
         for k in self.api.api[i]:
-          tstr = i + '.' + k
           apilist[i][k] = True
       if i in self.api.overloadedapi:
         if not (i in apilist):
           apilist[i] = {}
         for k in self.api.overloadedapi[i]:
-          tstr = i + '.' + k
           apilist[i][k] = True
       if not apilist:
         tmsg.append('%s does not exist in the api' % i)
@@ -160,14 +158,12 @@ class Plugin(BasePlugin):
         if not (i in apilist):
           apilist[i] = {}
         for k in self.api.api[i]:
-          tstr = i + '.' + k
           apilist[i][k] = True
 
       for i in self.api.overloadedapi:
         if not (i in apilist):
           apilist[i] = {}
         for k in self.api.overloadedapi[i]:
-          tstr = i + '.' + k
           apilist[i][k] = True
 
     tkeys = apilist.keys()

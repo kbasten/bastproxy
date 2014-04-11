@@ -14,7 +14,6 @@ Two types of aliases:
 """
 import os
 import re
-import shlex
 import argparse
 
 from plugins._baseplugin import BasePlugin

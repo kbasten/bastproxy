@@ -1,9 +1,6 @@
 
 Overall:
   #TODO: figure out a way to document raised events, decorator?
-  #TODO: make everything use baseplugin?
-  #TODO: anytime an action is performed, (Trigger matched, timer goes off, function is called from an event, command called, variable changed)
-              send output.msg with the owning plugins sname
   #TODO: add ability to see memory usage of python process (psutil?)
   #TODO: add a debug command
   #TODO: add a debug event (in a debug plugin, summary command), so we can get all stats for various plugins
@@ -12,6 +9,9 @@ Overall:
   #TODO: make #bp dynamic, and change command checking to check for that setting
   #TODO: make a command to show which plugins are different on disk compared
      to its loaded counterpart
+  #BUG: reload first plugin (eq), disconnect, reconnect, firstactive isn't called
+        reload second plugin (skills), disconnect, reconnect, firstactive is called for eq, but not skills
+        sometimes firstactive is called, sometimes not
 
 Python3:
   #TODO: convert to run under python3
@@ -25,20 +25,25 @@ New Plugins:
     #TODO: make the config editable in a plugin
         have an event attached to the mudname/port that will autoconnect when they change
         or a command to do it manually
+        command seperator, mud address, mud port
     #TODO: plugin to show last x lines in log or buffer
     #TODO: add a note plugin (like bast_notes)
   Aardwolf Plugins:
     #TODO: create an autohunt plugin
-    #TODO: create a plugin to parse eq events
     #TODO: create a plugin to do eqsets
     #TODO: create a potion manager plugin
     #TODO: create a moonbot plugin
 
+cmdq:
+  #TODO: convert gq to use cmdq
+
+eq:
+  #TODO: an item_<serial>_change event, so that itemcaches can be cleared
+    when an item is put in/removed from a container (for the container)
+    when an invitem is seen (for things like remove curse)
+
 api:
   #TODO: decorator function to set attributes on a function for the api (short description)?
-
-commands:
-  #TODO: use decorators to handle the adding of commands?
 
 client:
   #TODO: change from_client_event to use clientdata instead of fromdata
@@ -98,8 +103,6 @@ mobk:
 
 skills:
   #TODO: reset all when tiering and remorting
-  #TODO: have a flag so we know that spell affects are current
-    so that the spellup plugin doesn't start casting spells early.
 
 su:
   #TODO: how to figure out when to start spellups after connecting or

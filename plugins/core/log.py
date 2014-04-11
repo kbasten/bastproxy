@@ -9,7 +9,6 @@ from __future__ import print_function
 import sys
 import time
 import os
-import shutil
 import zipfile
 import argparse
 
@@ -132,12 +131,16 @@ class Plugin(BasePlugin):
         self.logtofile(timestampmsg, 'default')
 
   # process a message, use send.msg instead for the api
-  def api_msg(self, args, dtypedict={'primary':'default'}):
+  def api_msg(self, args, dtypedict=None):
     """  send a message
     @Ymsg@w        = This message to send
     @Ydatatype@w   = the type to toggle
 
     this function returns no values"""
+
+    if not dtypedict:
+      dtypedict = {'primary':'default'}
+
     dtype = dtypedict['primary']
     if 'primary' in args:
       dtype = args['primary']
@@ -157,7 +160,7 @@ class Plugin(BasePlugin):
     """
     tfile = os.path.split(self.currentlogs[dtype])[-1]
     self.openlogs[self.currentlogs[dtype]].close()
-    curfile = self.currentlogs[dtype]
+
     backupfile = os.path.join(self.logdir, dtype,
                           tfile)
     backupzipfile = os.path.join(self.logdir, dtype, 'archive',
@@ -287,7 +290,7 @@ class Plugin(BasePlugin):
       return True, tmsg
 
   # toggle logging a datatype to a file
-  def api_toggletofile(self, datatype, flag=True, timestamp=True):
+  def api_toggletofile(self, datatype, timestamp=True):
     """  toggle a data type to show to file
     @Ydatatype@w  = the type to toggle
     @Yflag@w      = True to send to file, false otherwise (default: True)

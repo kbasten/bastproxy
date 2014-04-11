@@ -5,7 +5,6 @@ this module holds the proxy client class
 """
 from ConfigParser import NoOptionError
 import time
-import re
 
 from libs.api import API
 from libs.net.telnetlib import Telnet

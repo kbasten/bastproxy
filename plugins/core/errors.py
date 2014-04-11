@@ -3,9 +3,6 @@ $Id$
 
 This plugin shows and clears errors seen during plugin execution
 """
-import time
-import re
-import copy
 import argparse
 from plugins._baseplugin import BasePlugin
 

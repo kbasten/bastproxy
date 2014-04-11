@@ -4,9 +4,7 @@ $Id$
 This plugin handles events.
   You can register/unregister with events, raise events
 """
-import inspect
 import argparse
-from libs.api import API
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Event Handler'
@@ -200,7 +198,7 @@ class Plugin(BasePlugin):
     this function returns a list of strings for the info"""
     tmsg = []
     eventstuff = self.api.get('events.gete')(eventname)
-    plugins = []
+
     tmsg.append('%-13s : %s' % ('Event', eventname))
     tmsg.append('@B' + self.api.get('utils.center')('Registrations', '-', 60))
     tmsg.append('%-4s : %-15s - %-s' % ('prio',

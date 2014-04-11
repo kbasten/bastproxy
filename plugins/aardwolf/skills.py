@@ -6,7 +6,6 @@ This plugin handles slist from Aardwolf
 import time
 import os
 import copy
-import fnmatch
 import argparse
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 from libs.persistentdict import PersistentDict
@@ -71,6 +70,8 @@ class Plugin(AardwolfBasePlugin):
 
     self.current = ''
     self.isuptodatef = False
+
+    self.cmdqueue = None
 
     self.api.get('dependency.add')('cmdq')
 

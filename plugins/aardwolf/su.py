@@ -3,8 +3,6 @@ $Id$
 
 This plugin does spellups for Aardwolf
 """
-import copy
-import time
 import os
 import argparse
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

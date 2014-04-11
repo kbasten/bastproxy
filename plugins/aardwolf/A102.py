@@ -44,8 +44,8 @@ AOPTIONS['AUTOMAP'] = 54
 AOPTIONS['SHORTMAP'] = 55
 
 AOPTIONREV = {}
-for i in AOPTIONS:
-  AOPTIONREV[AOPTIONS[i]] = i
+for optionn in AOPTIONS:
+  AOPTIONREV[AOPTIONS[optionn]] = optionn
 
 ON = chr(1)
 OFF = chr(2)

@@ -3,14 +3,6 @@ $Id$
 
 this module is a sqlite3 interface
 """
-import sqlite3
-import os
-import shutil
-import inspect
-import time
-import zipfile
-import argparse
-import copy
 import re
 
 from plugins._baseplugin import BasePlugin

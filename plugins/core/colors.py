@@ -20,7 +20,6 @@ White      @w        @W
 Reset      @k        @D
 
 """
-import math
 import re
 import argparse
 from plugins._baseplugin import BasePlugin
@@ -62,21 +61,21 @@ CONVERTCOLORS = {
 }
 
 
-for i in CONVERTCOLORS.keys():
-  CONVERTANSI[CONVERTCOLORS[i]] = i
+for colorc in CONVERTCOLORS.keys():
+  CONVERTANSI[CONVERTCOLORS[colorc]] = colorc
 
 #xterm colors
-for i in xrange(0, 256):
-  CONVERTANSI['38;5;%d' % i] = 'x%d' % i
-  CONVERTANSI['39;5;%d' % i] = 'z%d' % i
+for xtn in xrange(0, 256):
+  CONVERTANSI['38;5;%d' % xtn] = 'x%d' % xtn
+  CONVERTANSI['39;5;%d' % xtn] = 'z%d' % xtn
 
 #backgrounds
-for i in xrange(40, 48):
-  CONVERTANSI['%s' % i] = CONVERTANSI['39;5;%d' % (i - 40)]
+for acn in xrange(40, 48):
+  CONVERTANSI['%s' % acn] = CONVERTANSI['39;5;%d' % (acn - 40)]
 
 #foregrounds
-for i in xrange(30, 38):
-  CONVERTANSI['%s' % i] = CONVERTANSI['0;%d' % i]
+for abn in xrange(30, 38):
+  CONVERTANSI['%s' % abn] = CONVERTANSI['0;%d' % abn]
 
 def genrepl(match):
   """

@@ -4,11 +4,6 @@ $Id$
 This module holds the class that manages Telnet Options as well as an
 instance of the class
 """
-
-import glob
-import os
-import sys
-
 from plugins._baseplugin import BasePlugin
 from libs.net._basetelnetoption import BaseTelnetOption
 
@@ -87,14 +82,11 @@ class Plugin(BasePlugin):
     plugin = args['plugin']
     module = self.api.get('plugins.module')(plugin)
 
-    try:
-      module.SERVER
+    if hasattr(module, 'SERVER'):
       self.options[plugin] = True
       self.optionsmod[plugin] = module
       self.api.get('send.msg')('adding %s as a telnet option' % plugin,
                                         secondary=plugin)
-    except AttributeError:
-      pass
 
   def reloadmod(self, mod):
     """

@@ -56,13 +56,13 @@ class PersistentDict(dict):
 
   '''
   def __init__(self, filename, flag='c', mode=None,
-                                    format='json', *args, **kwds):
+                                    tformat='json', *args, **kwds):
     """
     initialize the instance
     """
     self.flag = flag                    # r=readonly, c=create, or n=new
     self.mode = mode                    # None or an octal triple like 0644
-    self.format = format                # 'csv', 'json', or 'pickle'
+    self.format = tformat                # 'csv', 'json', or 'pickle'
     self.filename = filename
     self.pload()
     dict.__init__(self, *args, **kwds)

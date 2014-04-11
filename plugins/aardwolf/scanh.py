@@ -3,13 +3,7 @@ $Id$
 
 This plugin highlights cp/gq/quest mobs in scan
 """
-import time
-import os
-import copy
-import fnmatch
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
-from libs.persistentdict import PersistentDict
-from libs.timing import timeit
 
 NAME = 'Scan Highlight'
 SNAME = 'scanh'

@@ -3,10 +3,7 @@ $Id$
 
 This plugin reads and parses invmon data from Aardwolf
 """
-import copy
-import time
 import argparse
-import shlex
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
 NAME = 'Aardwolf Eq cmds, parser'
@@ -225,11 +222,11 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.togglegroup')('dataline', False)
     self.api.get('events.unregister')('trigger_dataline', self.eqdataline)
 
-  def disconnect(self, args):
+  def disconnect(self, args=None):
     """
     called when the mud disconnects
     """
-    AardwolfBasePlugin.disconnect(self)
+    AardwolfBasePlugin.disconnect(self, args)
     self.itemcache = {}
     self.eqdata = {}
     self.invdata = {}
@@ -398,7 +395,7 @@ class Plugin(AardwolfBasePlugin):
     """
     item = self.find_item(args['item'])
     if item in self.itemcache:
-      retval, container = self.api_putininventory(item)
+      self.api_putininventory(item)
       return True, []
 
     tlist = ['%s' % self.find_item(x) for x in args['otherargs']]
@@ -417,7 +414,7 @@ class Plugin(AardwolfBasePlugin):
     put an item in something
     """
     item = self.find_item(args['item'])
-    origcontainer = False
+
     destination = None
     if len(args['otherargs']) == 0:
       if item in self.itemcache and 'origcontainer' in self.itemcache[item]:
@@ -732,7 +729,6 @@ class Plugin(AardwolfBasePlugin):
       msg.append('')
 
     return msg
-
 
   def build_wornitem(self, item, wearloc, args):
     """

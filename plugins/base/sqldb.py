@@ -6,7 +6,6 @@ this module is a sqlite3 interface
 import sqlite3
 import os
 import shutil
-import inspect
 import time
 import zipfile
 import argparse

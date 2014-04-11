@@ -71,22 +71,21 @@ class Plugin(BasePlugin):
                                     self.checktrigger, prio=1)
 #    self.api.get('events.register')('plugin_stats', self.getpluginstats)
 
-  def plugin_stats(self, args=None):
-    """
-    get stats for a specific plugin
-    """
-    if not args:
-      args = {}
-    if not ('plugin' in args):
-      return {}
+  #def plugin_stats(self, args=None):
+    #"""
+    #get stats for a specific plugin
+    #"""
+    #if not args:
+      #args = {}
+    #if not ('plugin' in args):
+      #return {}
 
-    stats = {}
-    totaltriggers = 0
-    enabledtriggers = 0
-    totalhits = 0
-    for i in self.triggers:
-      pass
-
+    #stats = {}
+    #totaltriggers = 0
+    #enabledtriggers = 0
+    #totalhits = 0
+    #for i in self.triggers:
+      #pass
 
   # add a trigger
   def api_addtrigger(self, triggername, regex, plugin, **kwargs):
@@ -332,7 +331,7 @@ class Plugin(BasePlugin):
     stats['Triggers']['Memory Usage'] = sys.getsizeof(self.triggers)
     return stats
 
-  def cmd_stats(self, args):
+  def cmd_stats(self, args=None):
     """
     @G%(name)s@w - @B%(cmdname)s@w
       get stats for the # of triggers, hits, etc

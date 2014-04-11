@@ -10,7 +10,6 @@ import os
 import sys
 import socket
 import signal
-from libs import io
 from libs.api import API
 
 sys.stderr = sys.stdout
