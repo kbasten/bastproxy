@@ -159,7 +159,7 @@ class Plugin(AardwolfBasePlugin):
       enabled=False, group='eqdata', omit=True)
 
     self.api.get('triggers.add')('dataline',
-      "^(\d+),(.+),(.+),(.+),(.+),(.+),(.+),(.+)$",
+      "^(\d+),(.*),(.+),(.+),(.+),(.+),(.+),(.+)$",
       enabled=False, group='dataline', omit=True)
 
     self.api.get('triggers.add')('invdatastart',
