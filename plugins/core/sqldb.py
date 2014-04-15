@@ -66,7 +66,6 @@ class Sqldb(object):
     self.conns = 0
     self.version = 1
     self.versionfuncs = {}
-    self.tableids = {}
     self.tables = {}
 
   def close(self):
@@ -145,7 +144,16 @@ class Sqldb(object):
     parser = argparse.ArgumentParser(add_help=False,
                  description='run a sql statement against the database')
     parser.add_argument('stmt', help='the sql statement', default='', nargs='?')
-    self.plugin.api.get('commands.add')('runselect', self.cmd_runselect,
+    self.plugin.api.get('commands.add')('dbrunselect', self.cmd_runselect,
+                                           parser=parser, group='DB')
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='remove a row from a table')
+    parser.add_argument('table', help='the table to remove the row from',
+                                        default='', nargs='?')
+    parser.add_argument('rownumber', help='the row number to remove',
+                                        default=-1, nargs='?')
+    self.plugin.api.get('commands.add')('dbremove', self.cmd_remove,
                                            parser=parser, group='DB')
 
   def cmd_runselect(self, args=None):
@@ -179,6 +187,21 @@ class Sqldb(object):
     msg = []
     self.close()
     msg.append('Database %s was closed' % (self.dbname))
+
+    return True, msg
+
+  def cmd_remove(self, args):
+    """
+    backup the database
+    """
+    msg = []
+    if not args['table'] or not (args['table'] in self.tables):
+      msg.append('Please include a valid table')
+    elif not args['rownumber'] or args['rownumber'] < 0:
+      msg.append('Please include a valid row number')
+    else:
+      retval, nmsg = self.remove(args['table'], args['rownumber'])
+      msg.append(nmsg)
 
     return True, msg
 
@@ -247,6 +270,21 @@ class Sqldb(object):
     col, colbykeys = self.getcolumnsfromsql(tablename)
     self.tables[tablename]['columns'] = col
     self.tables[tablename]['columnsbykeys'] = colbykeys
+
+  def remove(self, table, rownumber):
+    """
+    remove an item
+    """
+    if table in self.tables:
+      keyfield = self.tables[table]['keyfield']
+      sql = "DELETE FROM %s where %s=%s;" % (table, keyfield, rownumber)
+      cur = self.dbconn.cursor()
+      cur.execute(sql)
+      cur.close()
+      self.dbconn.commit()
+      return True, '%s was removed from table %s' % (rownumber, table)
+    else:
+      return False, '%s is not a table' % table
 
   def getcolumnsfromsql(self, tablename):
     """
