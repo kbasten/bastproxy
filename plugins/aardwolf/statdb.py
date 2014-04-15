@@ -240,6 +240,29 @@ def dbcreate(sqldb, plugin, **kwargs):
       self.api.get('send.msg')('added quest: %s' % rowid)
       return rowid
 
+    def remove(self, table, rownumber):
+      """
+      remove an item
+      """
+      retval, msg = sqldb.remove(self, table, rownumber)
+
+      if retval:
+        if table == 'campaigns':
+          sql = "DELETE FROM cpmobs where cp_id=%s;" % (rownumber)
+          cur = self.dbconn.cursor()
+          cur.execute(sql)
+          cur.close()
+          self.dbconn.commit()
+
+        elif table == 'gquests':
+          sql = "DELETE FROM gqmobs where gq_id=%s;" % (rownumber)
+          cur = self.dbconn.cursor()
+          cur.execute(sql)
+          cur.close()
+          self.dbconn.commit()
+
+      return retval, msg
+
     def setstat(self, stat, value):
       """
       set a stat
