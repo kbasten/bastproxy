@@ -158,17 +158,18 @@ class Sqldb(object):
 
   def cmd_runselect(self, args=None):
     """
-    vacuum the database
+    run a cmd against the database
     """
     msg = []
     if args:
       print args
       sqlstmt = args['stmt']
       if sqlstmt:
-        pass
-      # check the validity of the sql statement
-    else:
-      msg.append('Please enter a select statement')
+        results = self.runselect(sqlstmt)
+        for i in results:
+          msg.append('%s' % i)
+      else:
+        msg.append('Please enter a select statement')
     return True, msg
 
   def cmd_vac(self, _=None):
