@@ -316,16 +316,14 @@ class BasePlugin(object):
       cmdlist = self.api.get('commands.list')(self.sname)
       if cmdlist:
         msg.extend(self.api.get('commands.list')(self.sname))
+        msg.append('@G' + '-' * 60 + '@w')
         msg.append('')
     if args['api']:
       apilist = self.api.get('api.list')(self.sname)
       if apilist:
-        msg.append('API functions')
+        msg.append('API functions in %s' % self.sname)
         msg.append('@G' + '-' * 60 + '@w')
         msg.extend(self.api.get('api.list')(self.sname))
-        msg.append('@G' + '-' * 60 + '@w')
-        msg.append('')
-
     return True, msg
 
   def listvars(self):
