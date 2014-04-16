@@ -3,6 +3,7 @@ $Id$
 
 this module handles the api for all other modules
 """
+import inspect
 
 class API(object):
   """
@@ -25,6 +26,8 @@ class API(object):
     self.overload('api', 'remove', self.remove)
     self.overload('api', 'getchildren', self.api_getchildren)
     self.overload('api', 'has', self.api_has)
+    self.overload('api', 'detail', self.api_detail)
+    self.overload('api', 'list', self.api_list)
 
   # add a function to the api
   def add(self, ptype, name, function):
@@ -110,6 +113,7 @@ class API(object):
 
     raise AttributeError('%s is not in the api' % apiname)
 
+  # return a list of api functions in a toplevel api
   def api_getchildren(self, toplevel):
     """
     return a list of apis in a toplevel api
@@ -123,6 +127,7 @@ class API(object):
 
     return list(set(apilist))
 
+  # check to see if something exists in the api
   def api_has(self, apiname):
     """
     see if something exists in the api
@@ -132,6 +137,126 @@ class API(object):
       return True
     except AttributeError:
       return False
+
+  # get the details for an api function
+  def api_detail(self, api):
+    """
+    return the detail of an api function
+    """
+    tmsg = []
+    apia = None
+    apio = None
+    apiapath = None
+    apiopath = None
+    if api:
+      apiname = api
+      name, cmdname = apiname.split('.')
+      tdict = {'name':name, 'cmdname':cmdname, 'apiname':apiname}
+      try:
+        apia = self.get(apiname, True)
+      except AttributeError:
+        pass
+
+      try:
+        apio = self.get(apiname)
+      except AttributeError:
+        pass
+
+      if not apia and not apio:
+        tmsg.append('%s is not in the api' % apiname)
+      else:
+        if apia and not apio:
+          apif = apia
+          apiapath = inspect.getsourcefile(apia)
+          apiapath = apiapath[len(self.BASEPATH)+1:]
+
+        elif apio and not apia:
+          apif = apio
+          apiopath = inspect.getsourcefile(apio)
+          apiopath = apiopath[len(self.BASEPATH)+1:]
+
+        elif not (apio == apia) and apia and apio:
+          apif = apia
+          apiapath = inspect.getsourcefile(apia)
+          apiopath = inspect.getsourcefile(apio)
+          apiapath = apiapath[len(self.BASEPATH)+1:]
+          apiopath = apiopath[len(self.BASEPATH)+1:]
+
+        else:
+          apif = apia
+          apiapath = inspect.getsourcefile(apia)
+          apiapath = apiapath[len(self.BASEPATH)+1:]
+
+        src = inspect.getsource(apif)
+        dec = src.split('\n')[0]
+        args = dec.split('(')[-1].strip()
+        args = args.split(')')[0]
+        argsl = args.split(',')
+        argn = []
+        for i in argsl:
+          if i == 'self':
+            continue
+          argn.append('@Y%s@w' % i.strip())
+
+        args = ', '.join(argn)
+        tmsg.append('@G%s@w(%s)' % (apiname, args))
+        tmsg.append(apif.__doc__ % tdict)
+
+        tmsg.append('')
+        if apiapath:
+          tmsg.append('original defined in %s' % apiapath)
+        if apiopath and apiapath:
+          tmsg.append('overloaded in %s' % apiopath)
+        elif apiopath:
+          tmsg.append('original defined in %s' % apiopath)
+
+    return tmsg
+
+  # return a formatted list of functions in an api
+  def api_list(self, toplevel=None):
+    """
+    return a formatted list of functions in an api
+    """
+    apilist = {}
+    tmsg = []
+    if toplevel:
+      if toplevel in self.api:
+        apilist[toplevel] = {}
+        for k in self.api[toplevel]:
+          apilist[toplevel][k] = True
+      if toplevel in self.overloadedapi:
+        if not (toplevel in apilist):
+          apilist[toplevel] = {}
+        for k in self.overloadedapi[toplevel]:
+          apilist[toplevel][k] = True
+    else:
+      for i in self.api:
+        if not (i in apilist):
+          apilist[i] = {}
+        for k in self.api[i]:
+          apilist[i][k] = True
+
+      for i in self.overloadedapi:
+        if not (i in apilist):
+          apilist[i] = {}
+        for k in self.overloadedapi[i]:
+          apilist[i][k] = True
+
+    tkeys = apilist.keys()
+    tkeys.sort()
+    for i in tkeys:
+      tmsg.append('@G%-10s@w' % i)
+      tkeys2 = apilist[i].keys()
+      tkeys2.sort()
+      for k in tkeys2:
+        apif = self.get('%s.%s' % (i, k))
+        comments = inspect.getcomments(apif)
+        if comments:
+          comments = comments.strip()
+        tmsg.append('  @G%-15s@w : %s' % (k, comments))
+
+    return tmsg
+
 
 if __name__ == '__main__':
   def testapi():
