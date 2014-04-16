@@ -39,6 +39,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('remove', self.api_removecmd)
     self.api.get('api.add')('default', self.api_setdefault)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
+    self.api.get('api.add')('list', self.api_listcmds)
 
   def load(self):
     """
@@ -80,6 +81,12 @@ class Plugin(BasePlugin):
     msg.append('@G' + '-' * 60 + '@w')
     msg.append('')
     return msg
+
+  def api_listcmds(self, plugin):
+    """
+    list commands for a plugin
+    """
+    return self.listcmds(plugin)
 
   def runcmd(self, cmd, targs, fullargs):
     """
@@ -336,6 +343,42 @@ class Plugin(BasePlugin):
 
     return tmsg
 
+  def listcmds(self, category, cmd=None):
+    """
+    build a table of commands for a category
+    """
+    tmsg = []
+    if category:
+      if category in self.cmds:
+        tmsg.append('Commands in %s:' % category)
+        tmsg.append('@G' + '-' * 60 + '@w')
+        tkeys = self.cmds[category].keys()
+        tkeys.sort()
+        groups = {}
+        for i in tkeys:
+
+          if i != 'default':
+            if not (self.cmds[category][i]['group'] in groups):
+              groups[self.cmds[category][i]['group']] = []
+
+            groups[self.cmds[category][i]['group']].append(i)
+
+        if len(groups) == 1:
+          tmsg.extend(self.format_cmdlist(category, tkeys))
+        else:
+          gkeys = groups.keys()
+          gkeys.sort()
+          for group in gkeys:
+            if group != 'Default':
+              tmsg.append('@M' + '-' * 5 + ' ' +  group + ' ' + '-' * 5)
+              tmsg.extend(self.format_cmdlist(category, groups[group]))
+              tmsg.append('')
+
+          tmsg.append('@M' + '-' * 5 + ' ' +  'Default' + ' ' + '-' * 5)
+          tmsg.extend(self.format_cmdlist(category, groups['Default']))
+        tmsg.append('@G' + '-' * 60 + '@w')
+    return tmsg
+
   def cmd_list(self, args):
     """
     list commands
@@ -349,33 +392,7 @@ class Plugin(BasePlugin):
           msg = self.cmds[category][cmd]['parser'].format_help().split('\n')
           tmsg.extend(msg)
         else:
-          tmsg.append('Commands in %s:' % category)
-          tmsg.append('@G' + '-' * 60 + '@w')
-          tkeys = self.cmds[category].keys()
-          tkeys.sort()
-          groups = {}
-          for i in tkeys:
-
-            if i != 'default':
-              if not (self.cmds[category][i]['group'] in groups):
-                groups[self.cmds[category][i]['group']] = []
-
-              groups[self.cmds[category][i]['group']].append(i)
-
-          if len(groups) == 1:
-            tmsg.extend(self.format_cmdlist(category, tkeys))
-          else:
-            gkeys = groups.keys()
-            gkeys.sort()
-            for group in gkeys:
-              if group != 'Default':
-                tmsg.append('@M' + '-' * 5 + ' ' +  group + ' ' + '-' * 5)
-                tmsg.extend(self.format_cmdlist(category, groups[group]))
-                tmsg.append('')
-
-            tmsg.append('@M' + '-' * 5 + ' ' +  'Default' + ' ' + '-' * 5)
-            tmsg.extend(self.format_cmdlist(category, groups['Default']))
-
+          tmsg.extend(self.listcmds(category, cmd))
       else:
         tmsg.append('There is no category %s' % category)
     else:
