@@ -82,6 +82,7 @@ class Plugin(BasePlugin):
     msg.append('')
     return msg
 
+  # return a formatted list of commands for a plugin
   def api_listcmds(self, plugin):
     """
     list commands for a plugin
@@ -160,21 +161,27 @@ class Plugin(BasePlugin):
         cmd = self.cmds[self.sname]['list']
         self.runcmd(cmd, [sname, scmd], fullargs)
 
-      elif sname and scmd:
-        if sname in self.cmds:
-          cmd = None
-          if scmd in self.cmds[sname]:
-            cmd = self.cmds[sname][scmd]
-          elif not scmd and 'default' in self.cmds[sname]:
-            cmd = self.cmds[sname]['default']
-          if cmd:
-            self.runcmd(cmd, targs, fullargs)
-          else:
-            self.api.get('send.client')("@R%s.%s@W is not a command" % \
-                                                  (sname, scmd))
-        else:
+      elif sname:
+        if not (sname in self.cmds):
           self.api.get('send.client')("@R%s.%s@W is not a command." % \
                                                   (sname, scmd))
+        else:
+          if scmd:
+            cmd = None
+            if scmd in self.cmds[sname]:
+              cmd = self.cmds[sname][scmd]
+            if cmd:
+              self.runcmd(cmd, targs, fullargs)
+            else:
+              self.api.get('send.client')("@R%s.%s@W is not a command" % \
+                                                    (sname, scmd))
+          else:
+            if 'default' in self.cmds[sname]:
+              cmd = self.cmds[sname]['default']
+              self.runcmd(cmd, targs, fullargs)
+            else:
+              cmd = self.cmds[self.sname]['list']
+              self.runcmd(cmd, [sname, scmd], '')
       else:
         try:
           del targs[targs.index('help')]
@@ -336,10 +343,11 @@ class Plugin(BasePlugin):
     """
     tmsg = []
     for i in cmdlist:
-      tlist = self.cmds[category][i]['parser'].description.split('\n')
-      if not tlist[0]:
-        tlist.pop(0)
-      tmsg.append('  @B%-10s@w : %s' % (i, tlist[0]))
+      if i != 'default':
+        tlist = self.cmds[category][i]['parser'].description.split('\n')
+        if not tlist[0]:
+          tlist.pop(0)
+        tmsg.append('  @B%-10s@w : %s' % (i, tlist[0]))
 
     return tmsg
 
@@ -356,7 +364,6 @@ class Plugin(BasePlugin):
         tkeys.sort()
         groups = {}
         for i in tkeys:
-
           if i != 'default':
             if not (self.cmds[category][i]['group'] in groups):
               groups[self.cmds[category][i]['group']] = []
@@ -376,7 +383,7 @@ class Plugin(BasePlugin):
 
           tmsg.append('@M' + '-' * 5 + ' ' +  'Default' + ' ' + '-' * 5)
           tmsg.extend(self.format_cmdlist(category, groups['Default']))
-        tmsg.append('@G' + '-' * 60 + '@w')
+        #tmsg.append('@G' + '-' * 60 + '@w')
     return tmsg
 
   def cmd_list(self, args):
