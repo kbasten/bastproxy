@@ -436,7 +436,7 @@ class BasePlugin(object):
   # add a function to the api
   def api_add(self, name, func):
     """
-    set a command as default
+    add a command to the api
     """
     # we call the non overloaded versions
     self.api.add(self.sname, name, func)
