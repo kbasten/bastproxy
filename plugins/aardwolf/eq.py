@@ -51,6 +51,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('getitem', self.api_getitem)
     self.api.get('api.add')('get', self.api_putininventory)
     self.api.get('api.add')('put', self.api_putincontainer)
+    self.api.get('api.add')('findname', self.api_findname)
 
   def load(self):
     """
@@ -185,6 +186,17 @@ class Plugin(AardwolfBasePlugin):
                        self.eqdatabefore, self.eqdataafter)
     self.cmdqueue.addcmdtype('get', 'get', "^get\s*(.*)$")
     self.cmdqueue.addcmdtype('put', 'put', "^get\s*(.*)$")
+
+  def api_findname(self, name, exact=False):
+    """
+    find an item with name in it
+    """
+    results = []
+    for i in self.itemcache:
+      if name in self.itemcache[i]['name']:
+        results.append(self.itemcache[i])
+
+    return results
 
   def invdatabefore(self):
     """
