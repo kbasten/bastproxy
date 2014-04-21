@@ -118,7 +118,7 @@ class Plugin(AardwolfBasePlugin):
     need = set(all) - set(have)
     tmsg.append('You have %s Aarcheology Items and %s Pamphlets' % (items, pam))
     if len(need) > 0:
-      tmsg.append('You need:')
+      tmsg.append('You need %s pieces:' % len(need))
       for i in need:
         tmsg.append('%-2s - %s' % (i, AARCHITEMS[i]))
     else:
