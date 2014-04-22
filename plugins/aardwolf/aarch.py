@@ -80,7 +80,7 @@ class Plugin(AardwolfBasePlugin):
   def __init__(self, *args, **kwargs):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
 
-    self.api.get('dependency.add')('eq')
+    self.api.get('dependency.add')('aardwolf.eq')
 
   def load(self):
     """
