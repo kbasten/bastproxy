@@ -39,9 +39,10 @@ class Plugin(AardwolfBasePlugin):
     """
     check an item added to inventory to autokeep
     """
+    item = args['item']
     itemtypesrev = self.api.get('itemu.objecttypes')()
-    ntype = itemtypesrev[args['type']]
+    ntype = itemtypesrev[item['type']]
 
     if self.api.get('setting.gets')(ntype):
-      if not ('K' in args['shortflags']):
-        self.api.get('send.execute')('keep %s' % args['serial'])
+      if not ('K' in item['shortflags']):
+        self.api.get('send.execute')('keep %s' % item['serial'])
