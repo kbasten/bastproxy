@@ -342,6 +342,15 @@ class Plugin(AardwolfBasePlugin):
     self.kill_info['room_id'] = self.api.get('GMCP.getv')('room.info.num')
     self.kill_info['level'] = self.api.get('aardu.getactuallevel')()
     self.kill_info['time'] = time.time()
+    wielded = self.api.get('eq.getworn')(24)
+    print 'wielded', wielded
+    second = self.api.get('eq.getworn')(25)
+    print 'second', second
+    if wielded:
+      self.kill_info['wielded_weapon'] = wielded['serial']
+    if second:
+      self.kill_info['second_weapon'] = second['serial']
+
     if not self.kill_info['raised']:
       if not self.kill_info['name']:
         self.kill_info['name'] = 'Unknown'
