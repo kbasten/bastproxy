@@ -476,7 +476,7 @@ class Plugin(AardwolfBasePlugin):
         tskill = copy.deepcopy(self.skills[spellnum])
         #tskill = self.skills[spellnum]
       else:
-        self.api.get('send.msg')('did not find skill for int')
+        self.api.get('send.msg')('did not find skill for %s' % spellnum)
 
     if not tskill and name:
       #self.api.get('send.msg')('trying name')

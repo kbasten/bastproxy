@@ -180,6 +180,7 @@ class Plugin(AardwolfBasePlugin):
     """
     self.api.get('send.msg')('skillfail: %s' % args)
     spellnum = args['sn']
+    skill = self.api.get('skills.gets')(spellnum)
     waiting = self.api.get('setting.gets')('waiting')
     if args['reason'] == 'nomana':
       self.api.get('setting.change')('waiting', -1)
@@ -202,7 +203,6 @@ class Plugin(AardwolfBasePlugin):
         self.api.get('skills.sendcmd')(waiting)
       elif args['reason'] == 'alreadyaff':
         self.api.get('setting.change')('waiting', -1)
-        skill = self.api.get('skills.gets')(spellnum)
         self.api.get('send.client')(
           "@BSpellup - disabled %s because you are already affected" % \
                                   skill['name'])
@@ -217,10 +217,12 @@ class Plugin(AardwolfBasePlugin):
         self.nextspell()
       elif args['reason'] == 'dontknow':
         # do stuff when spell/skill isn't learned
-        skill = self.api.get('skills.gets')(spellnum)
+        sname = spellnum
+        if skill:
+          sname = skill['name']
         self.api.get('send.client')(
-          "@BSpellup - disabled %s because it is not learned" % \
-                                  skill['name'])
+            "@BSpellup - disabled %s because it is not learned" % \
+                                  sname)
         if spellnum in self.spellups['self']:
           self.spellups['self'][spellnum]['enabled'] = False
         if spellnum in self.spellups['other']:
