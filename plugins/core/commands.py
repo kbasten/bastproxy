@@ -41,6 +41,8 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
     self.api.get('api.add')('list', self.api_listcmds)
     self.api.get('api.add')('run', self.api_run)
+    self.api.get('api.add')('cmdhelp', self.api_cmdhelp)
+
 
   def load(self):
     """
@@ -82,6 +84,15 @@ class Plugin(BasePlugin):
     msg.append('@G' + '-' * 60 + '@w')
     msg.append('')
     return msg
+
+  def api_cmdhelp(self, plugin, cmd):
+    """
+    get the help for a command
+    """
+    if plugin in self.cmds and cmd in self.cmds[plugin]:
+      return self.cmds[plugin][cmd]['parser'].format_help()
+    else:
+      return ''
 
   # return a formatted list of commands for a plugin
   def api_listcmds(self, plugin, format=True):
@@ -285,7 +296,7 @@ class Plugin(BasePlugin):
     tparser.prog = '@B#bp.%s.%s@w' % (sname, cmdname)
 
     if not ('group' in args):
-      args['group'] = 'Default'
+      args['group'] = 'Base'
 
     try:
       lname = func.im_self.name
@@ -393,13 +404,13 @@ class Plugin(BasePlugin):
           tmsg.extend(self.format_cmdlist(category, tkeys))
         else:
           for group in sorted(groups.keys()):
-            if group != 'Default':
+            if group != 'Base':
               tmsg.append('@M' + '-' * 5 + ' ' +  group + ' ' + '-' * 5)
               tmsg.extend(self.format_cmdlist(category, groups[group]))
               tmsg.append('')
 
-          tmsg.append('@M' + '-' * 5 + ' ' +  'Default' + ' ' + '-' * 5)
-          tmsg.extend(self.format_cmdlist(category, groups['Default']))
+          tmsg.append('@M' + '-' * 5 + ' ' +  'Base' + ' ' + '-' * 5)
+          tmsg.extend(self.format_cmdlist(category, groups['Base']))
         #tmsg.append('@G' + '-' * 60 + '@w')
     return tmsg
 
