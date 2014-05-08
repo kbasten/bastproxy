@@ -285,105 +285,260 @@ pre {
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav" style="position: fixed;top: 55px;">
   <li><a href="#about">About</a></li>
-  <li><a href="#" data-toggle="collapse" data-target="#installationMenu">
-           Installation <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="installationMenu">
-  <li><a href="#git">Git</a></li>
-  <li><a href="#download">Download</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
+           Commands <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
+           Base <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
+  <li><a href="#cmdapi">api</a></li>
+  <li><a href="#cmdeq">eq</a></li>
+  <li><a href="#cmdget">get</a></li>
+  <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdicache">icache</a></li>
+  <li><a href="#cmdinv">inv</a></li>
+  <li><a href="#cmdput">put</a></li>
+  <li><a href="#cmdrefresh">refresh</a></li>
+  <li><a href="#cmdreset">reset</a></li>
+  <li><a href="#cmdsave">save</a></li>
+  <li><a href="#cmdset">set</a></li>
+  <li><a href="#cmdstats">stats</a></li>
+  <li><a href="#cmdsv">sv</a></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#getting-startedMenu">
-           Getting Started <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="getting-startedMenu">
-  <li><a href="#configuration">Configuration</a></li>
-  <li><a href="#starting">Starting</a></li>
-  <li><a href="#connecting">Connecting</a></li>
-  <li><a href="#help">Help</a></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
+           API <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="apiMenu">
+  <li><a href="#setput">put</a></li>
+  <li><a href="#setfindname">findname</a></li>
+  <li><a href="#setget">get</a></li>
+  <li><a href="#setgetitem">getitem</a></li>
+  <li><a href="#setgetworn">getworn</a></li>
 </ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <h2 id="about">About</h2>
+        <h2 id="about" class="bph2">About</h2>
+<p>$Id$</p>
 
-<p>This is a mud proxy.
-It runs in python 2.X (&gt;2.6).</p>
+<p>This plugin reads and parses invmon data from Aardwolf</p>
+<h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.api</span> [-h] [api]
 
-<p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p>
+list functions in the api
 
-<h2 id="installation">Installation</h2>
+positional arguments:
+  api         api to get details of
 
-<h3 id="git">Git</h3>
+optional arguments:
+  -h, --help  show help
 
-<ul>
-<li><code>git clone https://github.com/endavis/bastproxy.git</code></li>
-</ul>
-
-<h3 id="download">Download</h3>
-
-<ul>
-<li>Download the zip file from <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li>
-<li>Unzip into a directory</li>
-</ul>
-
-<h2 id="getting-started">Getting Started</h2>
-
-<h3 id="configuration">Configuration</h3>
-
-<ul>
-<li>Use one of the included ones,  both for <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li>
-<li>Copy the below to "mud"-config.ini and change the items to suit your needs</li>
-</ul>
-
-<hr />
-
-<pre><code>[proxy]
-listen_port = 9999
-mud_address = some.mud.address
-mud_port = 4000
-password = somepassword
-viewpw = someviewpassword
 </code></pre>
+<h4 id="cmdeq" class="bph4">eq</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.eq</span> [-n] [-c] [-s] [-h]
 
-<hr />
+show equipment worn
 
-<p>Don't forget to change the passwords!</p>
+optional arguments:
+  -n, --noflags  don't show flags, default False
+  -c, --score    show score, default False
+  -s, --serial   show serial, default False
+  -h, --help     show help
 
-<h3 id="starting">Starting</h3>
+</code></pre>
+<h4 id="cmdget" class="bph4">get</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.get</span> [-h] [item] [otherargs [otherargs ...]]
 
-<ul>
-<li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li>
-</ul>
+get an item
 
-<h3 id="connecting">Connecting</h3>
+positional arguments:
+  item        the item to get
+  otherargs   the rest of the args
 
-<ul>
-<li>Connect a client to the listen_port above on the host the proxy is running, and then login with the password.</li>
-</ul>
+optional arguments:
+  -h, --help  show help
 
-<h3 id="help">Help</h3>
+</code></pre>
+<h4 id="cmdhelp" class="bph4">help</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.help</span> [-a] [-c] [-h]
 
-<ul>
-<li>Use the following commands to get help, any command will show help when adding -h
-<ul>
-<li>Show command categories
-<ul>
-<li><code>#bp.commands</code></li>
-</ul></li>
-<li>show commands in a category
-<ul>
-<li><code>#bp.commands.list "category"</code></li>
-<li><code>#bp."category"</code></li>
-</ul></li>
-<li>Show loaded plugins
-<ul>
-<li><code>#bp.plugins</code></li>
-</ul></li>
-<li>Show plugins that are not loaded
-<ul>
-<li><code>#bp.plugins -n</code></li>
-</ul></li>
-</ul></li>
-</ul>
+show help info for this plugin
 
+optional arguments:
+  -a, --api       show functions this plugin has in the api
+  -c, --commands  show commands in this plugin
+  -h, --help      show help
+
+</code></pre>
+<h4 id="cmdicache" class="bph4">icache</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.icache</span> [-h] [item]
+
+get an item
+
+positional arguments:
+  item        the item to get
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdinv" class="bph4">inv</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.inv</span> [-n] [-c] [-s] [-g] [-h] [container]
+
+show inventory or a container
+
+positional arguments:
+  container      the container to see
+
+optional arguments:
+  -n, --noflags  don't show flags, default False
+  -c, --score    show score, default False
+  -s, --serial   show serial, default False
+  -g, --nogroup  don't group items, default False
+  -h, --help     show help
+
+</code></pre>
+<h4 id="cmdput" class="bph4">put</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.put</span> [-h] [item] [otherargs [otherargs ...]]
+
+get an item
+
+positional arguments:
+  item        the item to get
+  otherargs   the rest of the args
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdrefresh" class="bph4">refresh</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.refresh</span> [-h]
+
+refresh eq
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdreset" class="bph4">reset</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.reset</span> [-h]
+
+reset the plugin
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsave" class="bph4">save</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.save</span> [-h]
+
+save the plugin state
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdset" class="bph4">set</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.set</span> [-h] [name] [value]
+
+change a setting in the plugin
+
+if there are no arguments or 'list' is the first argument then
+it will list the settings for the plugin
+
+positional arguments:
+  name        the setting name
+  value       the new value of the setting
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdstats" class="bph4">stats</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.stats</span> [-h]
+
+show plugin stats
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsv" class="bph4">sv</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.eq.sv</span> [-h]
+
+show some internal variables
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<h2 id="api" class="bph2">API</h2>
+<div class="indenth4">
+<h3 id="setput" class="bph4">put</h3>
+<pre><code>
+<span style="color:#00ff00">eq.put</span>(<span style="color:#ffff00">serial</span>, <span style="color:#ffff00">container=None</span>)
+
+    put an item in a container
+
+
+original defined in plugins/aardwolf/eq.py
+</code></pre>
+<h3 id="setfindname" class="bph4">findname</h3>
+<pre><code>
+<span style="color:#00ff00">eq.findname</span>(<span style="color:#ffff00">name</span>, <span style="color:#ffff00">exact=False</span>)
+
+    find an item with name in it
+
+
+original defined in plugins/aardwolf/eq.py
+</code></pre>
+<h3 id="setget" class="bph4">get</h3>
+<pre><code>
+<span style="color:#00ff00">eq.get</span>(<span style="color:#ffff00">serial</span>)
+
+    put an item in inventory
+
+
+original defined in plugins/aardwolf/eq.py
+</code></pre>
+<h3 id="setgetitem" class="bph4">getitem</h3>
+<pre><code>
+<span style="color:#00ff00">eq.getitem</span>(<span style="color:#ffff00">item</span>)
+
+    get an item from the cache
+
+
+original defined in plugins/aardwolf/eq.py
+</code></pre>
+<h3 id="setgetworn" class="bph4">getworn</h3>
+<pre><code>
+<span style="color:#00ff00">eq.getworn</span>(<span style="color:#ffff00">location</span>)
+
+    get the item that is worn at location
+
+
+original defined in plugins/aardwolf/eq.py
+</code></pre>
+</div>
         </div><!-- /.col-xs-12 main -->
     </div><!--/.row-->
   </div><!--/.container-->

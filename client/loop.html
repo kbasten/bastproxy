@@ -285,105 +285,123 @@ pre {
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav" style="position: fixed;top: 55px;">
   <li><a href="#about">About</a></li>
-  <li><a href="#" data-toggle="collapse" data-target="#installationMenu">
-           Installation <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="installationMenu">
-  <li><a href="#git">Git</a></li>
-  <li><a href="#download">Download</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
+           Commands <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
+           Base <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
+  <li><a href="#cmdapi">api</a></li>
+  <li><a href="#cmdcmd">cmd</a></li>
+  <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdreset">reset</a></li>
+  <li><a href="#cmdsave">save</a></li>
+  <li><a href="#cmdset">set</a></li>
+  <li><a href="#cmdstats">stats</a></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#getting-startedMenu">
-           Getting Started <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="getting-startedMenu">
-  <li><a href="#configuration">Configuration</a></li>
-  <li><a href="#starting">Starting</a></li>
-  <li><a href="#connecting">Connecting</a></li>
-  <li><a href="#help">Help</a></li>
 </ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <h2 id="about">About</h2>
+        <h2 id="about" class="bph2">About</h2>
+<p>$Id$</p>
 
-<p>This is a mud proxy.
-It runs in python 2.X (&gt;2.6).</p>
+<p>This plugin loops commands for a specified number of times</p>
 
-<p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p>
+<p>the command can be "get all ${num}.corpse"</p>
+<h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.api</span> [-h] [api]
 
-<h2 id="installation">Installation</h2>
+list functions in the api
 
-<h3 id="git">Git</h3>
+positional arguments:
+  api         api to get details of
 
-<ul>
-<li><code>git clone https://github.com/endavis/bastproxy.git</code></li>
-</ul>
+optional arguments:
+  -h, --help  show help
 
-<h3 id="download">Download</h3>
-
-<ul>
-<li>Download the zip file from <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li>
-<li>Unzip into a directory</li>
-</ul>
-
-<h2 id="getting-started">Getting Started</h2>
-
-<h3 id="configuration">Configuration</h3>
-
-<ul>
-<li>Use one of the included ones,  both for <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li>
-<li>Copy the below to "mud"-config.ini and change the items to suit your needs</li>
-</ul>
-
-<hr />
-
-<pre><code>[proxy]
-listen_port = 9999
-mud_address = some.mud.address
-mud_port = 4000
-password = somepassword
-viewpw = someviewpassword
 </code></pre>
+<h4 id="cmdcmd" class="bph4">cmd</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.cmd</span> [-c COUNT] [-h] [cmd]
 
-<hr />
+loop a command
 
-<p>Don't forget to change the passwords!</p>
+positional arguments:
+  cmd                   the command to run
 
-<h3 id="starting">Starting</h3>
+optional arguments:
+  -c COUNT, --count COUNT
+                        how many times to execute the command
+  -h, --help            show help
 
-<ul>
-<li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li>
-</ul>
+</code></pre>
+<h4 id="cmdhelp" class="bph4">help</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.help</span> [-a] [-c] [-h]
 
-<h3 id="connecting">Connecting</h3>
+show help info for this plugin
 
-<ul>
-<li>Connect a client to the listen_port above on the host the proxy is running, and then login with the password.</li>
-</ul>
+optional arguments:
+  -a, --api       show functions this plugin has in the api
+  -c, --commands  show commands in this plugin
+  -h, --help      show help
 
-<h3 id="help">Help</h3>
+</code></pre>
+<h4 id="cmdreset" class="bph4">reset</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.reset</span> [-h]
 
-<ul>
-<li>Use the following commands to get help, any command will show help when adding -h
-<ul>
-<li>Show command categories
-<ul>
-<li><code>#bp.commands</code></li>
-</ul></li>
-<li>show commands in a category
-<ul>
-<li><code>#bp.commands.list "category"</code></li>
-<li><code>#bp."category"</code></li>
-</ul></li>
-<li>Show loaded plugins
-<ul>
-<li><code>#bp.plugins</code></li>
-</ul></li>
-<li>Show plugins that are not loaded
-<ul>
-<li><code>#bp.plugins -n</code></li>
-</ul></li>
-</ul></li>
-</ul>
+reset the plugin
 
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsave" class="bph4">save</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.save</span> [-h]
+
+save the plugin state
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdset" class="bph4">set</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.set</span> [-h] [name] [value]
+
+change a setting in the plugin
+
+if there are no arguments or 'list' is the first argument then
+it will list the settings for the plugin
+
+positional arguments:
+  name        the setting name
+  value       the new value of the setting
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdstats" class="bph4">stats</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.stats</span> [-h]
+
+show plugin stats
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
         </div><!-- /.col-xs-12 main -->
     </div><!--/.row-->
   </div><!--/.container-->

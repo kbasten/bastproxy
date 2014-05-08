@@ -285,105 +285,213 @@ pre {
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav" style="position: fixed;top: 55px;">
   <li><a href="#about">About</a></li>
-  <li><a href="#" data-toggle="collapse" data-target="#installationMenu">
-           Installation <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="installationMenu">
-  <li><a href="#git">Git</a></li>
-  <li><a href="#download">Download</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
+           Commands <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
+           Base <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
+  <li><a href="#cmdadd">add</a></li>
+  <li><a href="#cmdapi">api</a></li>
+  <li><a href="#cmddetail">detail</a></li>
+  <li><a href="#cmdgroupt">groupt</a></li>
+  <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdlist">list</a></li>
+  <li><a href="#cmdremove">remove</a></li>
+  <li><a href="#cmdreset">reset</a></li>
+  <li><a href="#cmdsave">save</a></li>
+  <li><a href="#cmdset">set</a></li>
+  <li><a href="#cmdstats">stats</a></li>
+  <li><a href="#cmdtoggle">toggle</a></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#getting-startedMenu">
-           Getting Started <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="getting-startedMenu">
-  <li><a href="#configuration">Configuration</a></li>
-  <li><a href="#starting">Starting</a></li>
-  <li><a href="#connecting">Connecting</a></li>
-  <li><a href="#help">Help</a></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
+           Settings <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="settingsMenu">
+  <li><a href="#setnextnum">nextnum</a></li>
 </ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <h2 id="about">About</h2>
+        <h2 id="about" class="bph2">About</h2>
+<p>$Id$</p>
 
-<p>This is a mud proxy.
-It runs in python 2.X (&gt;2.6).</p>
+<p>This plugin adds the ability to do user defined actions when text is
+seen from the mud</p>
+<h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdadd" class="bph4">add</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.add</span> [-c] [-d] [-g GROUP] [-o] [-h]
+                           [regex] [action]
+                           [{execute,traceback,mud,client,error,msg}]
 
-<p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p>
+add a action
 
-<h2 id="installation">Installation</h2>
+positional arguments:
+  regex                 the regex to match
+  action                the action to take
+  {execute,traceback,mud,client,error,msg}
+                        where to send the action
 
-<h3 id="git">Git</h3>
+optional arguments:
+  -c, --color           match colors (@<span style="color:#00cdcd">olors)</span>
+  -d, --disable         disable the action
+  -g GROUP, --group GROUP
+                        the action group
+  -o, --overwrite       overwrite an action if it already exists
+  -h, --help            show help
 
-<ul>
-<li><code>git clone https://github.com/endavis/bastproxy.git</code></li>
-</ul>
-
-<h3 id="download">Download</h3>
-
-<ul>
-<li>Download the zip file from <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li>
-<li>Unzip into a directory</li>
-</ul>
-
-<h2 id="getting-started">Getting Started</h2>
-
-<h3 id="configuration">Configuration</h3>
-
-<ul>
-<li>Use one of the included ones,  both for <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li>
-<li>Copy the below to "mud"-config.ini and change the items to suit your needs</li>
-</ul>
-
-<hr />
-
-<pre><code>[proxy]
-listen_port = 9999
-mud_address = some.mud.address
-mud_port = 4000
-password = somepassword
-viewpw = someviewpassword
 </code></pre>
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.api</span> [-h] [api]
 
-<hr />
+list functions in the api
 
-<p>Don't forget to change the passwords!</p>
+positional arguments:
+  api         api to get details of
 
-<h3 id="starting">Starting</h3>
+optional arguments:
+  -h, --help  show help
 
-<ul>
-<li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li>
-</ul>
+</code></pre>
+<h4 id="cmddetail" class="bph4">detail</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.detail</span> [-h] [action]
 
-<h3 id="connecting">Connecting</h3>
+get detail for an action
 
-<ul>
-<li>Connect a client to the listen_port above on the host the proxy is running, and then login with the password.</li>
-</ul>
+positional arguments:
+  action      the action to get details for
 
-<h3 id="help">Help</h3>
+optional arguments:
+  -h, --help  show help
 
-<ul>
-<li>Use the following commands to get help, any command will show help when adding -h
-<ul>
-<li>Show command categories
-<ul>
-<li><code>#bp.commands</code></li>
-</ul></li>
-<li>show commands in a category
-<ul>
-<li><code>#bp.commands.list "category"</code></li>
-<li><code>#bp."category"</code></li>
-</ul></li>
-<li>Show loaded plugins
-<ul>
-<li><code>#bp.plugins</code></li>
-</ul></li>
-<li>Show plugins that are not loaded
-<ul>
-<li><code>#bp.plugins -n</code></li>
-</ul></li>
-</ul></li>
-</ul>
+</code></pre>
+<h4 id="cmdgroupt" class="bph4">groupt</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.groupt</span> [-d] [-h] [group]
 
+toggle all actions in a group
+
+positional arguments:
+  group          the group to toggle
+
+optional arguments:
+  -d, --disable  disable the group
+  -h, --help     show help
+
+</code></pre>
+<h4 id="cmdhelp" class="bph4">help</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.help</span> [-a] [-c] [-h]
+
+show help info for this plugin
+
+optional arguments:
+  -a, --api       show functions this plugin has in the api
+  -c, --commands  show commands in this plugin
+  -h, --help      show help
+
+</code></pre>
+<h4 id="cmdlist" class="bph4">list</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.list</span> [-h] [match]
+
+list actions
+
+positional arguments:
+  match       list only actions that have this argument in them
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdremove" class="bph4">remove</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.remove</span> [-h] [action]
+
+remove an action
+
+positional arguments:
+  action      the action to remove
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdreset" class="bph4">reset</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.reset</span> [-h]
+
+reset the plugin
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsave" class="bph4">save</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.save</span> [-h]
+
+save the plugin state
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdset" class="bph4">set</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.set</span> [-h] [name] [value]
+
+change a setting in the plugin
+
+if there are no arguments or 'list' is the first argument then
+it will list the settings for the plugin
+
+positional arguments:
+  name        the setting name
+  value       the new value of the setting
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdstats" class="bph4">stats</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.stats</span> [-h]
+
+show plugin stats
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdtoggle" class="bph4">toggle</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.toggle</span> [-h] [action]
+
+toggle enabled flag
+
+positional arguments:
+  action      the action to toggle
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<h2 id="settings" class="bph2">Settings</h2>
+<div class="indenth4">
+<h3 id="setnextnum" class="bph4">nextnum</h3>
+<pre><code>
+the number of the next action added
+</code></pre>
+</div>
         </div><!-- /.col-xs-12 main -->
     </div><!--/.row-->
   </div><!--/.container-->

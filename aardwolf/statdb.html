@@ -285,105 +285,325 @@ pre {
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav" style="position: fixed;top: 55px;">
   <li><a href="#about">About</a></li>
-  <li><a href="#" data-toggle="collapse" data-target="#installationMenu">
-           Installation <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="installationMenu">
-  <li><a href="#git">Git</a></li>
-  <li><a href="#download">Download</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
+           Commands <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupDBMenu">
+           DB <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupDBMenu">
+  <li><a href="#cmddbbackup">dbbackup</a></li>
+  <li><a href="#cmddbclose">dbclose</a></li>
+  <li><a href="#cmddbremove">dbremove</a></li>
+  <li><a href="#cmddbselect">dbselect</a></li>
+  <li><a href="#cmddbvac">dbvac</a></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#getting-startedMenu">
-           Getting Started <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="getting-startedMenu">
-  <li><a href="#configuration">Configuration</a></li>
-  <li><a href="#starting">Starting</a></li>
-  <li><a href="#connecting">Connecting</a></li>
-  <li><a href="#help">Help</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupStatsMenu">
+           Stats <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupStatsMenu">
+  <li><a href="#cmdcomp">comp</a></li>
+  <li><a href="#cmdcps">cps</a></li>
+  <li><a href="#cmdgqs">gqs</a></li>
+  <li><a href="#cmdlevels">levels</a></li>
+  <li><a href="#cmdlist">list</a></li>
+  <li><a href="#cmdmobs">mobs</a></li>
+  <li><a href="#cmdquests">quests</a></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
+           Base <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
+  <li><a href="#cmdapi">api</a></li>
+  <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdreset">reset</a></li>
+  <li><a href="#cmdsave">save</a></li>
+  <li><a href="#cmdset">set</a></li>
+  <li><a href="#cmdstats">stats</a></li>
+</ul></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
+           Settings <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="settingsMenu">
+  <li><a href="#setbackupstart">backupstart</a></li>
+  <li><a href="#setbackupinterval">backupinterval</a></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
+           API <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="apiMenu">
+  <li><a href="#setselect">select</a></li>
 </ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <h2 id="about">About</h2>
-
-<p>This is a mud proxy.
-It runs in python 2.X (&gt;2.6).</p>
-
-<p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p>
-
-<h2 id="installation">Installation</h2>
-
-<h3 id="git">Git</h3>
+        <h2 id="about" class="bph2">About</h2>
+<p>This plugin holds a stat database and collects the following:</p>
 
 <ul>
-<li><code>git clone https://github.com/endavis/bastproxy.git</code></li>
+<li>levels</li>
+<li>pups</li>
+<li>quests</li>
+<li>cp</li>
+<li>gqs</li>
+<li>mobkills</li>
 </ul>
+<h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupDB" class="bph3">DB</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmddbbackup" class="bph4">dbbackup</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.dbbackup</span> [-h] [name]
 
-<h3 id="download">Download</h3>
+backup the database
 
-<ul>
-<li>Download the zip file from <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li>
-<li>Unzip into a directory</li>
-</ul>
+positional arguments:
+  name        the name to backup to
 
-<h2 id="getting-started">Getting Started</h2>
+optional arguments:
+  -h, --help  show help
 
-<h3 id="configuration">Configuration</h3>
-
-<ul>
-<li>Use one of the included ones,  both for <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li>
-<li>Copy the below to "mud"-config.ini and change the items to suit your needs</li>
-</ul>
-
-<hr />
-
-<pre><code>[proxy]
-listen_port = 9999
-mud_address = some.mud.address
-mud_port = 4000
-password = somepassword
-viewpw = someviewpassword
 </code></pre>
+<h4 id="cmddbclose" class="bph4">dbclose</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.dbclose</span> [-h]
 
-<hr />
+close the database
 
-<p>Don't forget to change the passwords!</p>
+optional arguments:
+  -h, --help  show help
 
-<h3 id="starting">Starting</h3>
+</code></pre>
+<h4 id="cmddbremove" class="bph4">dbremove</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.dbremove</span> [-h] [table] [rownumber]
 
-<ul>
-<li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li>
-</ul>
+remove a row from a table
 
-<h3 id="connecting">Connecting</h3>
+positional arguments:
+  table       the table to remove the row from
+  rownumber   the row number to remove
 
-<ul>
-<li>Connect a client to the listen_port above on the host the proxy is running, and then login with the password.</li>
-</ul>
+optional arguments:
+  -h, --help  show help
 
-<h3 id="help">Help</h3>
+</code></pre>
+<h4 id="cmddbselect" class="bph4">dbselect</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.dbselect</span> [-h] [stmt]
 
-<ul>
-<li>Use the following commands to get help, any command will show help when adding -h
-<ul>
-<li>Show command categories
-<ul>
-<li><code>#bp.commands</code></li>
-</ul></li>
-<li>show commands in a category
-<ul>
-<li><code>#bp.commands.list "category"</code></li>
-<li><code>#bp."category"</code></li>
-</ul></li>
-<li>Show loaded plugins
-<ul>
-<li><code>#bp.plugins</code></li>
-</ul></li>
-<li>Show plugins that are not loaded
-<ul>
-<li><code>#bp.plugins -n</code></li>
-</ul></li>
-</ul></li>
-</ul>
+run a sql statement against the database
 
+positional arguments:
+  stmt        the sql statement
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmddbvac" class="bph4">dbvac</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.dbvac</span> [-h]
+
+vacuum the database
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
+<h3 id="cmdgroupStats" class="bph3">Stats</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdcomp" class="bph4">comp</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.comp</span> [-h] [milestone1] [milestone2]
+
+compare milestones
+
+positional arguments:
+  milestone1  the first milestone
+  milestone2  the second milestone
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdcps" class="bph4">cps</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.cps</span> [-h] [count]
+
+show cp stats
+
+positional arguments:
+  count       the number of cps to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdgqs" class="bph4">gqs</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.gqs</span> [-h] [count]
+
+show gq stats
+
+positional arguments:
+  count       the number of gqs to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdlevels" class="bph4">levels</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.levels</span> [-h] [count]
+
+show level stats
+
+positional arguments:
+  count       the number of levels to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdlist" class="bph4">list</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.list</span> [-h]
+
+list milestones
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdmobs" class="bph4">mobs</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.mobs</span> [-h] [count]
+
+show mob stats
+
+positional arguments:
+  count       the number of mobkills to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdquests" class="bph4">quests</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.quests</span> [-h] [count]
+
+show quests stats
+
+positional arguments:
+  count       the number of quests to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.api</span> [-h] [api]
+
+list functions in the api
+
+positional arguments:
+  api         api to get details of
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdhelp" class="bph4">help</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.help</span> [-a] [-c] [-h]
+
+show help info for this plugin
+
+optional arguments:
+  -a, --api       show functions this plugin has in the api
+  -c, --commands  show commands in this plugin
+  -h, --help      show help
+
+</code></pre>
+<h4 id="cmdreset" class="bph4">reset</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.reset</span> [-h]
+
+reset the plugin
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsave" class="bph4">save</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.save</span> [-h]
+
+save the plugin state
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdset" class="bph4">set</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.set</span> [-h] [name] [value]
+
+change a setting in the plugin
+
+if there are no arguments or 'list' is the first argument then
+it will list the settings for the plugin
+
+positional arguments:
+  name        the setting name
+  value       the new value of the setting
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdstats" class="bph4">stats</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.stats</span> [-h]
+
+show plugin stats
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<h2 id="settings" class="bph2">Settings</h2>
+<div class="indenth4">
+<h3 id="setbackupstart" class="bph4">backupstart</h3>
+<pre><code>
+the time for a db backup, ex. 1200 or 2000
+</code></pre>
+<h3 id="setbackupinterval" class="bph4">backupinterval</h3>
+<pre><code>
+the interval to backup the db, default every 4 hours
+</code></pre>
+</div>
+<h2 id="api" class="bph2">API</h2>
+<div class="indenth4">
+<h3 id="setselect" class="bph4">select</h3>
+<pre><code>
+<span style="color:#00ff00">statdb.select</span>(<span style="color:#ffff00">select</span>)
+
+    run a select stmt against the db
+
+
+original defined in plugins/core/sqldb.py
+</code></pre>
+</div>
         </div><!-- /.col-xs-12 main -->
     </div><!--/.row-->
   </div><!--/.container-->
