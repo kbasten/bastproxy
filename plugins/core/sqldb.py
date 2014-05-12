@@ -1,7 +1,40 @@
 """
-$Id$
-
 this module is a sqlite3 interface
+
+
+## Using
+See the source for [aardwolf.statdb](/bastproxy/plugins/aardwolf/statdb.html)
+for an example of using sqldb
+
+### Wrap the class creation in a function
+
+```python
+    def dbcreate(sqldb, plugin, **kwargs):
+      \"\"\"
+      create the mydb class, this is needed because the Sqldb baseclass
+      can be reloaded since it is a plugin
+      \"\"\"
+      class mydb(sqldb):
+        \"\"\"
+        a class to manage a sqlite database
+        \"\"\"
+        def __init__(self, plugin, **kwargs):
+          \"\"\"
+          initialize the class
+          \"\"\"
+          sqldb.__init__(self, plugin, **kwargs)
+
+          self.postinit()
+
+      return mydb(plugin, **kwargs)
+```
+
+### call the function in load
+
+```python
+    mydb = dbcreate(self.api.get('sqldb.baseclass')(), self,
+                           dbname='mydb')
+```
 """
 import sqlite3
 import os
@@ -73,7 +106,7 @@ class Sqldb(object):
   # execute a select statement against the database
   def api_select(self, select):
     """
-    run a select stmt against the char db
+    run a select stmt against the db
     """
     return self.select(select)
 
