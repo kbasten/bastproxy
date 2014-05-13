@@ -14,6 +14,7 @@ It supports MCCP, GMCP, aliases, actions, substitutes, variables
  * Unzip into a directory
 
 ## Getting Started
+
 ### Configuration
  * Use one of the included ones,  both for [Aardwolf Mud](http://www.aardwolf.com/)
  * Copy the below to "mud"-config.ini and change the items to suit your needs
