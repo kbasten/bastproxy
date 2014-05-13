@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin will handle watching for commands coming from the client
 """
 import re

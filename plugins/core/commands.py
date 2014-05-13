@@ -1,6 +1,4 @@
 """
-$Id$
-
 This module handles commands and parsing input
 """
 import shlex

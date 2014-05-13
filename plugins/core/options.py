@@ -1,6 +1,4 @@
 """
-$Id$
-
 This module holds the class that manages Telnet Options as well as an
 instance of the class
 """

@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles utility functions
 """
 import re

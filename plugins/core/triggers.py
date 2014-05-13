@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles internal triggers for the proxy
 """
 import re

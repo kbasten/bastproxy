@@ -1,9 +1,5 @@
 """
-$Id$
-
-This module will do both debugging and logging, didn't know what
-else to name it
-
+This module will do both debugging and logging
 """
 from __future__ import print_function
 import sys

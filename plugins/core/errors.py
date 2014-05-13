@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin shows and clears errors seen during plugin execution
 """
 import argparse

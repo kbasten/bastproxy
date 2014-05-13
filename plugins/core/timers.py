@@ -1,7 +1,5 @@
 """
-$Id$
-
-This plugin holds information about timers
+plugin holds information about timers
 """
 import time
 import datetime

@@ -1,7 +1,7 @@
 """
-$Id$
+this plugin creates a command queue
 
-this module is a sqlite3 interface
+see the aardwolf eq plugin for examples of how to use it
 """
 import re
 
