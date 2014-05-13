@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin holds a afk plugin
 """
 import time

@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles mobkills on Aardwolf
 """
 import copy

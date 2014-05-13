@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles gquest events on Aardwolf
 """
 import os

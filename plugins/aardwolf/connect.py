@@ -1,8 +1,6 @@
 """
-$Id$
-
 This plugin is a utility plugin for aardwolf functions
-It adds functions to exported.aardu
+It adds functions to the api as well as takes care of the firstactive flag
 """
 from plugins._baseplugin import BasePlugin
 

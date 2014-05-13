@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin highlights cp/gq/quest mobs in scan
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

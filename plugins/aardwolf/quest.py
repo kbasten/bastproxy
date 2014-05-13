@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles quest events on Aardwolf
 """
 import time

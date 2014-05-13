@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin shows stats for events on Aardwolf
 """
 import time

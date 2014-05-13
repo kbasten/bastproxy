@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin includes a combat tracker for aardwolf
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

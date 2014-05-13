@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles cp events for Aardwolf
 """
 import time

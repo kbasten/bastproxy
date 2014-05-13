@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin keeps you from disconnecting from Aardwolf
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

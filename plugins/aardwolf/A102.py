@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin will show information about connections to the proxy
 """
 from plugins._baseplugin import BasePlugin

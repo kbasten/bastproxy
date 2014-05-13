@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin reads and parses id and invdetails from Aardwolf
 """
 import argparse

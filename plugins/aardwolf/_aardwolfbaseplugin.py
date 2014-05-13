@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin is a utility plugin for aardwolf functions
 It adds functions to exported.aardu
 """

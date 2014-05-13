@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin sends emails when certain events happen in aardwolf
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin

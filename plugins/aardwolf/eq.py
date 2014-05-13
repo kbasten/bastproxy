@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin reads and parses invmon data from Aardwolf
 """
 import argparse

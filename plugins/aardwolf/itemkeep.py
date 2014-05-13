@@ -1,8 +1,5 @@
 """
-$Id$
-
-This plugin is a utility plugin for aardwolf functions
-It adds functions to exported.aardu
+This plugin autokeeps item types
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 

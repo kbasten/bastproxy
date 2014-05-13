@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles slist from Aardwolf
 """
 import time

@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin does spellups for Aardwolf
 """
 import os

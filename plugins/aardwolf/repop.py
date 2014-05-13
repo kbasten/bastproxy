@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin runs gmcp commands after connecting to aardwolf
 """
 import time

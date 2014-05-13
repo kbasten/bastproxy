@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin sends events when moving between rooms
 """
 import copy
