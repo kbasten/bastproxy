@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin sends mail
 """
 import smtplib

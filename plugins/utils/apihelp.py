@@ -1,8 +1,5 @@
 """
-$Id$
-
-This plugin will show information about connections to the proxy
-
+This plugin will show api functions and details
 """
 import argparse
 
