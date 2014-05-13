@@ -1,6 +1,4 @@
 """
-$Id$
-
 make all functions that add things use kwargs instead of a table
 """
 
