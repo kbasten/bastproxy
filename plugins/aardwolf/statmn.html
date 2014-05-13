@@ -122,7 +122,11 @@
         <!-- sidebar -->
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav sidebar-fixed">
-  <li><a href="#about">About</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#aboutMenu">
+           About <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="aboutMenu">
+  <li><a href="#example-output">Example Output</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
@@ -157,6 +161,19 @@
         <div class="indenth2"><h2 id="about" class="bph2">About</h2>
 
 <p>This plugin shows stats for events on Aardwolf</p>
+
+</div><div class="indenth3"><h3 id="example-output" class="bph3">Example Output</h3>
+
+<pre><code><span style="color:#0087ff">--------------  Stats for </span><span style="color:#ffffff">01</span><span style="color:#0087ff">h:</span><span style="color:#ffffff">00</span><span style="color:#0087ff">m  ---------------</span>
+<span style="color:#0087ff">Type       |  Total     XP    QP    TP       Gold</span>
+<span style="color:#0087ff">--------------------------------------------------</span>
+<span style="color:#ffffff">Quests     </span><span style="color:#0087ff">| </span><span style="color:#ffffff">     1      0    12     0       2899</span>
+<span style="color:#ffffff">CPs        </span><span style="color:#0087ff">| </span><span style="color:#ffffff">     0      0     0     0          0</span>
+<span style="color:#ffffff">GQs        </span><span style="color:#0087ff">| </span><span style="color:#ffffff">     0      0     0     0          0</span>
+<span style="color:#ffffff">Mobs       </span><span style="color:#0087ff">| </span><span style="color:#ffffff">     4     72     0     0       1104</span>
+<span style="color:#0087ff">--------------------------------------------------</span>
+<span style="color:#ffffff">Total      </span><span style="color:#0087ff">| </span><span style="color:#ffffff">           72    12     0       4003</span>
+</code></pre>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
