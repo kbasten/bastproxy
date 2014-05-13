@@ -1,5 +1,10 @@
 """
 This plugin sends emails when certain events happen in aardwolf
+
+It sends alerts for the following:
+
+ * quests available
+ * gq available
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 

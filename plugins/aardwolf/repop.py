@@ -1,5 +1,5 @@
 """
-This plugin runs gmcp commands after connecting to aardwolf
+This plugin sends a message to a channel when an area repops
 """
 import time
 from string import Template

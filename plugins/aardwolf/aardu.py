@@ -1,5 +1,13 @@
 """
 This plugin is a utility plugin for aardwolf functions
+
+It contains
+
+ * a damages table
+ * class abbreviation table
+ * a function to convert a level to level, remort, tier, redos
+ * a function to convert a level, remort, tier, redos to overall level
+ * a function to parse damage lines
 """
 import math
 import re

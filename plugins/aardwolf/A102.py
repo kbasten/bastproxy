@@ -1,5 +1,5 @@
 """
-This plugin will show information about connections to the proxy
+This plugin handles Aardwolf 102 telnet option
 """
 from plugins._baseplugin import BasePlugin
 from libs.net.telnetlib import WILL, DO, IAC, SE, SB

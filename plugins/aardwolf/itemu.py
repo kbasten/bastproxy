@@ -1,5 +1,13 @@
 """
 This plugin hold utility functions for items
+
+It includes:
+
+ * an object types table and its reverse
+ * a wear location table and its reverse
+ * an item flags table
+ * an item flags color table
+ * an item flags name table
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 

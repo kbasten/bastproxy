@@ -1,5 +1,17 @@
 """
 This plugin shows stats for events on Aardwolf
+
+### Example Output
+
+    @x033--------------  Stats for @W01@x033h:@W00@x033m  ---------------
+    @x033Type       |  Total     XP    QP    TP       Gold
+    @x033--------------------------------------------------
+    @WQuests     @x033| @W     1      0    12     0       2899
+    @WCPs        @x033| @W     0      0     0     0          0
+    @WGQs        @x033| @W     0      0     0     0          0
+    @WMobs       @x033| @W     4     72     0     0       1104
+    @x033--------------------------------------------------
+    @WTotal      @x033| @W           72    12     0       4003@w
 """
 import time
 import copy

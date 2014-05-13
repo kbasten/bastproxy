@@ -292,9 +292,11 @@ class Plugin(BasePlugin):
 
     #testdoc = __doc__
 
-    testdoc = self.api.get('colors.colortohtml')(testdoc)
+    #testdoc = self.api.get('colors.colortohtml')(testdoc)
 
     aboutb = markdown2.markdown(testdoc, extras=['header-ids', 'fenced-code-blocks'])
+
+    aboutb = self.api.get('colors.colortohtml')(aboutb)
 
     aboutl = []
 

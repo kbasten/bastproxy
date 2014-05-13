@@ -1,5 +1,15 @@
 """
 This plugin runs gmcp commands after connecting to aardwolf
+
+When GMCP is enabled it requests:
+
+ * rawcolor on
+ * group on
+ * the Char module to be enabled
+ * the Room module to be enabled
+ * The Comm module to be enabled
+ * The Core module to be enabled
+ * The Group module to be enabled
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
