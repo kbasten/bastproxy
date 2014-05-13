@@ -1,6 +1,4 @@
 """
-$Id$
-
 this module handles the api for all other modules
 """
 import inspect

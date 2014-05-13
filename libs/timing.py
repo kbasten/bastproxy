@@ -1,6 +1,4 @@
 """
-$Id$
-
 this module is for timing functions
 """
 import time

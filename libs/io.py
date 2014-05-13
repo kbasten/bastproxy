@@ -1,6 +1,4 @@
 """
-$Id$
-
 handle output and input functions, adds items under the send api
 """
 import time

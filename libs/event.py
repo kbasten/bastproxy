@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin has the base event class
 """
 class Event(object):
