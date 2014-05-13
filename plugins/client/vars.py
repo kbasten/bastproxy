@@ -1,6 +1,5 @@
 """
 This plugin is a variable plugin
-
 """
 import os
 import argparse

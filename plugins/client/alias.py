@@ -2,13 +2,13 @@
 This plugin is an alias plugin
 
 Two types of aliases:
-#bp.alias.add 'oa' 'open all'
-  This type of alias will just replace the oa with open all
 
-#bp.alias.add
-  'port (.*)' 'get {1} $portbag|wear {1}|enter|wear amulet|put {1} portbag'
-  This alias can be used with numbered positions from the
-                              words following after the alias
+ * `#bp.alias.add 'oa' 'open all'`
+  * This type of alias will just replace the oa with open all
+
+ * `#bp.alias.add 'port (.*)'
+          'get {1} $portbag|wear {1}|enter|wear amulet|put {1} portbag'`
+  * This alias can be used with numbered positions from the words following after the alias
 """
 import os
 import re
