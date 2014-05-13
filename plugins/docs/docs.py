@@ -130,7 +130,7 @@ class Plugin(BasePlugin):
       try:
         testdoc = sys.modules[pmod.fullimploc].__doc__
       except AttributeError:
-        print 'Plugin %s is not loaded' % plugininfo[i]['modpath']
+        self.api.get('send.msg')('Plugin %s is not loaded' % plugininfo[i]['modpath'])
         continue
 
       moddir = os.path.basename(os.path.split(i)[0])
@@ -183,8 +183,6 @@ class Plugin(BasePlugin):
     add classes to headers
     """
     from lxml import etree
-
-    print html
 
     doc = etree.fromstring('<body>\n' + html + '\n</body>\n')
     for node in doc.xpath('//h1|//h2|//h3|//h4|//h5'):
@@ -257,8 +255,6 @@ class Plugin(BasePlugin):
 
     html = htmlout.split('\n')
 
-    print html
-
     if '<html>' == html[0]:
       html.pop(0)
     while html[-1] == '':
@@ -274,7 +270,7 @@ class Plugin(BasePlugin):
     """
     build a plugin page
     """
-    print 'building plugin', plugin['fullimploc']
+    self.api.get('send.msg')('building plugin: %s' % plugin['fullimploc'])
     tlist = plugin['fullimploc'].split('.')
     pdir = tlist[1]
 
@@ -283,7 +279,7 @@ class Plugin(BasePlugin):
     try:
       testdoc = sys.modules[pmod.fullimploc].__doc__
     except AttributeError:
-      print 'Plugin %s is not loaded' % plugin['modpath']
+      self.api.get('send.msg')('Plugin %s is not loaded' % plugin['modpath'])
       return
 
     wplugin = plugin['fullimploc'].split('.')
