@@ -126,17 +126,21 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupitemidMenu">
+           itemid <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupitemidMenu">
+  <li><a href="#cmdid">id</a></li>
+  <li><a href="#cmdsv">sv</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdid">id</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
   <li><a href="#cmdstats">stats</a></li>
-  <li><a href="#cmdsv">sv</a></li>
 </ul></li>
 </ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
@@ -160,6 +164,34 @@
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupitemid" class="bph3">itemid</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdid" class="bph4">id</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.itemid.id</span> [-h] [serial]
+
+show inventory or a container
+
+positional arguments:
+  serial      the item to id
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdsv" class="bph4">sv</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.itemid.sv</span> [-h]
+
+show some internal variables
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
@@ -187,19 +219,6 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
-
-</code></pre>
-<h4 id="cmdid" class="bph4">id</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.itemid.id</span> [-h] [serial]
-
-show inventory or a container
-
-positional arguments:
-  serial      the item to id
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
@@ -244,16 +263,6 @@ optional arguments:
 usage: <span style="color:#5c5cff">#bp.itemid.stats</span> [-h]
 
 show plugin stats
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdsv" class="bph4">sv</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.itemid.sv</span> [-h]
-
-show some internal variables
 
 optional arguments:
   -h, --help  show help

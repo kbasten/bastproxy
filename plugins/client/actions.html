@@ -126,21 +126,25 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupactionsMenu">
+           actions <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupactionsMenu">
+  <li><a href="#cmdadd">add</a></li>
+  <li><a href="#cmddetail">detail</a></li>
+  <li><a href="#cmdgroupt">groupt</a></li>
+  <li><a href="#cmdlist">list</a></li>
+  <li><a href="#cmdremove">remove</a></li>
+  <li><a href="#cmdtoggle">toggle</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
-  <li><a href="#cmdadd">add</a></li>
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmddetail">detail</a></li>
-  <li><a href="#cmdgroupt">groupt</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdlist">list</a></li>
-  <li><a href="#cmdremove">remove</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
   <li><a href="#cmdstats">stats</a></li>
-  <li><a href="#cmdtoggle">toggle</a></li>
 </ul></li>
 </ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
@@ -159,7 +163,7 @@ seen from the mud</p>
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
-<h3 id="cmdgroupBase" class="bph3">Base</h3>
+<h3 id="cmdgroupactions" class="bph3">actions</h3>
 </div>
 <div class="indenth4">
 <h4 id="cmdadd" class="bph4">add</h4>
@@ -183,19 +187,6 @@ optional arguments:
                         the action group
   -o, --overwrite       overwrite an action if it already exists
   -h, --help            show help
-
-</code></pre>
-<h4 id="cmdapi" class="bph4">api</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.actions.api</span> [-h] [api]
-
-list functions in the api
-
-positional arguments:
-  api         api to get details of
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmddetail" class="bph4">detail</h4>
@@ -225,18 +216,6 @@ optional arguments:
   -h, --help     show help
 
 </code></pre>
-<h4 id="cmdhelp" class="bph4">help</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.actions.help</span> [-a] [-c] [-h]
-
-show help info for this plugin
-
-optional arguments:
-  -a, --api       show functions this plugin has in the api
-  -c, --commands  show commands in this plugin
-  -h, --help      show help
-
-</code></pre>
 <h4 id="cmdlist" class="bph4">list</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.actions.list</span> [-h] [match]
@@ -261,6 +240,49 @@ positional arguments:
 
 optional arguments:
   -h, --help  show help
+
+</code></pre>
+<h4 id="cmdtoggle" class="bph4">toggle</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.toggle</span> [-h] [action]
+
+toggle enabled flag
+
+positional arguments:
+  action      the action to toggle
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.api</span> [-h] [api]
+
+list functions in the api
+
+positional arguments:
+  api         api to get details of
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdhelp" class="bph4">help</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.actions.help</span> [-a] [-c] [-h]
+
+show help info for this plugin
+
+optional arguments:
+  -a, --api       show functions this plugin has in the api
+  -c, --commands  show commands in this plugin
+  -h, --help      show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
@@ -305,19 +327,6 @@ optional arguments:
 usage: <span style="color:#5c5cff">#bp.actions.stats</span> [-h]
 
 show plugin stats
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdtoggle" class="bph4">toggle</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.actions.toggle</span> [-h] [action]
-
-toggle enabled flag
-
-positional arguments:
-  action      the action to toggle
 
 optional arguments:
   -h, --help  show help

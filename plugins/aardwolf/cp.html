@@ -126,16 +126,20 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupcpMenu">
+           cp <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupcpMenu">
+  <li><a href="#cmdrefresh">refresh</a></li>
+  <li><a href="#cmdshow">show</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdrefresh">refresh</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
-  <li><a href="#cmdshow">show</a></li>
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
 </ul></li>
@@ -148,6 +152,31 @@
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupcp" class="bph3">cp</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdrefresh" class="bph4">refresh</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.cp.refresh</span> [-h]
+
+refresh cp info
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdshow" class="bph4">show</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.cp.show</span> [-h]
+
+show cp info
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
@@ -175,16 +204,6 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
-
-</code></pre>
-<h4 id="cmdrefresh" class="bph4">refresh</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.cp.refresh</span> [-h]
-
-refresh cp info
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
@@ -219,16 +238,6 @@ it will list the settings for the plugin
 positional arguments:
   name        the setting name
   value       the new value of the setting
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdshow" class="bph4">show</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.cp.show</span> [-h]
-
-show cp info
 
 optional arguments:
   -h, --help  show help

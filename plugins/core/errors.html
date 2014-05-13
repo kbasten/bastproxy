@@ -126,16 +126,20 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgrouperrorsMenu">
+           errors <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgrouperrorsMenu">
+  <li><a href="#cmdclear">clear</a></li>
+  <li><a href="#cmdshow">show</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmdclear">clear</a></li>
   <li><a href="#cmdhelp">help</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
-  <li><a href="#cmdshow">show</a></li>
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
 </ul></li>
@@ -155,6 +159,34 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
+<h3 id="cmdgrouperrors" class="bph3">errors</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdclear" class="bph4">clear</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.errors.clear</span> [-h]
+
+clear errors
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdshow" class="bph4">show</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.errors.show</span> [-h] [number]
+
+show errors
+
+positional arguments:
+  number      list the last &lt;number&gt; errors
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
@@ -166,16 +198,6 @@ list functions in the api
 
 positional arguments:
   api         api to get details of
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdclear" class="bph4">clear</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.errors.clear</span> [-h]
-
-clear errors
 
 optional arguments:
   -h, --help  show help
@@ -225,19 +247,6 @@ it will list the settings for the plugin
 positional arguments:
   name        the setting name
   value       the new value of the setting
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdshow" class="bph4">show</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.errors.show</span> [-h] [number]
-
-show errors
-
-positional arguments:
-  number      list the last &lt;number&gt; errors
 
 optional arguments:
   -h, --help  show help

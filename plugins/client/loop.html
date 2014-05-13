@@ -126,11 +126,15 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgrouploopMenu">
+           loop <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgrouploopMenu">
+  <li><a href="#cmdcmd">cmd</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmdcmd">cmd</a></li>
   <li><a href="#cmdhelp">help</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
@@ -150,6 +154,26 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
+<h3 id="cmdgrouploop" class="bph3">loop</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdcmd" class="bph4">cmd</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.loop.cmd</span> [-c COUNT] [-h] [cmd]
+
+loop a command
+
+positional arguments:
+  cmd                   the command to run
+
+optional arguments:
+  -c COUNT, --count COUNT
+                        how many times to execute the command
+  -h, --help            show help
+
+</code></pre>
+</div>
+<div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
@@ -164,21 +188,6 @@ positional arguments:
 
 optional arguments:
   -h, --help  show help
-
-</code></pre>
-<h4 id="cmdcmd" class="bph4">cmd</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.cmd</span> [-c COUNT] [-h] [cmd]
-
-loop a command
-
-positional arguments:
-  cmd                   the command to run
-
-optional arguments:
-  -c COUNT, --count COUNT
-                        how many times to execute the command
-  -h, --help            show help
 
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>

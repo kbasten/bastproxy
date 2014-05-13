@@ -126,12 +126,16 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupstatmnMenu">
+           statmn <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupstatmnMenu">
+  <li><a href="#cmdrep">rep</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdrep">rep</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -156,6 +160,24 @@
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupstatmn" class="bph3">statmn</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdrep" class="bph4">rep</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statmn.rep</span> [-h] [minutes]
+
+show report
+
+positional arguments:
+  minutes     the number of minutes in the report
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
@@ -183,19 +205,6 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
-
-</code></pre>
-<h4 id="cmdrep" class="bph4">rep</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.statmn.rep</span> [-h] [minutes]
-
-show report
-
-positional arguments:
-  minutes     the number of minutes in the report
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>

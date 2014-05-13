@@ -126,19 +126,23 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgrouplogMenu">
+           log <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgrouplogMenu">
+  <li><a href="#cmdclient">client</a></li>
+  <li><a href="#cmdconsole">console</a></li>
+  <li><a href="#cmdfile">file</a></li>
+  <li><a href="#cmdtypes">types</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmdclient">client</a></li>
-  <li><a href="#cmdconsole">console</a></li>
-  <li><a href="#cmdfile">file</a></li>
   <li><a href="#cmdhelp">help</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
   <li><a href="#cmdstats">stats</a></li>
-  <li><a href="#cmdtypes">types</a></li>
 </ul></li>
 </ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
@@ -160,22 +164,9 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
-<h3 id="cmdgroupBase" class="bph3">Base</h3>
+<h3 id="cmdgrouplog" class="bph3">log</h3>
 </div>
 <div class="indenth4">
-<h4 id="cmdapi" class="bph4">api</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.log.api</span> [-h] [api]
-
-list functions in the api
-
-positional arguments:
-  api         api to get details of
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
 <h4 id="cmdclient" class="bph4">client</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.log.client</span> [-h] [datatype [datatype ...]]
@@ -214,6 +205,37 @@ positional arguments:
 optional arguments:
   -n, --notimestamp  do not log to file with a timestamp
   -h, --help         show help
+
+</code></pre>
+<h4 id="cmdtypes" class="bph4">types</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.log.types</span> [-h] [match]
+
+list all datatypes
+
+positional arguments:
+  match       only list datatypes that have this argument in their name
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
+<h3 id="cmdgroupBase" class="bph3">Base</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapi" class="bph4">api</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.log.api</span> [-h] [api]
+
+list functions in the api
+
+positional arguments:
+  api         api to get details of
+
+optional arguments:
+  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
@@ -270,19 +292,6 @@ optional arguments:
 usage: <span style="color:#5c5cff">#bp.log.stats</span> [-h]
 
 show plugin stats
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdtypes" class="bph4">types</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.log.types</span> [-h] [match]
-
-list all datatypes
-
-positional arguments:
-  match       only list datatypes that have this argument in their name
 
 optional arguments:
   -h, --help  show help

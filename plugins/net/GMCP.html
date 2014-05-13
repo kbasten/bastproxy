@@ -126,6 +126,11 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupGMCPMenu">
+           GMCP <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupGMCPMenu">
+  <li><a href="#cmdsend">send</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
@@ -133,7 +138,6 @@
   <li><a href="#cmdhelp">help</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
-  <li><a href="#cmdsend">send</a></li>
   <li><a href="#cmdset">set</a></li>
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
@@ -155,6 +159,21 @@
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupGMCP" class="bph3">GMCP</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdsend" class="bph4">send</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.GMCP.send</span> [-h]
+
+there is no help for this command
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
@@ -199,16 +218,6 @@ optional arguments:
 usage: <span style="color:#5c5cff">#bp.GMCP.save</span> [-h]
 
 save the plugin state
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdsend" class="bph4">send</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.send</span> [-h]
-
-there is no help for this command
 
 optional arguments:
   -h, --help  show help

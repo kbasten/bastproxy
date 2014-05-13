@@ -126,18 +126,22 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupafkMenu">
+           afk <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupafkMenu">
+  <li><a href="#cmdclear">clear</a></li>
+  <li><a href="#cmdshow">show</a></li>
+  <li><a href="#cmdtoggle">toggle</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmdclear">clear</a></li>
   <li><a href="#cmdhelp">help</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
-  <li><a href="#cmdshow">show</a></li>
   <li><a href="#cmdstats">stats</a></li>
-  <li><a href="#cmdtoggle">toggle</a></li>
 </ul></li>
 </ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
@@ -158,6 +162,41 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
+<h3 id="cmdgroupafk" class="bph3">afk</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdclear" class="bph4">clear</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.afk.clear</span> [-h]
+
+clear the communication queue
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdshow" class="bph4">show</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.afk.show</span> [-h]
+
+show the communication queue
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdtoggle" class="bph4">toggle</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.afk.toggle</span> [-h]
+
+toggle afk
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
@@ -169,16 +208,6 @@ list functions in the api
 
 positional arguments:
   api         api to get details of
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdclear" class="bph4">clear</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.afk.clear</span> [-h]
-
-clear the communication queue
 
 optional arguments:
   -h, --help  show help
@@ -233,31 +262,11 @@ optional arguments:
   -h, --help  show help
 
 </code></pre>
-<h4 id="cmdshow" class="bph4">show</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.afk.show</span> [-h]
-
-show the communication queue
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.afk.stats</span> [-h]
 
 show plugin stats
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdtoggle" class="bph4">toggle</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.afk.toggle</span> [-h]
-
-toggle afk
 
 optional arguments:
   -h, --help  show help

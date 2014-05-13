@@ -126,12 +126,16 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupcommandsMenu">
+           commands <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupcommandsMenu">
+  <li><a href="#cmdlist">list</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdlist">list</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -166,6 +170,25 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
+<h3 id="cmdgroupcommands" class="bph3">commands</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdlist" class="bph4">list</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.commands.list</span> [-h] [category] [cmd]
+
+list commands in a category
+
+positional arguments:
+  category    the category to see help for
+  cmd         the command in the category (can be left out)
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
@@ -192,20 +215,6 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
-
-</code></pre>
-<h4 id="cmdlist" class="bph4">list</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.commands.list</span> [-h] [category] [cmd]
-
-list commands in a category
-
-positional arguments:
-  category    the category to see help for
-  cmd         the command in the category (can be left out)
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>

@@ -126,13 +126,17 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupeventsMenu">
+           events <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupeventsMenu">
+  <li><a href="#cmddetail">detail</a></li>
+  <li><a href="#cmdlist">list</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
-  <li><a href="#cmddetail">detail</a></li>
   <li><a href="#cmdhelp">help</a></li>
-  <li><a href="#cmdlist">list</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -160,6 +164,37 @@
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
+<h3 id="cmdgroupevents" class="bph3">events</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmddetail" class="bph4">detail</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.events.detail</span> [-h] [event [event ...]]
+
+get details of an event
+
+positional arguments:
+  event       the event name to get details for
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdlist" class="bph4">list</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.events.list</span> [-h] [match]
+
+list events and the plugins registered with them
+
+positional arguments:
+  match       list only events that have this argument in their name
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
@@ -176,19 +211,6 @@ optional arguments:
   -h, --help  show help
 
 </code></pre>
-<h4 id="cmddetail" class="bph4">detail</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.events.detail</span> [-h] [event [event ...]]
-
-get details of an event
-
-positional arguments:
-  event       the event name to get details for
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.events.help</span> [-a] [-c] [-h]
@@ -199,19 +221,6 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
-
-</code></pre>
-<h4 id="cmdlist" class="bph4">list</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.events.list</span> [-h] [match]
-
-list events and the plugins registered with them
-
-positional arguments:
-  match       list only events that have this argument in their name
-
-optional arguments:
-  -h, --help  show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
