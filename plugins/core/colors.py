@@ -1,6 +1,4 @@
 """
-$Id$
-
 This plugin handles colors
 
 Color Codes:
@@ -38,6 +36,8 @@ XTERM_COLOR_REGEX = re.compile('^@[xz](?P<num>[\d]{1,3})$')
 ANSI_COLOR_REGEX = re.compile(chr(27) + r'\[(?P<arg_1>\d+)(;(?P<arg_2>\d+)' \
                                               '(;(?P<arg_3>\d+))?)?m')
 
+COLORCODE_REGEX = re.compile('(@[cmyrgbwCMYRGBWD|xz[\d{0:3}]])(?P<stuff>.*)')
+
 CONVERTANSI = {}
 
 CONVERTCOLORS = {
@@ -60,6 +60,103 @@ CONVERTCOLORS = {
   'x' : '0',
 }
 
+colortable = {}
+def build_color_table():
+    # colors 0..15: 16 basic colors
+
+    colortable[0] = (0x00, 0x00, 0x00) # 0
+    colortable['x'] = colortable[0]
+    colortable[1] = (0xcd, 0x00, 0x00) # 1
+    colortable['r'] = colortable[1]
+    colortable[2] = (0x00, 0xcd, 0x00) # 2
+    colortable['g'] = colortable[2]
+    colortable[3] = (0xcd, 0xcd, 0x00) # 3
+    colortable['y'] = colortable[3]
+    colortable[4] = (0x00, 0x00, 0xee) # 4
+    colortable['b'] = colortable[4]
+    colortable[5] = (0xcd, 0x00, 0xcd) # 5
+    colortable['m'] = colortable[5]
+    colortable[6] = (0x00, 0xcd, 0xcd) # 6
+    colortable['c'] = colortable[6]
+    colortable[7] = (0xe5, 0xe5, 0xe5) # 7
+    colortable['w'] = colortable[7]
+    colortable[8] = (0x7f, 0x7f, 0x7f) # 8
+    colortable['D'] = colortable[8]
+    colortable[9] = (0xff, 0x00, 0x00) # 9
+    colortable['R'] = colortable[9]
+    colortable[10] = (0x00, 0xff, 0x00) # 10
+    colortable['G'] = colortable[10]
+    colortable[11] = (0xff, 0xff, 0x00) # 11
+    colortable['Y'] = colortable[11]
+    colortable[12] = (0x5c, 0x5c, 0xff) # 12
+    colortable['B'] = colortable[12]
+    colortable[13] = (0xff, 0x00, 0xff) # 13
+    colortable['M'] = colortable[13]
+    colortable[14] = (0x00, 0xff, 0xff) # 14
+    colortable['C'] = colortable[14]
+    colortable[15] = (0xff, 0xff, 0xff) # 15
+    colortable['W'] = colortable[15]
+
+    # colors 16..232: the 6x6x6 color cube
+
+    valuerange = (0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff)
+
+    for i in range(217):
+        r = valuerange[(i // 36) % 6]
+        g = valuerange[(i // 6) % 6]
+        b = valuerange[i % 6]
+        colortable[i + 16] = ((r, g, b))
+
+    # colors 233..253: grayscale
+
+    for i in range(1, 22):
+        v = 8 + i * 10
+        colortable[i + 233] = ((v, v, v))
+
+build_color_table()
+
+def convertcolorcodetohtml(colorcode):
+  try:
+    colorcode = int(colorcode)
+    if colorcode in colortable:
+      #print colortable[colorcode]
+      return '#%.2x%.2x%.2x' % (colortable[colorcode][0],
+                          colortable[colorcode][1],
+                          colortable[colorcode][2])
+  except ValueError:
+    if colorcode in colortable:
+      return '#%.2x%.2x%.2x' % (colortable[colorcode][0],
+                          colortable[colorcode][1],
+                          colortable[colorcode][2])
+
+  return '#000'
+
+def createspan(color, text):
+  """
+  create an html span
+
+  color = "@g"
+  """
+  background = False
+  if color[0] == '@':
+    if color[1] == 'x':
+      ncolor = convertcolorcodetohtml(color[2:])
+    elif color[1] == 'z':
+      ncolor = convertcolorcodetohtml(color[2:])
+      background = True
+    else:
+      ncolor = convertcolorcodetohtml(color[1])
+  else:
+    ncolor = convertcolorcodetohtml(color)
+
+  if background:
+    return '<span style="background-color:%(COLOR)s">%(TEXT)s</span>' % {
+                      'COLOR':ncolor,
+                      'TEXT':text}
+  else:
+    return '<span style="color:%(COLOR)s">%(TEXT)s</span>' % {
+                      'COLOR':ncolor,
+                      'TEXT':text}
 
 for colorc in CONVERTCOLORS.keys():
   CONVERTANSI[CONVERTCOLORS[colorc]] = colorc
@@ -120,6 +217,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('stripansi', self.api_stripansi)
     self.api.get('api.add')('stripcolor', self.api_stripcolor)
     self.api.get('api.add')('lengthdiff', self.api_getlengthdiff)
+    self.api.get('api.add')('colortohtml', self.api_colorcodestohtml)
 
   def load(self):
     """
@@ -135,6 +233,64 @@ class Plugin(BasePlugin):
                  description='show color examples')
     self.api.get('commands.add')('example', self.cmd_example,
                                     parser=parser)
+
+  def api_colorcodestohtml(self, input):
+    """
+    convert colorcodes to html
+    """
+    tinput = input.split('\n')
+
+    olist = []
+    for line in tinput:
+      if line and line[-1] == '\n':
+        lastchar = '\n'
+      else:
+        lastchar = ''
+
+      line = line.rstrip()
+      tlist = re.split('(@[cmyrgbwCMYRGBWD]|@[xz]\d\d\d|@[xz]\d\d|@[xz]\d)', line)
+
+      nlist = []
+      color = 'w'
+      tstart = 0
+      tend = 0
+
+      #print tlist
+
+      for i in xrange(0, len(tlist)):
+        #print 'checking %s, i = %s' % (tlist[i], i)
+        if tlist[i]:
+          if tlist[i][0] == '@' and tlist[i][1] in 'xzcmyrgbwCMYRGBWD':
+            #print 'found color'
+            words = tlist[tstart:tend]
+            if not (color in ['x', 'D', 'w']):
+              #print 'would put %s in a %s span' % (words, color)
+              nlist.append(createspan(color, ''.join(words)))
+            else:
+              #print 'would just add %s' % words
+              nlist.append(''.join(words))
+            if tlist[i][1] in ['x', 'z']:
+              color = tlist[i][2:]
+            else:
+              color = tlist[i][1]
+            tstart = i + 1
+            tend = i + 1
+          else:
+            tend = tend + 1
+        else:
+          tend = tend + 1
+        if i == len(tlist) - 1:
+          words = tlist[tstart:]
+          if not (color in ['x', 'D', 'w']):
+            #print 'would put %s in a %s span' % (words, color)
+            nlist.append(createspan(color, ''.join(words)))
+          else:
+            #print 'would just add %s' % words
+            nlist.append(''.join(words))
+      olist.append(''.join(nlist) + lastchar)
+
+    return '\n'.join(olist) + lastchar
+
 
   def api_getlengthdiff(self, colorstring):
     """
