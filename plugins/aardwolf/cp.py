@@ -30,7 +30,6 @@ class Plugin(AardwolfBasePlugin):
     self.cpinfo = PersistentDict(self.savecpfile, 'c')
     self.mobsleft = []
     self.cpinfotimer = {}
-    self.linecount = 0
     self.nextdeath = False
 
     self.cmdqueue = None
@@ -315,21 +314,20 @@ class Plugin(AardwolfBasePlugin):
     """
     handle cpcompdone
     """
-    self.linecount = 0
     self.api.get('events.register')('trigger_all', self._triggerall)
 
   def _triggerall(self, args=None):
     """
     check to see if we have the bonus qp message
     """
-    self.linecount = self.linecount + 1
     if 'first campaign completed today' in args['line']:
       mat = re.match('^You receive (?P<bonus>\d*) quest points bonus ' \
                   'for your first campaign completed today.$', args['line'])
       self.cpinfo['bonusqp'] = int(mat.groupdict()['bonus'])
-    if self.linecount > 3:
       self.api.get('events.unregister')('trigger_all', self._triggerall)
-    if self.linecount == 3:
+      self.api.get('events.eraise')('aard_cp_comp', copy.deepcopy(self.cpinfo))
+    elif re.match("^You have completed (\d*) campaigns today.$", args['line']):
+      self.api.get('events.unregister')('trigger_all', self._triggerall)
       self.api.get('events.eraise')('aard_cp_comp', copy.deepcopy(self.cpinfo))
 
   def _cpclear(self, _=None):
