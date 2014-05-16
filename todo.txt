@@ -12,6 +12,7 @@ Overall:
   #BUG: reload first plugin (eq), disconnect, reconnect, firstactive isn't called
         reload second plugin (skills), disconnect, reconnect, firstactive is called for eq, but not skills
         sometimes firstactive is called, sometimes not
+  #TODO: add examples of commands, either in docstring or in command parser
 
 Python3:
   #TODO: convert to run under python3
