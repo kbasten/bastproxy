@@ -19,15 +19,6 @@ PURPOSE = 'create bastproxy documentation'
 AUTHOR = 'Bast'
 VERSION = 1
 
-HMENU = """
-            <li><a href="/bastproxy/index.html" class="active">%(TITLE)s</a></li>
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                %(PLUGINMENU)s
-              </ul>
-            </li>
-"""
-
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = False
 
@@ -105,7 +96,7 @@ class Plugin(BasePlugin):
       data_target = item['id'] + 'Menu'
       if len(item['children']) > 0:
         tocl.append(
-      """  <li><a href="#" data-toggle="collapse" data-target="#%(data_target)s">
+    """  <li><a href="#" data-toggle="collapse" data-target="#%(data_target)s">
            %(text)s <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="%(data_target)s">""" % \
            {'data_target':data_target, 'text':item['text']})
@@ -130,7 +121,8 @@ class Plugin(BasePlugin):
       try:
         testdoc = sys.modules[pmod.fullimploc].__doc__
       except AttributeError:
-        self.api.get('send.msg')('Plugin %s is not loaded' % plugininfo[i]['modpath'])
+        self.api.get('send.msg')('Plugin %s is not loaded' % \
+                                                plugininfo[i]['modpath'])
         continue
 
       moddir = os.path.basename(os.path.split(i)[0])
@@ -142,35 +134,38 @@ class Plugin(BasePlugin):
       ptree[moddir][name] = {'location':i}
 
     for i in sorted(ptree.keys()):
-      pmenu.append("""<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">%s</a>
+      pmenu.append("""<li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">%s</a>
                   <ul class="dropdown-menu">""" % (i.capitalize()))
       for j in sorted(ptree[i].keys()):
         item = plugininfo[ptree[i][j]['location']]
         pmenu.append('<li><a href="%(link)s">%(name)s</a></li>' % {
-                       'name':item['sname'],
-                       'link':'/bastproxy/plugins/%s/%s.html' % (i, item['sname'])})
+                  'name':item['sname'],
+                  'link':'/bastproxy/plugins/%s/%s.html' % (i, item['sname'])})
       pmenu.append('</ul>')
       pmenu.append('</li>')
 
     return '\n'.join(pmenu)
 
-  def build_index(self, title, hmenu, plugininfo, template):
+  def build_index(self, title, pluginmenu, plugininfo, template):
     """
     build the index page
     """
     #testdoc = __doc__
     testdoc = sys.modules['__main__'].__doc__
 
-    about = markdown2.markdown(testdoc, extras=['header-ids', 'fenced-code-blocks'])
+    about = markdown2.markdown(testdoc,
+                               extras=['header-ids', 'fenced-code-blocks'])
 
     nbody = self.adddivstodoc(about)
 
     body = self.addhclasses(nbody)
 
-    ttoc = self.buildtoc(self.gettoc('<body>\n' + '\n'.join(body) + '\n</body>'))
+    ttoc = self.buildtoc(
+                    self.gettoc('<body>\n' + '\n'.join(body) + '\n</body>'))
 
     html = template % {'BODY':'\n'.join(body), 'TOC':ttoc, 'TITLE':title,
-                       'HMENU':hmenu, 'PNAME':'Bastproxy'}
+                       'PLUGINMENU':pluginmenu, 'PNAME':'Bastproxy'}
 
     tfile = open(os.path.join(self.api.BASEPATH, 'docsout', 'index.html'), 'w')
 
@@ -231,16 +226,14 @@ class Plugin(BasePlugin):
     newbody = html.fromstring('<html>\n</html>')
     activediv = None
     for child in oldbody.iter():
-      #print 'Before', child.tag, child.getparent() == oldbody
       if child.getparent() == oldbody:
-        #print 'After', child.tag, child.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
         if child.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
           if activediv != None:
-            #print 'resetting activediv'
             newbody.append(activediv)
             activediv = None
 
-          activediv = etree.fromstring('<div class="indent%s"></div>' % child.tag)
+          activediv = etree.fromstring('<div class="indent%s"></div>' \
+                                                  % child.tag)
           activediv.append(copy.deepcopy(child))
 
         elif activediv != None:
@@ -266,7 +259,7 @@ class Plugin(BasePlugin):
 
     return '\n'.join(html)
 
-  def build_plugin(self, plugin, title, hmenu, template):
+  def build_plugin(self, plugin, title, pluginmenu, template):
     """
     build a plugin page
     """
@@ -290,7 +283,8 @@ class Plugin(BasePlugin):
 
     #testdoc = self.api.get('colors.colortohtml')(testdoc)
 
-    aboutb = markdown2.markdown(testdoc, extras=['header-ids', 'fenced-code-blocks'])
+    aboutb = markdown2.markdown(testdoc,
+                                  extras=['header-ids', 'fenced-code-blocks'])
 
     aboutb = self.api.get('colors.colortohtml')(aboutb)
 
@@ -390,7 +384,7 @@ class Plugin(BasePlugin):
     ttoc = self.buildtoc(testt)
 
     html = template % {'BODY':'\n'.join(body), 'TOC':ttoc, 'TITLE':title,
-                       'HMENU':hmenu, 'PNAME':wpluginname}
+                       'PLUGINMENU':pluginmenu, 'PNAME':wpluginname}
 
     outdir = os.path.join(self.api.BASEPATH, 'docsout', 'plugins', pdir)
 
@@ -399,7 +393,9 @@ class Plugin(BasePlugin):
     except OSError:
       pass
 
-    tfile = open(os.path.join(self.api.BASEPATH, outdir, '%s.html'% pmod.sname), 'w')
+    tfile = open(os.path.join(self.api.BASEPATH,
+                              outdir, '%s.html'% pmod.sname),
+                              'w')
 
     tfile.write(html)
 
@@ -437,7 +433,8 @@ class Plugin(BasePlugin):
     import linecache
     linecache.clearcache()
 
-    temppath = os.path.join(self.pluginlocation, 'templates', 'template-dark.html')
+    temppath = os.path.join(self.pluginlocation, 'templates',
+                                          'template-dark.html')
     plugininfo = self.api.get('plugins.allplugininfo')()
 
     with open(temppath, 'r') as content_file:
@@ -447,12 +444,10 @@ class Plugin(BasePlugin):
 
     title = 'Bastproxy'
 
-    hmenu = HMENU % {'TITLE':title, 'PLUGINMENU':pmenu}
-
-    self.build_index(title, hmenu, plugininfo, template)
+    self.build_index(title, pmenu, plugininfo, template)
 
     for i in plugininfo:
-      self.build_plugin(plugininfo[i], title, hmenu, template)
+      self.build_plugin(plugininfo[i], title, pmenu, template)
 
     outpath = os.path.join(self.api.BASEPATH, 'docsout')
 
