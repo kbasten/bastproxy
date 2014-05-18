@@ -24,7 +24,7 @@ def find_files(directory, filematch):
     tstuff = filematch.split(os.sep)
     directory = os.path.join(directory, tstuff[0])
     filematch = tstuff[-1]
-  for root, _, filenames in os.walk(directory):
+  for root, _, filenames in os.walk(directory, followlinks=True):
     for filename in fnmatch.filter(filenames, filematch):
       matches.append(os.path.join(root, filename))
 
