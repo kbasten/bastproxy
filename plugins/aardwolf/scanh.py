@@ -83,24 +83,28 @@ class Plugin(AardwolfBasePlugin):
     gqbackcolor = self.api.get('setting.gets')('gqbackcolor')
     questtextcolor = self.api.get('setting.gets')('questtextcolor')
     questbackcolor = self.api.get('setting.gets')('questbackcolor')
+    if args['line'][0] != ' ':
+      return
     line = args['line'].lower().strip()
     self.api.get('send.msg')('scanline: %s' % line)
     if 'cp' in self.mobs:
       for i in self.mobs['cp']:
-        if i['nocolorname'].lower() in line:
+        if line[len(line) - len(i['nocolorname']):].strip() \
+                      == i['nocolorname'].lower():
           args['newline'] = cptextcolor + \
                   cpbackcolor + args['line'] + ' - (CP)@x'
           self.api.get('send.msg')('cp newline: %s' % args['newline'])
           break
     if 'gq' in self.mobs:
       for i in self.mobs['gq']:
-        if i['name'].lower() in line:
+        if line[len(line) - len(i['name']):].strip() == i['name'].lower():
           args['newline'] = gqtextcolor + \
                   gqbackcolor + args['line'] + ' - (GQ)@x'
           self.api.get('send.msg')('gq newline: %s' % args['newline'])
           break
     if 'quest' in self.mobs:
-      if self.mobs['quest'].lower() in line:
+      if line[len(line) - len(self.mobs['quest']):].strip() \
+                        == self.mobs['quest'].lower():
         args['newline'] = questtextcolor + \
               questbackcolor + args['line'] + ' - (Quest)@x'
         self.api.get('send.msg')('quest newline: %s' % args['newline'])
@@ -144,7 +148,8 @@ class Plugin(AardwolfBasePlugin):
     clear the gq mob
     """
     self.api.get('send.msg')('clearing gq mobs')
-    del(self.mobs['gq'])
+    if 'gq' in self.mobs:
+      del(self.mobs['gq'])
 
   def questmob(self, args):
     """
@@ -158,4 +163,5 @@ class Plugin(AardwolfBasePlugin):
     clear the quest mob
     """
     self.api.get('send.msg')('clearing quest mob')
-    del(self.mobs['quest'])
+    if 'quest' in self.mobs:
+      del(self.mobs['quest'])
