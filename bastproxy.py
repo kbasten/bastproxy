@@ -10,13 +10,15 @@ It supports MCCP, GMCP, aliases, actions, substitutes, variables
  * ```git clone https://github.com/endavis/bastproxy.git```
 
 ### Download
- * Download the zip file from [here](https://github.com/endavis/bastproxy/archive/master.zip).
+ * Download the zip file from
+      [here](https://github.com/endavis/bastproxy/archive/master.zip).
  * Unzip into a directory
 
 ## Getting Started
 
 ### Configuration
- * Use one of the included ones,  both for [Aardwolf Mud](http://www.aardwolf.com/)
+ * Use one of the included ones,  both for
+      [Aardwolf Mud](http://www.aardwolf.com/)
  * Copy the below to "mud"-config.ini and change the items to suit your needs
 
 ---
@@ -35,7 +37,8 @@ Don't forget to change the passwords!
  * From the installation directory, ```python bastproxy.py "mud"-config.ini```
 
 ### Connecting
- * Connect a client to the listen_port above on the host the proxy is running, and then login with the password.
+ * Connect a client to the listen_port above on the host the proxy is running,
+      and then login with the password.
 
 ### Help
   * Use the following commands to get help
@@ -51,8 +54,8 @@ Don't forget to change the passwords!
 
 ## Basics
 ### Plugins
-  * Plugins are the basic building block for bastproxy. They are used through the
-  commands that are added to the plugin
+  * Plugins are the basic building block for bastproxy, and are used through
+  the commands that are added by the plugin.
 
 ### Commands
 #### Help
@@ -65,7 +68,8 @@ Don't forget to change the passwords!
     * ```#bp.plugins.cmd first second```
      * 1st argunent = 'first'
      * 2nd argunet = 'second'
-    * ```#bp.plugins.cmd 'this is the first argument' "this is the second argument"```
+    * ```#bp.plugins.cmd 'this is the first argument'
+              "this is the second argument"```
      * 1st argument = 'this is the first argument'
      * 2nd argument = 'this is the second argument'
 """
