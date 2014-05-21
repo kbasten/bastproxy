@@ -237,6 +237,8 @@ class Plugin(AardwolfBasePlugin):
     if not self.cpinfo['mobs']:
       self.api.get('send.msg')('copying mobsleft')
       self.cpinfo['mobs'] = self.mobsleft[:]
+      self.api.get('events.eraise')('aard_cp_mobsorig',
+                    copy.deepcopy({'mobsleft':self.mobsleft}))
       self.savestate()
 
     self.api.get('send.msg')('raising aard_cp_mobsleft %s' % self.mobsleft)
@@ -277,8 +279,6 @@ class Plugin(AardwolfBasePlugin):
     if not name or not location:
       self.api.get('send.msg')("error parsing line: %s" % args['line'])
     else:
-      #self.mobsleft.append({'name':name, 'location':location,
-      #'clean':cleanname(name), 'mobdead':mobdead})
       self.mobsleft.append({'name':name,
                       'nocolorname':self.api.get('colors.stripansi')(name),
                       'location':location, 'mobdead':mobdead})
