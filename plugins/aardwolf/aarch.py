@@ -73,7 +73,7 @@ for AARCHT in AARCHITEMS:
 
 class Plugin(AardwolfBasePlugin):
   """
-  a plugin to handle aardwolf cp events
+  a plugin to show which aarcheology items are needed
   """
   def __init__(self, *args, **kwargs):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
@@ -82,7 +82,7 @@ class Plugin(AardwolfBasePlugin):
 
   def load(self):
     """
-    load the plugins
+    load the plugin
     """
     AardwolfBasePlugin.load(self)
 
@@ -124,7 +124,6 @@ class Plugin(AardwolfBasePlugin):
           need.append(i)
     else:
       need = tneed
-
 
     tmsg.append('You have %s Aarcheology Items and %s Pamphlets' % (items, pam))
     if len(tneed) > 0:
