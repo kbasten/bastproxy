@@ -1,7 +1,10 @@
 """
 This plugin loops commands for a specified number of times
 
-the command can be "get all ${num}.corpse"
+## Example
+ * ```#bp.loop.cmd -c 10 "get all ${num}.corpse"```
+   will get all from 1.corpse, 2.corpse, 3.corpse, etc.
+
 """
 import argparse
 from string import Template
