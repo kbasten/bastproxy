@@ -95,6 +95,15 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
+                  <ul class="dropdown-menu">
+<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
+<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
+<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
+<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
+</ul>
+</li>
+<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -127,6 +136,13 @@
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav sidebar-fixed">
   <li><a href="#about">About</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#usingMenu">
+           Using <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="usingMenu">
+  <li><a href="#registering-an-event-from-a-plugin">Registering an event from a plugin</a></li>
+  <li><a href="#unregistering-an-event">Unregistering an event</a></li>
+  <li><a href="#raising-an-event">Raising an event</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
@@ -164,6 +180,26 @@
 
 <p>This plugin handles events.
   You can register/unregister with events, raise events</p>
+
+</div><div class="indenth2"><h2 id="using" class="bph2">Using</h2>
+
+</div><div class="indenth3"><h3 id="registering-an-event-from-a-plugin" class="bph3">Registering an event from a plugin</h3>
+
+<ul>
+<li><code>self.api.get('events.register')(eventname, function)</code></li>
+</ul>
+
+</div><div class="indenth3"><h3 id="unregistering-an-event" class="bph3">Unregistering an event</h3>
+
+<ul>
+<li><code>self.api.get('events.unregister')(eventname, function)</code></li>
+</ul>
+
+</div><div class="indenth3"><h3 id="raising-an-event" class="bph3">Raising an event</h3>
+
+<ul>
+<li><code>self.api.get('events.eraise')(eventname, argtable)</code></li>
+</ul>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>

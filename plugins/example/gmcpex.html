@@ -125,7 +125,7 @@
         </div>
        </div>
     <div class="nav">
-        <div class="divpluginname">aardwolf.ct</div>
+        <div class="divpluginname">example.gmcpex</div>
     </div>
     </div>
 
@@ -135,14 +135,16 @@
         <!-- sidebar -->
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav sidebar-fixed">
-  <li><a href="#" data-toggle="collapse" data-target="#aboutMenu">
-           About <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="aboutMenu">
-  <li><a href="#example-output">Example Output</a></li>
-</ul></li>
+  <li><a href="#about">About</a></li>
+  <li><a href="#using-gmcp">Using GMCP</a></li>
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupgmcpexMenu">
+           gmcpex <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupgmcpexMenu">
+  <li><a href="#cmdget">get</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
@@ -154,43 +156,53 @@
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
-           Settings <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="settingsMenu">
-  <li><a href="#setinfocolor">infocolor</a></li>
-  <li><a href="#setstatcolor">statcolor</a></li>
-</ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
         <div class="indenth2"><h2 id="about" class="bph2">About</h2>
 
-<p>This plugin includes a combat tracker for aardwolf</p>
+<p>This plugin is an example plugin to show how to use gmcp</p>
 
-</div><div class="indenth3"><h3 id="example-output" class="bph3">Example Output</h3>
+</div><div class="indenth2"><h2 id="using-gmcp" class="bph2">Using GMCP</h2>
 
-<pre><code><span style="color:#0087ff">------------------------------------------------------------------------</span>
-<span style="color:#0087ff">-----------------  </span><span style="color:#ffffff">the dwarven barkeeper</span><span style="color:#0087ff"> : </span><span style="color:#ffffff">06</span><span style="color:#0087ff">s - </span><span style="color:#ffffff">72</span><span style="color:#0087ff">xp  -----------------</span>
-<span style="color:#0087ff">------------------------------------------------------------------------</span>
-<span style="color:#0087ff">Dam Type             :    Hits      Damage   (  0%)   Misses    Average</span>
-<span style="color:#0087ff">------------------------------------------------------------------------</span>
-<span style="color:#ffffff">backstab             </span><span style="color:#0087ff">: </span><span style="color:#ffffff">    2         982     ( 37%)     1         491</span>
-<span style="color:#ffffff">cleave               </span><span style="color:#0087ff">: </span><span style="color:#ffffff">    3         976     ( 37%)     2         325</span>
-<span style="color:#ffffff">pierce               </span><span style="color:#0087ff">: </span><span style="color:#ffffff">    2         665     ( 25%)     0         332</span>
-<span style="color:#0087ff">------------------------------------------------------------------------</span>
-<span style="color:#ffffff">Total                </span><span style="color:#0087ff">: </span><span style="color:#ffffff">    7         2623    (100%)     3         374</span>
-<span style="color:#0087ff">------------------------------------------------------------------------</span>
-</code></pre>
+<ul>
+<li>register to the GMCP event and check which option it was</li>
+<li><p>register to the "GMCP:[module]" event</p>
+
+<ul>
+<li>example: GMCP:char</li>
+</ul>
+
+<p/><p>see the <a href="http://www.aardwolf.com/wiki/index.php/Clients/GMCP">Aardwolf Wiki</a></p></li>
+</ul>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgroupgmcpex" class="bph3">gmcpex</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdget" class="bph4">get</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.gmcpex.get</span> [-h] [module]
+
+print what is in a module in the gmcp cache
+
+positional arguments:
+  module      the module to show
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.gmcpex.api</span> [-h] [api]
 
 list functions in the api
 
@@ -203,7 +215,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.gmcpex.help</span> [-a] [-c] [-h]
 
 show help info for this plugin
 
@@ -215,7 +227,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.gmcpex.reset</span> [-h]
 
 reset the plugin
 
@@ -225,7 +237,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.gmcpex.save</span> [-h]
 
 save the plugin state
 
@@ -235,7 +247,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.gmcpex.set</span> [-h] [name] [value]
 
 change a setting in the plugin
 
@@ -252,24 +264,13 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.ct.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.gmcpex.stats</span> [-h]
 
 show plugin stats
 
 optional arguments:
   -h, --help  show help
 
-</code></pre>
-</div>
-<h2 id="settings" class="bph2">Settings</h2>
-<div class="indenth4">
-<h3 id="setinfocolor" class="bph4">infocolor</h3>
-<pre><code>
-the info color
-</code></pre>
-<h3 id="setstatcolor" class="bph4">statcolor</h3>
-<pre><code>
-the stat color
 </code></pre>
 </div>
         </div><!-- /.col-xs-12 main -->
