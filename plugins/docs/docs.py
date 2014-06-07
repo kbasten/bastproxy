@@ -173,11 +173,14 @@ class Plugin(BasePlugin):
     testdoc = sys.modules['__main__'].__doc__
 
     about = markdown2.markdown(testdoc,
-                               extras=['header-ids', 'fenced-code-blocks'])
+                               extras=['header-ids', 'fenced-code-blocks',
+                                       'wiki-tables'])
 
     nbody = self.adddivstodoc(about)
 
-    body = self.addhclasses(nbody)
+    nbody = self.addhclasses(nbody)
+
+    body = self.addtableclasses(nbody)
 
     ttoc = self.buildtoc(
                     self.gettoc('<body>\n' + '\n'.join(body) + '\n</body>'))
@@ -191,16 +194,21 @@ class Plugin(BasePlugin):
 
     tfile.close()
 
-  def addhclasses(self, html):
+  def addelementclass(self, html, element, eclass):
     """
-    add classes to headers
+    add a class to an element
+
+    eclass can include the tagname as %(tag)s
     """
     from lxml import etree
 
+    if type(html) == type([]):
+      html = ''.join(html)
+
     doc = etree.fromstring('<body>\n' + html + '\n</body>\n')
-    for node in doc.xpath('//h1|//h2|//h3|//h4|//h5'):
+    for node in doc.xpath(element):
       attrib = node.attrib
-      nclass = 'bp%s' % node.tag
+      nclass = eclass % {'tag':node.tag}
       if attrib.get('class'):
         attrib['class'] = attrib.get('class') + ' ' + nclass
       else:
@@ -216,6 +224,18 @@ class Plugin(BasePlugin):
     html.remove('</body>')
 
     return html
+
+  def addhclasses(self, html):
+    """
+    add classes to headers
+    """
+    return self.addelementclass(html, '//h1|//h2|//h3|//h4|//h5', 'bp%(tag)s')
+
+  def addtableclasses(self, html):
+    """
+    add classes to tables
+    """
+    return self.addelementclass(html, '//table', 'table')
 
   def gettoc(self, html):
     """
@@ -308,7 +328,8 @@ class Plugin(BasePlugin):
     #testdoc = self.api.get('colors.colortohtml')(testdoc)
 
     aboutb = markdown2.markdown(testdoc,
-                                  extras=['header-ids', 'fenced-code-blocks'])
+                                  extras=['header-ids', 'fenced-code-blocks',
+                                          'wiki-tables'])
 
     aboutb = self.api.get('colors.colortohtml')(aboutb)
 
@@ -321,7 +342,9 @@ class Plugin(BasePlugin):
 
     nbody = self.adddivstodoc(about)
 
-    body = self.addhclasses(nbody)
+    nbody = self.addhclasses(nbody)
+
+    body = self.addtableclasses(nbody)
 
     cmds = self.api.get('commands.list')(pmod.sname, format=False)
 
