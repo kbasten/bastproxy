@@ -251,7 +251,6 @@ class Plugin(BasePlugin):
       line = line.rstrip()
       #line = fixstring(line)
       if '@@' in line:
-        print '@@ in line', line
         line = line.replace('@@', '\0')
       tlist = re.split('(@[cmyrgbwCMYRGBWD]|@[xz]\d\d\d|@[xz]\d\d|@[xz]\d)', line)
 
@@ -293,7 +292,6 @@ class Plugin(BasePlugin):
       tstring = ''.join(nlist)
       if '\0' in tstring:
         tstring = tstring.replace('\0', '@')
-        print '\0 in tstring', tstring
 
       olist.append(tstring + lastchar)
 
