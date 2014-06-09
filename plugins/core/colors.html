@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -136,6 +127,12 @@
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav sidebar-fixed">
   <li><a href="#about">About</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#color-codesMenu">
+           Color Codes <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="color-codesMenu">
+  <li><a href="#ansi">Ansi</a></li>
+  <li><a href="#xterm-256">xterm 256</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
@@ -171,27 +168,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugin handles colors</p>
-
-<p>Color Codes:
-xterm 256
-<span style="color:#afff00"> - make text color xterm 154</span>
-<span style="color:#afff00"> - make background color xterm 154</span></p>
-
-<p>regular ansi:
-         regular    bold
-Red        <span style="color:#cd0000">        </span><span style="color:#ff0000"/>
-Green      <span style="color:#00cd00">        </span><span style="color:#00ff00"/>
-Yellow     <span style="color:#cdcd00">        </span><span style="color:#ffff00"/>
-Blue       <span style="color:#0000ee">        </span><span style="color:#5c5cff"/>
-Magenta    <span style="color:#cd00cd">        </span><span style="color:#ff00ff"/>
-Cyan       <span style="color:#00cdcd">        </span><span style="color:#00ffff"/>
-White              <span style="color:#ffffff"/>
-Reset      @k        </p>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugin handles colors</p></div><div class="indenth2"><h2 id="color-codes" class="bph2">Color Codes</h2></div><div class="indenth3"><h3 id="ansi" class="bph3">Ansi</h3><table class="table"><tbody><tr><td>color</td><td>regular</td><td>bold</td></tr><tr><td>Red</td><td><span style="color:#cd0000">@r</span><span style="color:#e5e5e5"/></td><td><span style="color:#ff0000">@R</span><span style="color:#e5e5e5"/></td></tr><tr><td>Green</td><td><span style="color:#00cd00">@g</span><span style="color:#e5e5e5"/></td><td><span style="color:#00cd00">@G</span><span style="color:#e5e5e5"/></td></tr><tr><td>Yellow</td><td><span style="color:#cdcd00">@y</span><span style="color:#e5e5e5"/></td><td><span style="color:#ffff00">@Y</span><span style="color:#e5e5e5"/></td></tr><tr><td>Blue</td><td><span style="color:#0000ee">@b</span><span style="color:#e5e5e5"/></td><td><span style="color:#5c5cff">@B</span><span style="color:#e5e5e5"/></td></tr><tr><td>Magenta</td><td><span style="color:#cd00cd">@m</span><span style="color:#e5e5e5"/></td><td><span style="color:#ff00ff">@M</span><span style="color:#e5e5e5"/></td></tr><tr><td>Cyan</td><td><span style="color:#00cdcd">@c</span><span style="color:#e5e5e5"/></td><td><span style="color:#00ffff">@C</span><span style="color:#e5e5e5"/></td></tr><tr><td>White</td><td><span style="color:#e5e5e5">@w</span><span style="color:#e5e5e5"/></td><td><span style="color:#ffffff">@W</span><span style="color:#e5e5e5"/></td></tr></tbody></table></div><div class="indenth3"><h3 id="xterm-256" class="bph3">xterm 256</h3><ul><li><span style="color:#afff00">@x154 - make text color xterm 154</span><span style="color:#e5e5e5"/></li><li><span style="background-color:#afff00">@z154 - make background color xterm 154</span><span style="color:#e5e5e5"/></li></ul></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupcolors" class="bph3">colors</h3>
@@ -199,7 +176,7 @@ Reset      @k        </p>
 <div class="indenth4">
 <h4 id="cmdexample" class="bph4">example</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.example</span> [-h]
+usage: <span style="color:#5c5cff">#bp.colors.example</span><span style="color:#e5e5e5"> [-h]</span>
 
 show color examples
 
@@ -209,7 +186,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdshow" class="bph4">show</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.show</span> [-h]
+usage: <span style="color:#5c5cff">#bp.colors.show</span><span style="color:#e5e5e5"> [-h]</span>
 
 show colors
 
@@ -224,7 +201,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.colors.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -237,7 +214,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.colors.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -249,7 +226,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.colors.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -259,7 +236,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.colors.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -269,7 +246,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.colors.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -286,7 +263,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.colors.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.colors.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
@@ -299,7 +276,7 @@ optional arguments:
 <div class="indenth4">
 <h3 id="setconvertcolors" class="bph4">convertcolors</h3>
 <pre><code>
-<span style="color:#00ff00">colors.convertcolors</span>(<span style="color:#ffff00">tstr</span>)
+<span style="color:#00ff00">colors.convertcolors</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">tstr</span><span style="color:#e5e5e5">)</span>
 
     convert @ colors in a string
 
@@ -308,7 +285,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setlengthdiff" class="bph4">lengthdiff</h3>
 <pre><code>
-<span style="color:#00ff00">colors.lengthdiff</span>(<span style="color:#ffff00">colorstring</span>)
+<span style="color:#00ff00">colors.lengthdiff</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">colorstring</span><span style="color:#e5e5e5">)</span>
 
     get the length difference of a colored string and its noncolor equivalent
 
@@ -317,7 +294,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setstripcolor" class="bph4">stripcolor</h3>
 <pre><code>
-<span style="color:#00ff00">colors.stripcolor</span>(<span style="color:#ffff00">text</span>)
+<span style="color:#00ff00">colors.stripcolor</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">text</span><span style="color:#e5e5e5">)</span>
 
     strip <span style="color:#00cdcd">olors</span>
 
@@ -326,7 +303,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setiscolor" class="bph4">iscolor</h3>
 <pre><code>
-<span style="color:#00ff00">colors.iscolor</span>(<span style="color:#ffff00">color</span>)
+<span style="color:#00ff00">colors.iscolor</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">color</span><span style="color:#e5e5e5">)</span>
 
     check if a string is a @ color, either xterm or ansi
 
@@ -335,7 +312,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setansicode" class="bph4">ansicode</h3>
 <pre><code>
-<span style="color:#00ff00">colors.ansicode</span>(<span style="color:#ffff00">color</span>, <span style="color:#ffff00">data</span>)
+<span style="color:#00ff00">colors.ansicode</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">color</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">data</span><span style="color:#e5e5e5">)</span>
 
     return an ansicoded string
 
@@ -344,7 +321,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setstripansi" class="bph4">stripansi</h3>
 <pre><code>
-<span style="color:#00ff00">colors.stripansi</span>(<span style="color:#ffff00">text</span>)
+<span style="color:#00ff00">colors.stripansi</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">text</span><span style="color:#e5e5e5">)</span>
 
     strip all ansi from a string
 
@@ -353,7 +330,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setcolortohtml" class="bph4">colortohtml</h3>
 <pre><code>
-<span style="color:#00ff00">colors.colortohtml</span>(<span style="color:#ffff00">input</span>)
+<span style="color:#00ff00">colors.colortohtml</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">input</span><span style="color:#e5e5e5">)</span>
 
     convert colorcodes to html
 
@@ -362,7 +339,7 @@ original defined in plugins/core/colors.py
 </code></pre>
 <h3 id="setconvertansi" class="bph4">convertansi</h3>
 <pre><code>
-<span style="color:#00ff00">colors.convertansi</span>(<span style="color:#ffff00">text</span>)
+<span style="color:#00ff00">colors.convertansi</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">text</span><span style="color:#e5e5e5">)</span>
 
     convert ansi color escape sequences to <span style="color:#00cdcd">olors</span>
 

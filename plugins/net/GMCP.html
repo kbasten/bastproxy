@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -166,11 +157,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugins handles TCP option 201, GMCP (aardwolf implementation)</p>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugins handles TCP option 201, GMCP (aardwolf implementation)</p></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupGMCP" class="bph3">GMCP</h3>
@@ -178,7 +165,7 @@
 <div class="indenth4">
 <h4 id="cmdsend" class="bph4">send</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.send</span> [-h]
+usage: <span style="color:#5c5cff">#bp.GMCP.send</span><span style="color:#e5e5e5"> [-h]</span>
 
 there is no help for this command
 
@@ -193,7 +180,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.GMCP.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -206,7 +193,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.GMCP.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -218,7 +205,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.GMCP.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -228,7 +215,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.GMCP.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -238,7 +225,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.GMCP.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -255,7 +242,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.GMCP.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.GMCP.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
@@ -268,9 +255,9 @@ optional arguments:
 <div class="indenth4">
 <h3 id="setsendpacket" class="bph4">sendpacket</h3>
 <pre><code>
-<span style="color:#00ff00">GMCP.sendpacket</span>(<span style="color:#ffff00">message</span>)
+<span style="color:#00ff00">GMCP.sendpacket</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">message</span><span style="color:#e5e5e5">)</span>
   send a GMCP packet
-    <span style="color:#ffff00">message</span>  = the message to send
+    <span style="color:#ffff00">message</span><span style="color:#e5e5e5">  = the message to send</span>
 
     this function returns no values
 
@@ -280,10 +267,10 @@ original defined in plugins/net/GMCP.py
 </code></pre>
 <h3 id="settogglemodule" class="bph4">togglemodule</h3>
 <pre><code>
-<span style="color:#00ff00">GMCP.togglemodule</span>(<span style="color:#ffff00">modname</span>, <span style="color:#ffff00">mstate</span>)
+<span style="color:#00ff00">GMCP.togglemodule</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">modname</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">mstate</span><span style="color:#e5e5e5">)</span>
   toggle a GMCP module
-    <span style="color:#ffff00">modname</span>  = the GMCP module to toggle
-    <span style="color:#ffff00">mstate</span>  = the state, either True or False
+    <span style="color:#ffff00">modname</span><span style="color:#e5e5e5">  = the GMCP module to toggle</span>
+    <span style="color:#ffff00">mstate</span><span style="color:#e5e5e5">  = the state, either True or False</span>
 
     this function returns no values
 
@@ -291,9 +278,9 @@ original defined in plugins/net/GMCP.py
 </code></pre>
 <h3 id="setsendmodule" class="bph4">sendmodule</h3>
 <pre><code>
-<span style="color:#00ff00">GMCP.sendmodule</span>(<span style="color:#ffff00">modname</span>)
+<span style="color:#00ff00">GMCP.sendmodule</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">modname</span><span style="color:#e5e5e5">)</span>
   send a GMCP module to clients that support GMCP
-    <span style="color:#ffff00">modname</span>  = the module to send to clients
+    <span style="color:#ffff00">modname</span><span style="color:#e5e5e5">  = the module to send to clients</span>
 
     this function returns no values
 
@@ -301,9 +288,9 @@ original defined in plugins/net/GMCP.py
 </code></pre>
 <h3 id="setgetv" class="bph4">getv</h3>
 <pre><code>
-<span style="color:#00ff00">GMCP.getv</span>(<span style="color:#ffff00">module</span>)
+<span style="color:#00ff00">GMCP.getv</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">module</span><span style="color:#e5e5e5">)</span>
   get a GMCP value/module from the cache
-    <span style="color:#ffff00">module</span>  = the module to get
+    <span style="color:#ffff00">module</span><span style="color:#e5e5e5">  = the module to get</span>
 
     this function returns a table or value depending on what is requested
 

@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -164,44 +155,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>this module is a sqlite3 interface</p>
-
-</div><div class="indenth2"><h2 id="using" class="bph2">Using</h2>
-
-<p>See the source for <a href="/bastproxy/plugins/aardwolf/statdb.html">aardwolf.statdb</a>
-for an example of using sqldb</p>
-
-</div><div class="indenth3"><h3 id="wrap-the-class-creation-in-a-function" class="bph3">Wrap the class creation in a function</h3>
-
-<div class="codehilite"><pre><code>    <span class="k">def</span> <span class="nf">dbcreate</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-      <span class="sd">"""</span>
-<span class="sd">      create the mydb class, this is needed because the Sqldb baseclass</span>
-<span class="sd">      can be reloaded since it is a plugin</span>
-<span class="sd">      """</span>
-      <span class="k">class</span> <span class="nc">mydb</span><span class="p">(</span><span class="n">sqldb</span><span class="p">):</span>
-        <span class="sd">"""</span>
-<span class="sd">        a class to manage a sqlite database</span>
-<span class="sd">        """</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-          <span class="sd">"""</span>
-<span class="sd">          initialize the class</span>
-<span class="sd">          """</span>
-          <span class="n">sqldb</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-          <span class="bp">self</span><span class="o">.</span><span class="n">postinit</span><span class="p">()</span>
-
-      <span class="k">return</span> <span class="n">mydb</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</code></pre></div>
-
-</div><div class="indenth3"><h3 id="call-the-function-in-load" class="bph3">call the function in load</h3>
-
-<div class="codehilite"><pre><code>    <span class="n">mydb</span> <span class="o">=</span> <span class="n">dbcreate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'sqldb.baseclass'</span><span class="p">)(),</span> <span class="bp">self</span><span class="p">,</span>
-                           <span class="n">dbname</span><span class="o">=</span><span class="s">'mydb'</span><span class="p">)</span>
-</code></pre></div>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>this module is a sqlite3 interface</p></div><div class="indenth2"><h2 id="using" class="bph2">Using</h2><p>See the source for <a href="/bastproxy/plugins/aardwolf/statdb.html">aardwolf.statdb</a>for an example of using sqldb</p></div><div class="indenth3"><h3 id="wrap-the-class-creation-in-a-function" class="bph3">Wrap the class creation in a function</h3><div class="codehilite"><pre><code>    <span class="k">def</span> <span class="nf">dbcreate</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>      <span class="sd">"""</span><span class="sd">      create the mydb class, this is needed because the Sqldb baseclass</span><span class="sd">      can be reloaded since it is a plugin</span><span class="sd">      """</span>      <span class="k">class</span> <span class="nc">mydb</span><span class="p">(</span><span class="n">sqldb</span><span class="p">):</span>        <span class="sd">"""</span><span class="sd">        a class to manage a sqlite database</span><span class="sd">        """</span>        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>          <span class="sd">"""</span><span class="sd">          initialize the class</span><span class="sd">          """</span>          <span class="n">sqldb</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>          <span class="bp">self</span><span class="o">.</span><span class="n">postinit</span><span class="p">()</span>      <span class="k">return</span> <span class="n">mydb</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code></pre></div></div><div class="indenth3"><h3 id="call-the-function-in-load" class="bph3">call the function in load</h3><div class="codehilite"><pre><code>    <span class="n">mydb</span> <span class="o">=</span> <span class="n">dbcreate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'sqldb.baseclass'</span><span class="p">)(),</span> <span class="bp">self</span><span class="p">,</span>                           <span class="n">dbname</span><span class="o">=</span><span class="s">'mydb'</span><span class="p">)</span></code></pre></div></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
@@ -209,7 +163,7 @@ for an example of using sqldb</p>
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.sqldb.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -222,7 +176,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.sqldb.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -234,7 +188,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.sqldb.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -244,7 +198,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.sqldb.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -254,7 +208,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.sqldb.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -271,7 +225,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.sqldb.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.sqldb.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
@@ -284,7 +238,7 @@ optional arguments:
 <div class="indenth4">
 <h3 id="setbaseclass" class="bph4">baseclass</h3>
 <pre><code>
-<span style="color:#00ff00">sqldb.baseclass</span>()
+<span style="color:#00ff00">sqldb.baseclass</span><span style="color:#e5e5e5">()</span>
 
     return the sql baseclass
 

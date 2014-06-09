@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -168,27 +159,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugin is an alias plugin</p>
-
-<p>Two types of aliases:</p>
-
-<ul>
-<li><p><code>#bp.alias.add 'oa' 'open all'</code></p>
-
-<ul>
-<li>This type of alias will just replace the oa with open all</li>
-</ul></li>
-<li><p><code>#bp.alias.add 'port (.*)'
-      'get {1} $portbag|wear {1}|enter|wear amulet|put {1} portbag'</code></p>
-
-<ul>
-<li>This alias can be used with numbered positions from the words following after the alias</li>
-</ul></li>
-</ul>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugin is an alias plugin</p><p>Two types of aliases:</p><ul><li><p><code>#bp.alias.add 'oa' 'open all'</code></p><ul><li>This type of alias will just replace the oa with open all</li></ul></li><li><p><code>#bp.alias.add 'port (.*)'      'get {1} $portbag|wear {1}|enter|wear amulet|put {1} portbag'</code></p><ul><li>This alias can be used with numbered positions from the words following after the alias</li></ul></li></ul></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupalias" class="bph3">alias</h3>
@@ -196,7 +167,7 @@
 <div class="indenth4">
 <h4 id="cmdadd" class="bph4">add</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.add</span> [-o] [-d] [-g GROUP] [-h] [original] [replacement]
+usage: <span style="color:#5c5cff">#bp.alias.add</span><span style="color:#e5e5e5"> [-o] [-d] [-g GROUP] [-h] [original] [replacement]</span>
 
 add an alias
 
@@ -214,7 +185,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmddetail" class="bph4">detail</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.detail</span> [-h] [alias]
+usage: <span style="color:#5c5cff">#bp.alias.detail</span><span style="color:#e5e5e5"> [-h] [alias]</span>
 
 get detail for an alias
 
@@ -227,7 +198,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdgroupt" class="bph4">groupt</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.groupt</span> [-d] [-h] [group]
+usage: <span style="color:#5c5cff">#bp.alias.groupt</span><span style="color:#e5e5e5"> [-d] [-h] [group]</span>
 
 toggle all aliases in a group
 
@@ -241,7 +212,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdlist" class="bph4">list</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.list</span> [-h] [match]
+usage: <span style="color:#5c5cff">#bp.alias.list</span><span style="color:#e5e5e5"> [-h] [match]</span>
 
 list aliases
 
@@ -254,7 +225,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdremove" class="bph4">remove</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.remove</span> [-h] [alias]
+usage: <span style="color:#5c5cff">#bp.alias.remove</span><span style="color:#e5e5e5"> [-h] [alias]</span>
 
 remove an alias
 
@@ -267,7 +238,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdtoggle" class="bph4">toggle</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.toggle</span> [-h] [alias]
+usage: <span style="color:#5c5cff">#bp.alias.toggle</span><span style="color:#e5e5e5"> [-h] [alias]</span>
 
 toggle enabled flag
 
@@ -285,7 +256,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.alias.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -298,7 +269,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.alias.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -310,7 +281,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.alias.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -320,7 +291,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.alias.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -330,7 +301,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.alias.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -347,7 +318,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.alias.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.alias.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 

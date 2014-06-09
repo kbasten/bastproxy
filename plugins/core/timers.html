@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -167,11 +158,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>this plugin has a timer interface for internal timers</p>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>this plugin has a timer interface for internal timers</p></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgrouptimers" class="bph3">timers</h3>
@@ -179,7 +166,7 @@
 <div class="indenth4">
 <h4 id="cmddetail" class="bph4">detail</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.detail</span> [-h] [timers [timers ...]]
+usage: <span style="color:#5c5cff">#bp.timers.detail</span><span style="color:#e5e5e5"> [-h] [timers [timers ...]]</span>
 
 get details for timers
 
@@ -192,7 +179,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdlist" class="bph4">list</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.list</span> [-h] [match]
+usage: <span style="color:#5c5cff">#bp.timers.list</span><span style="color:#e5e5e5"> [-h] [match]</span>
 
 list timers
 
@@ -205,7 +192,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.timers.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 get overall timer stats
 
@@ -220,7 +207,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.timers.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -233,7 +220,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.timers.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -245,7 +232,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.timers.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -255,7 +242,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.timers.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -265,7 +252,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.timers.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.timers.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -285,17 +272,17 @@ optional arguments:
 <div class="indenth4">
 <h3 id="setadd" class="bph4">add</h3>
 <pre><code>
-<span style="color:#00ff00">timers.add</span>(<span style="color:#ffff00">name</span>, <span style="color:#ffff00">func</span>, <span style="color:#ffff00">seconds</span>, <span style="color:#ffff00">**kwargs</span>)
+<span style="color:#00ff00">timers.add</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">name</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">func</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">seconds</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">**kwargs</span><span style="color:#e5e5e5">)</span>
   add a timer
-    <span style="color:#ffff00">name</span>   = The timer name
-    <span style="color:#ffff00">func</span>  = the function to call when firing the timer
-    <span style="color:#ffff00">seconds</span>   = the interval (in seconds) to fire the timer
-    <span style="color:#ffff00">args</span> arguments:
-      <span style="color:#ffff00">nodupe</span>    = True if no duplicates of this timer are allowed,
+    <span style="color:#ffff00">name</span><span style="color:#e5e5e5">   = The timer name</span>
+    <span style="color:#ffff00">func</span><span style="color:#e5e5e5">  = the function to call when firing the timer</span>
+    <span style="color:#ffff00">seconds</span><span style="color:#e5e5e5">   = the interval (in seconds) to fire the timer</span>
+    <span style="color:#ffff00">args</span><span style="color:#e5e5e5"> arguments:</span>
+      <span style="color:#ffff00">nodupe</span><span style="color:#e5e5e5">    = True if no duplicates of this timer are allowed,</span>
                                     False otherwise
-      <span style="color:#ffff00">onetime</span>   = True for a onetime timer, False otherwise
-      <span style="color:#ffff00">enabled</span>   = True if enabled, False otherwise
-      <span style="color:#ffff00">time</span>      = The time to start this timer, e.g. 1300 for 1PM
+      <span style="color:#ffff00">onetime</span><span style="color:#e5e5e5">   = True for a onetime timer, False otherwise</span>
+      <span style="color:#ffff00">enabled</span><span style="color:#e5e5e5">   = True if enabled, False otherwise</span>
+      <span style="color:#ffff00">time</span><span style="color:#e5e5e5">      = The time to start this timer, e.g. 1300 for 1PM</span>
 
     returns an Event instance
 
@@ -303,10 +290,10 @@ original defined in plugins/core/timers.py
 </code></pre>
 <h3 id="settoggle" class="bph4">toggle</h3>
 <pre><code>
-<span style="color:#00ff00">timers.toggle</span>(<span style="color:#ffff00">name</span>, <span style="color:#ffff00">flag</span>)
+<span style="color:#00ff00">timers.toggle</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">name</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">flag</span><span style="color:#e5e5e5">)</span>
   toggle a timer to be enabled/disabled
-    <span style="color:#ffff00">name</span>   = the name of the timer to toggle
-    <span style="color:#ffff00">flag</span>   = True to enable, False to disable
+    <span style="color:#ffff00">name</span><span style="color:#e5e5e5">   = the name of the timer to toggle</span>
+    <span style="color:#ffff00">flag</span><span style="color:#e5e5e5">   = True to enable, False to disable</span>
 
     this function returns no values
 
@@ -314,9 +301,9 @@ original defined in plugins/core/timers.py
 </code></pre>
 <h3 id="setremove" class="bph4">remove</h3>
 <pre><code>
-<span style="color:#00ff00">timers.remove</span>(<span style="color:#ffff00">name</span>)
+<span style="color:#00ff00">timers.remove</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">name</span><span style="color:#e5e5e5">)</span>
   remove a timer
-    <span style="color:#ffff00">name</span>   = the name of the timer to remove
+    <span style="color:#ffff00">name</span><span style="color:#e5e5e5">   = the name of the timer to remove</span>
 
     this function returns no values
 
@@ -324,9 +311,9 @@ original defined in plugins/core/timers.py
 </code></pre>
 <h3 id="setremoveplugin" class="bph4">removeplugin</h3>
 <pre><code>
-<span style="color:#00ff00">timers.removeplugin</span>(<span style="color:#ffff00">name</span>)
+<span style="color:#00ff00">timers.removeplugin</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">name</span><span style="color:#e5e5e5">)</span>
   remove a timer
-    <span style="color:#ffff00">name</span>   = the name of the plugin
+    <span style="color:#ffff00">name</span><span style="color:#e5e5e5">   = the name of the plugin</span>
 
     this function returns no values
 

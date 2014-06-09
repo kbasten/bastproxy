@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -172,11 +163,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugin handles slist from Aardwolf</p>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugin handles slist from Aardwolf</p></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupskills" class="bph3">skills</h3>
@@ -184,7 +171,7 @@
 <div class="indenth4">
 <h4 id="cmdlu" class="bph4">lu</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.lu</span> [-h] [skill]
+usage: <span style="color:#5c5cff">#bp.skills.lu</span><span style="color:#e5e5e5"> [-h] [skill]</span>
 
 lookup skill or spell by name or sn
 
@@ -197,7 +184,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdrefresh" class="bph4">refresh</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.refresh</span> [-h]
+usage: <span style="color:#5c5cff">#bp.skills.refresh</span><span style="color:#e5e5e5"> [-h]</span>
 
 refresh skills and spells
 
@@ -212,7 +199,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.skills.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -225,7 +212,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.skills.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -237,7 +224,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.skills.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -247,7 +234,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.skills.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -257,7 +244,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.skills.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -274,7 +261,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.skills.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.skills.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
@@ -287,7 +274,7 @@ optional arguments:
 <div class="indenth4">
 <h3 id="setcanuse" class="bph4">canuse</h3>
 <pre><code>
-<span style="color:#00ff00">skills.canuse</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.canuse</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     return True if the spell can be used
 
@@ -296,7 +283,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setisspellup" class="bph4">isspellup</h3>
 <pre><code>
-<span style="color:#00ff00">skills.isspellup</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.isspellup</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     return True for a spellup, else return False
 
@@ -305,7 +292,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setsendcmd" class="bph4">sendcmd</h3>
 <pre><code>
-<span style="color:#00ff00">skills.sendcmd</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.sendcmd</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     send the command to activate a skill/spell
 
@@ -314,7 +301,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setgetspellups" class="bph4">getspellups</h3>
 <pre><code>
-<span style="color:#00ff00">skills.getspellups</span>()
+<span style="color:#00ff00">skills.getspellups</span><span style="color:#e5e5e5">()</span>
 
     return a list of spellup spells
 
@@ -323,7 +310,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setisaffected" class="bph4">isaffected</h3>
 <pre><code>
-<span style="color:#00ff00">skills.isaffected</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.isaffected</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     return True for a spellup, else return False
 
@@ -332,7 +319,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setisblockedbyrecovery" class="bph4">isblockedbyrecovery</h3>
 <pre><code>
-<span style="color:#00ff00">skills.isblockedbyrecovery</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.isblockedbyrecovery</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     check to see if a spell/skill is blocked by a recovery
 
@@ -341,7 +328,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setisuptodate" class="bph4">isuptodate</h3>
 <pre><code>
-<span style="color:#00ff00">skills.isuptodate</span>()
+<span style="color:#00ff00">skills.isuptodate</span><span style="color:#e5e5e5">()</span>
 
     return True if we have seen affected or all spells refresh
 
@@ -350,7 +337,7 @@ original defined in plugins/aardwolf/skills.py
 </code></pre>
 <h3 id="setgets" class="bph4">gets</h3>
 <pre><code>
-<span style="color:#00ff00">skills.gets</span>(<span style="color:#ffff00">*arg</span>)
+<span style="color:#00ff00">skills.gets</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">*arg</span><span style="color:#e5e5e5">)</span>
 
     the wrapper to time a function
 
@@ -359,7 +346,7 @@ original defined in libs/timing.py
 </code></pre>
 <h3 id="setispracticed" class="bph4">ispracticed</h3>
 <pre><code>
-<span style="color:#00ff00">skills.ispracticed</span>(<span style="color:#ffff00">spellnum</span>)
+<span style="color:#00ff00">skills.ispracticed</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">spellnum</span><span style="color:#e5e5e5">)</span>
 
     is the spell learned
 

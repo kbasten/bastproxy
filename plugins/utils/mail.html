@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -175,11 +166,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugin sends mail</p>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugin sends mail</p></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupmail" class="bph3">mail</h3>
@@ -187,7 +174,7 @@
 <div class="indenth4">
 <h4 id="cmdcheck" class="bph4">check</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.check</span> [-h]
+usage: <span style="color:#5c5cff">#bp.mail.check</span><span style="color:#e5e5e5"> [-h]</span>
 
 check to make sure all settings are applied
 
@@ -197,7 +184,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdpassword" class="bph4">password</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.password</span> [-h] [password]
+usage: <span style="color:#5c5cff">#bp.mail.password</span><span style="color:#e5e5e5"> [-h] [password]</span>
 
 set the password for the mail account
 
@@ -210,7 +197,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdtest" class="bph4">test</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.test</span> [-h] [subject] [message]
+usage: <span style="color:#5c5cff">#bp.mail.test</span><span style="color:#e5e5e5"> [-h] [subject] [message]</span>
 
 send a test email
 
@@ -229,7 +216,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.mail.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -242,7 +229,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.mail.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -254,7 +241,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.mail.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -264,7 +251,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.mail.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -274,7 +261,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.mail.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -291,7 +278,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.mail.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.mail.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
@@ -331,11 +318,11 @@ the port to use when sending mail
 <div class="indenth4">
 <h3 id="setsend" class="bph4">send</h3>
 <pre><code>
-<span style="color:#00ff00">mail.send</span>(<span style="color:#ffff00">subject</span>, <span style="color:#ffff00">msg</span>, <span style="color:#ffff00">mailto=None</span>)
+<span style="color:#00ff00">mail.send</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">subject</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">msg</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">mailto=None</span><span style="color:#e5e5e5">)</span>
   send an email
-    <span style="color:#ffff00">subject</span>  = the subject of the message
-    <span style="color:#ffff00">msg</span>      = the msg to send
-    <span style="color:#ffff00">mailto</span>   = the email address to send to (default: the to
+    <span style="color:#ffff00">subject</span><span style="color:#e5e5e5">  = the subject of the message</span>
+    <span style="color:#ffff00">msg</span><span style="color:#e5e5e5">      = the msg to send</span>
+    <span style="color:#ffff00">mailto</span><span style="color:#e5e5e5">   = the email address to send to (default: the to</span>
       setting of the mail plugin)
 
     this function returns no values

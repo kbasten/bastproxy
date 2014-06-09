@@ -95,15 +95,6 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Example</a>
-                  <ul class="dropdown-menu">
-<li><a href="/bastproxy/plugins/example/a102ex.html">a102ex</a></li>
-<li><a href="/bastproxy/plugins/example/gmcpex.html">gmcpex</a></li>
-<li><a href="/bastproxy/plugins/example/timerex.html">timerex</a></li>
-<li><a href="/bastproxy/plugins/example/triggerex.html">triggerex</a></li>
-</ul>
-</li>
-<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Net</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
@@ -159,18 +150,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
-
-<p>This plugin loops commands for a specified number of times</p>
-
-</div><div class="indenth2"><h2 id="example" class="bph2">Example</h2>
-
-<ul>
-<li><code>#bp.loop.cmd -c 10 "get all ${num}.corpse"</code>
-will get all from 1.corpse, 2.corpse, 3.corpse, etc.</li>
-</ul>
-
-</div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This plugin loops commands for a specified number of times</p></div><div class="indenth2"><h2 id="example" class="bph2">Example</h2><ul><li><code>#bp.loop.cmd -c 10 "get all ${num}.corpse"</code>will get all from 1.corpse, 2.corpse, 3.corpse, etc.</li></ul></div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgrouploop" class="bph3">loop</h3>
@@ -178,7 +158,7 @@ will get all from 1.corpse, 2.corpse, 3.corpse, etc.</li>
 <div class="indenth4">
 <h4 id="cmdcmd" class="bph4">cmd</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.cmd</span> [-c COUNT] [-h] [cmd]
+usage: <span style="color:#5c5cff">#bp.loop.cmd</span><span style="color:#e5e5e5"> [-c COUNT] [-h] [cmd]</span>
 
 loop a command
 
@@ -198,7 +178,7 @@ optional arguments:
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.api</span> [-h] [api]
+usage: <span style="color:#5c5cff">#bp.loop.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -211,7 +191,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.help</span> [-a] [-c] [-h]
+usage: <span style="color:#5c5cff">#bp.loop.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -223,7 +203,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.reset</span> [-h]
+usage: <span style="color:#5c5cff">#bp.loop.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -233,7 +213,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.save</span> [-h]
+usage: <span style="color:#5c5cff">#bp.loop.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -243,7 +223,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.set</span> [-h] [name] [value]
+usage: <span style="color:#5c5cff">#bp.loop.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -260,7 +240,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.loop.stats</span> [-h]
+usage: <span style="color:#5c5cff">#bp.loop.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
