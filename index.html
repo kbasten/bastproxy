@@ -155,7 +155,130 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>This is a mud proxy.It runs in python 2.X (&gt;2.6).</p><p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p></div><div class="indenth2"><h2 id="installation" class="bph2">Installation</h2></div><div class="indenth3"><h3 id="git" class="bph3">Git</h3><ul><li><code>git clone https://github.com/endavis/bastproxy.git</code></li></ul></div><div class="indenth3"><h3 id="download" class="bph3">Download</h3><ul><li>Download the zip file from  <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li><li>Unzip into a directory</li></ul></div><div class="indenth2"><h2 id="getting-started" class="bph2">Getting Started</h2></div><div class="indenth3"><h3 id="configuration" class="bph3">Configuration</h3><ul><li>Use one of the included ones,  both for  <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li><li>Copy the below to "mud"-config.ini and change the items to suit your needs</li></ul><hr/><pre><code>[proxy]listen_port = 9999mud_address = some.mud.addressmud_port = 4000password = somepasswordviewpw = someviewpassword</code></pre><hr/><p>Don't forget to change the passwords!</p></div><div class="indenth3"><h3 id="starting" class="bph3">Starting</h3><ul><li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li></ul></div><div class="indenth3"><h3 id="connecting" class="bph3">Connecting</h3><ul><li>Connect a client to the listen_port above on the host the proxy is running,  and then login with the password.</li></ul></div><div class="indenth3"><h3 id="help" class="bph3">Help</h3><ul><li>Use the following commands to get help<ul><li>Show command categories<ul><li><code>#bp.commands</code></li></ul></li><li>show commands in a category<ul><li><code>#bp.commands.list "category"</code></li><li><code>#bp."category"</code></li></ul></li><li>Show loaded plugins<ul><li><code>#bp.plugins</code></li></ul></li><li>Show plugins that are not loaded<ul><li><code>#bp.plugins -n</code></li></ul></li></ul></li></ul></div><div class="indenth2"><h2 id="basics" class="bph2">Basics</h2></div><div class="indenth3"><h3 id="plugins" class="bph3">Plugins</h3><ul><li>Plugins are the basic building block for bastproxy, and are used throughthe commands that are added by the plugin.</li></ul></div><div class="indenth3"><h3 id="commands" class="bph3">Commands</h3></div><div class="indenth4"><h4 id="help-2" class="bph4">Help</h4><ul><li>Any command will show a help when adding a -h</li></ul></div><div class="indenth4"><h4 id="arguments" class="bph4">Arguments</h4><ul><li>command line arguments are parsed like a unix shell command line</li><li>to specify an argument with spaces, surround it with double 's or "s<ul><li>Examples:</li><li><code>#bp.plugins.cmd first second</code><ul><li>1st argunent = 'first'</li><li>2nd argunet = 'second'</li></ul></li><li><code>#bp.plugins.cmd 'this is the first argument'      "this is the second argument"</code><ul><li>1st argument = 'this is the first argument'</li><li>2nd argument = 'this is the second argument'</li></ul></li></ul></li></ul></div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
+
+<p>This is a mud proxy.
+It runs in python 2.X (&gt;2.6).</p>
+
+<p>It supports MCCP, GMCP, aliases, actions, substitutes, variables</p>
+
+</div><div class="indenth2"><h2 id="installation" class="bph2">Installation</h2>
+
+</div><div class="indenth3"><h3 id="git" class="bph3">Git</h3>
+
+<ul>
+<li><code>git clone https://github.com/endavis/bastproxy.git</code></li>
+</ul>
+
+</div><div class="indenth3"><h3 id="download" class="bph3">Download</h3>
+
+<ul>
+<li>Download the zip file from
+  <a href="https://github.com/endavis/bastproxy/archive/master.zip">here</a>.</li>
+<li>Unzip into a directory</li>
+</ul>
+
+</div><div class="indenth2"><h2 id="getting-started" class="bph2">Getting Started</h2>
+
+</div><div class="indenth3"><h3 id="configuration" class="bph3">Configuration</h3>
+
+<ul>
+<li>Use one of the included ones,  both for
+  <a href="http://www.aardwolf.com/">Aardwolf Mud</a></li>
+<li>Copy the below to "mud"-config.ini and change the items to suit your needs</li>
+</ul>
+
+<hr/>
+
+<pre><code>[proxy]
+listen_port = 9999
+mud_address = some.mud.address
+mud_port = 4000
+password = somepassword
+viewpw = someviewpassword
+</code></pre>
+
+<hr/>
+
+<p>Don't forget to change the passwords!</p>
+
+</div><div class="indenth3"><h3 id="starting" class="bph3">Starting</h3>
+
+<ul>
+<li>From the installation directory, <code>python bastproxy.py "mud"-config.ini</code></li>
+</ul>
+
+</div><div class="indenth3"><h3 id="connecting" class="bph3">Connecting</h3>
+
+<ul>
+<li>Connect a client to the listen_port above on the host the proxy is running,
+  and then login with the password.</li>
+</ul>
+
+</div><div class="indenth3"><h3 id="help" class="bph3">Help</h3>
+
+<ul>
+<li>Use the following commands to get help
+<ul>
+<li>Show command categories
+<ul>
+<li><code>#bp.commands</code></li>
+</ul></li>
+<li>show commands in a category
+<ul>
+<li><code>#bp.commands.list "category"</code></li>
+<li><code>#bp."category"</code></li>
+</ul></li>
+<li>Show loaded plugins
+<ul>
+<li><code>#bp.plugins</code></li>
+</ul></li>
+<li>Show plugins that are not loaded
+<ul>
+<li><code>#bp.plugins -n</code></li>
+</ul></li>
+</ul></li>
+</ul>
+
+</div><div class="indenth2"><h2 id="basics" class="bph2">Basics</h2>
+
+</div><div class="indenth3"><h3 id="plugins" class="bph3">Plugins</h3>
+
+<ul>
+<li>Plugins are the basic building block for bastproxy, and are used through
+the commands that are added by the plugin.</li>
+</ul>
+
+</div><div class="indenth3"><h3 id="commands" class="bph3">Commands</h3>
+
+</div><div class="indenth4"><h4 id="help-2" class="bph4">Help</h4>
+
+<ul>
+<li>Any command will show a help when adding a -h</li>
+</ul>
+
+</div><div class="indenth4"><h4 id="arguments" class="bph4">Arguments</h4>
+
+<ul>
+<li>command line arguments are parsed like a unix shell command line</li>
+<li>to specify an argument with spaces, surround it with double 's or "s
+<ul>
+<li>Examples:</li>
+<li><code>#bp.plugins.cmd first second</code>
+<ul>
+<li>1st argunent = 'first'</li>
+<li>2nd argunet = 'second'</li>
+</ul></li>
+<li><code>#bp.plugins.cmd 'this is the first argument'
+      "this is the second argument"</code>
+<ul>
+<li>1st argument = 'this is the first argument'</li>
+<li>2nd argument = 'this is the second argument'</li>
+</ul></li>
+</ul></li>
+</ul>
+
+</div>
         </div><!-- /.col-xs-12 main -->
     </div><!--/.row-->
   </div><!--/.container-->

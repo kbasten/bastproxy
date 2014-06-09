@@ -155,7 +155,44 @@
         </div>
 
         <div class="col-xs-12 col-sm-9">
-        <div class="indenth2"><h2 id="about" class="bph2">About</h2><p>this module is a sqlite3 interface</p></div><div class="indenth2"><h2 id="using" class="bph2">Using</h2><p>See the source for <a href="/bastproxy/plugins/aardwolf/statdb.html">aardwolf.statdb</a>for an example of using sqldb</p></div><div class="indenth3"><h3 id="wrap-the-class-creation-in-a-function" class="bph3">Wrap the class creation in a function</h3><div class="codehilite"><pre><code>    <span class="k">def</span> <span class="nf">dbcreate</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>      <span class="sd">"""</span><span class="sd">      create the mydb class, this is needed because the Sqldb baseclass</span><span class="sd">      can be reloaded since it is a plugin</span><span class="sd">      """</span>      <span class="k">class</span> <span class="nc">mydb</span><span class="p">(</span><span class="n">sqldb</span><span class="p">):</span>        <span class="sd">"""</span><span class="sd">        a class to manage a sqlite database</span><span class="sd">        """</span>        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>          <span class="sd">"""</span><span class="sd">          initialize the class</span><span class="sd">          """</span>          <span class="n">sqldb</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>          <span class="bp">self</span><span class="o">.</span><span class="n">postinit</span><span class="p">()</span>      <span class="k">return</span> <span class="n">mydb</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code></pre></div></div><div class="indenth3"><h3 id="call-the-function-in-load" class="bph3">call the function in load</h3><div class="codehilite"><pre><code>    <span class="n">mydb</span> <span class="o">=</span> <span class="n">dbcreate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'sqldb.baseclass'</span><span class="p">)(),</span> <span class="bp">self</span><span class="p">,</span>                           <span class="n">dbname</span><span class="o">=</span><span class="s">'mydb'</span><span class="p">)</span></code></pre></div></div>
+        <div class="indenth2"><h2 id="about" class="bph2">About</h2>
+
+<p>this module is a sqlite3 interface</p>
+
+</div><div class="indenth2"><h2 id="using" class="bph2">Using</h2>
+
+<p>See the source for <a href="/bastproxy/plugins/aardwolf/statdb.html">aardwolf.statdb</a>
+for an example of using sqldb</p>
+
+</div><div class="indenth3"><h3 id="wrap-the-class-creation-in-a-function" class="bph3">Wrap the class creation in a function</h3>
+
+<div class="codehilite"><pre><code>    <span class="k">def</span> <span class="nf">dbcreate</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="sd">"""</span>
+<span class="sd">      create the mydb class, this is needed because the Sqldb baseclass</span>
+<span class="sd">      can be reloaded since it is a plugin</span>
+<span class="sd">      """</span>
+      <span class="k">class</span> <span class="nc">mydb</span><span class="p">(</span><span class="n">sqldb</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        a class to manage a sqlite database</span>
+<span class="sd">        """</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+          <span class="sd">"""</span>
+<span class="sd">          initialize the class</span>
+<span class="sd">          """</span>
+          <span class="n">sqldb</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+          <span class="bp">self</span><span class="o">.</span><span class="n">postinit</span><span class="p">()</span>
+
+      <span class="k">return</span> <span class="n">mydb</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+
+</div><div class="indenth3"><h3 id="call-the-function-in-load" class="bph3">call the function in load</h3>
+
+<div class="codehilite"><pre><code>    <span class="n">mydb</span> <span class="o">=</span> <span class="n">dbcreate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'sqldb.baseclass'</span><span class="p">)(),</span> <span class="bp">self</span><span class="p">,</span>
+                           <span class="n">dbname</span><span class="o">=</span><span class="s">'mydb'</span><span class="p">)</span>
+</code></pre></div>
+
+</div>
 <h2 id="commands" class="bph2">Commands</h2>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
