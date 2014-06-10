@@ -203,7 +203,7 @@ class Plugin(BasePlugin):
     from lxml import etree
 
     if type(html) == type([]):
-      html = ''.join(html)
+      html = '\n'.join(html)
 
     doc = etree.fromstring('<body>\n' + html + '\n</body>\n')
     for node in doc.xpath(element):
