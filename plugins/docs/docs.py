@@ -40,9 +40,6 @@ class Plugin(BasePlugin):
 
     parser = argparse.ArgumentParser(add_help=False,
                  description='create documentation')
-    #parser.add_argument('toplevel',
-                        #help='the top level api to show (optional)',
-                        #default='', nargs='?')
     self.api.get('commands.add')('build', self.cmd_build,
                                  parser=parser, group='Documentation')
 
