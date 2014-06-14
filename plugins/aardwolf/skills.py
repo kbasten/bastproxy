@@ -174,6 +174,10 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('events.register')('GMCP:char.status', self.checkskills)
 
+    self.api.get('events.register')('aard_level_tier', self.cmd_refresh)
+    self.api.get('events.register')('aard_level_remort', self.cmd_refresh)
+
+
     self.cmdqueue = self.api.get('cmdq.baseclass')()(self)
     self.cmdqueue.addcmdtype('slist', 'slist', "^slist\s*(.*)$",
                        self.slistbefore, self.slistafter)
