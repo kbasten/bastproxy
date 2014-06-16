@@ -51,7 +51,7 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
     self.api.get('managers.add')(self.sname, self)
     self.api.get('log.adddtype')(self.sname)
-    self.api.get('log.console')(self.sname)
+    #self.api.get('log.console')(self.sname)
 
     self.api.get('setting.add')('spamcount', 20, int,
             'the # of times a command can be run before an antispam command')

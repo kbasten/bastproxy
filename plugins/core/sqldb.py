@@ -82,7 +82,7 @@ class Sqldb(object):
     else:
       self.dbname = "db"
     self.api.get('log.adddtype')('sqlite')
-    self.api.get('log.console')('sqlite')
+    #self.api.get('log.console')('sqlite')
     self.backupform = '%s_%%s.sqlite' % self.dbname
     if 'dbdir' in kwargs:
       self.dbdir = kwargs['dbdir'] or os.path.join(self.api.BASEPATH,
