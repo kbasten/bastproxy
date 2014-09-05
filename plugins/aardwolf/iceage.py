@@ -1,11 +1,5 @@
 """
-This plugin sends emails when certain events happen in aardwolf
-
-It sends alerts for the following:
-
- * quests available
- * gq available
- * ice age
+This plugin adds events for Aardwolf Ice Ages.
 """
 from plugins.aardwolf._aardwolfbaseplugin import AardwolfBasePlugin
 
