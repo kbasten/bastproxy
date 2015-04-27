@@ -66,8 +66,8 @@ Don't forget to change the passwords!
   * to specify an argument with spaces, surround it with double 's or "s
    * Examples:
     * ```#bp.plugins.cmd first second```
-     * 1st argunent = 'first'
-     * 2nd argunet = 'second'
+     * 1st argument = 'first'
+     * 2nd argument = 'second'
     * ```#bp.plugins.cmd 'this is the first argument'
               "this is the second argument"```
      * 1st argument = 'this is the first argument'
