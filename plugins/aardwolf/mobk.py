@@ -74,7 +74,8 @@ class Plugin(AardwolfBasePlugin):
               "^You (don't )?receive (?P<xp>\d+) 'rare kill' experience bonus.$")
     self.api.get('triggers.add')('mobblessxp',
               "^You (don't )?receive (?P<xp>\d+) bonus " \
-                "experience points from your daily blessing.$")
+                "experience points from your daily blessing.$", priority=99,
+              stopevaluating=True)
     self.api.get('triggers.add')('mobbonusxp',
               "^You (don't )?receive (?P<xp>\d+) bonus experience points.+\.$")
     self.api.get('triggers.add')('mobxpptless',
