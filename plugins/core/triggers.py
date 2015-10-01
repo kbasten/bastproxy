@@ -98,6 +98,9 @@ class Plugin(BasePlugin):
       @Yomit@w     = (optional) True to omit the line from the client,
                               False otherwise
       @Yargtypes@w = (optional) a dict of keywords in the regex and their type
+      @Ypriority@w = (optional) the priority of the trigger, default is 100
+      @Ystopevaluating@w = (optional) True to stop trigger evauluation if this
+                              trigger is matched
 
     this function returns no values"""
     if regex in self.regexlookup:
@@ -113,6 +116,10 @@ class Plugin(BasePlugin):
       args['group'] = None
     if not ('omit' in args):
       args['omit'] = False
+    if not ('priority' in args):
+      args['priority'] = 100
+    if not ('stopevaluating' in args):
+      args['stopevaluating'] = False
     if not ('argtypes' in args):
       args['argtypes'] = {}
     args['plugin'] = plugin
@@ -233,8 +240,9 @@ class Plugin(BasePlugin):
       self.raisetrigger('emptyline',
                         {'line':'', 'triggername':'emptyline'}, args)
     else:
-
-      for i in self.triggers:
+      triggers = sorted(self.triggers,
+                        key=lambda item: self.triggers[item]['priority'])
+      for i in triggers:
         if self.triggers[i]['enabled']:
           trigre = self.triggers[i]['compiled']
           if 'matchcolor' in self.triggers[i] \
@@ -253,6 +261,8 @@ class Plugin(BasePlugin):
             targs['triggername'] = i
             self.triggers[i]['hits'] = self.triggers[i]['hits'] + 1
             args = self.raisetrigger(i, targs, args)
+          if self.triggers[i]['stopevaluating']:
+            break
 
     self.raisetrigger('all', {'line':data, 'triggername':'all'}, args)
 
