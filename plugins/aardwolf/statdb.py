@@ -63,9 +63,10 @@ def dbcreate(sqldb, plugin, **kwargs):
       """
       sqldb.__init__(self, plugin, **kwargs)
 
-      self.version = 13
+      self.version = 14
 
       self.versionfuncs[13] = self.addrarexp_v13
+      self.versionfuncs[14] = self.addnoexp_v14
 
       self.addtable('stats', """CREATE TABLE stats(
             stat_id INTEGER NOT NULL PRIMARY KEY autoincrement,
@@ -173,6 +174,7 @@ def dbcreate(sqldb, plugin, **kwargs):
             bonusxp INT default 0,
             blessingxp INT default 0,
             totalxp INT default 0,
+            noexp INT default 0,
             gold INT default 0,
             tp INT default 0,
             time INT default -1,
@@ -585,6 +587,57 @@ def dbcreate(sqldb, plugin, **kwargs):
       cur = self.dbconn.cursor()
       stmt2 = """INSERT INTO mobkills VALUES (:mk_id, :name, :xp, 0,
                     :bonusxp, :blessingxp, :totalxp, :gold, :tp, :time,
+                    :vorpal, :banishment, :assassinate, :slit, :disintegrate,
+                    :deathblow, :wielded_weapon, :second_weapon, :room_id,
+                    :level)"""
+      cur.executemany(stmt2, oldmobst)
+      cur.close()
+
+    def addnoexp_v14(self):
+      """
+      add noexp to each mobkill
+      """
+      if not self.checktableexists('mobkills'):
+        return
+
+      oldmobst = self.select('SELECT * FROM mobkills ORDER BY mk_id ASC')
+
+      cur = self.dbconn.cursor()
+      cur.execute('DROP TABLE IF EXISTS mobkills;')
+      cur.close()
+      self.close()
+
+      self.open()
+      cur = self.dbconn.cursor()
+
+      cur.execute("""CREATE TABLE mobkills(
+            mk_id INTEGER NOT NULL PRIMARY KEY autoincrement,
+            name TEXT default "Unknown",
+            xp INT default 0,
+            rarexp INT default 0,
+            bonusxp INT default 0,
+            blessingxp INT default 0,
+            totalxp INT default 0,
+            noexp INT default 0,
+            gold INT default 0,
+            tp INT default 0,
+            time INT default -1,
+            vorpal INT default 0,
+            banishment INT default 0,
+            assassinate INT default 0,
+            slit INT default 0,
+            disintegrate INT default 0,
+            deathblow INT default 0,
+            wielded_weapon TEXT default '',
+            second_weapon TEXT default '',
+            room_id INT default 0,
+            level INT default -1
+          )""")
+      cur.close()
+
+      cur = self.dbconn.cursor()
+      stmt2 = """INSERT INTO mobkills VALUES (:mk_id, :name, :xp, 0,
+                    :bonusxp, :blessingxp, :totalxp, 0, :gold, :tp, :time,
                     :vorpal, :banishment, :assassinate, :slit, :disintegrate,
                     :deathblow, :wielded_weapon, :second_weapon, :room_id,
                     :level)"""
@@ -1560,10 +1613,19 @@ class Plugin(AardwolfBasePlugin):
           if int(item['tp']) == 1:
             mtp = '1'
 
-          msg.append("%3s %-18s %3s %3s %3s %-3s %2s %1s %s" \
+          xp = item['xp']
+          rarexp = item['rarexp']
+
+          tline = "%3s %-18s %-3s %-3s %-3s %-3s %2s %1s %s"
+
+          if item['noexp'] == 1:
+            tline = "%3s %-18s %-3s @R%-3s %-3s %-3s@w %2s %1s %s"
+
+
+          msg.append( tline
                      % (levelstr, item['name'][0:18], item['totalxp'],
-                          item['xp'], item['rarexp'], bonus, mtp,
-                          spec, item['gold']))
+                          xp, rarexp, bonus,
+                          mtp, spec, item['gold']))
     return True, msg
 
   def questevent(self, args):
