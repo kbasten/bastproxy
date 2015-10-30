@@ -46,16 +46,17 @@ class Plugin(AardwolfBasePlugin):
 
     self.api.get('triggers.add')('gqdeclared',
                   "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
-                    "declared for levels (?P<lowlev>.*) to (?P<highlev>.*) .*$")
+                    "declared for levels (?P<lowlev>.*) to (?P<highlev>.*)\.$")
     self.api.get('triggers.add')('gqjoined',
                   "^You have now joined Global Quest \#(?P<gqnum>.*)\. .*$")
     self.api.get('triggers.add')('gqstarted',
-                  "^Global Quest: Global quest \#(?P<gqnum>.*) for levels .*$")
+                  "^Global Quest: Global quest \#(?P<gqnum>.*) for levels .* "\
+                    " to .* has now started$")
     self.api.get('triggers.add')('gqover',
                   "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
                     "cancelled due to lack of (activity|participants)\.$")
     self.api.get('triggers.add')('gqnone',
-                  "^You are not on a global quest.$",
+                  "^You are not in a global quest.$",
                   enabled=False, group='gqcheck')
     self.api.get('triggers.add')('gqitem',
                   "^You still have to kill (?P<num>[\d]*) \* " \
@@ -365,6 +366,10 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('setting.change')('extended', False)
     if args:
       if not (int(args['gqnum']) == self.api('setting.gets')('gqnum')):
+        if int(args['gqnum']) in self._gqsdeclared:
+          self._gqsdeclared.remove(int(args['gqnum']))
+        if int(args['gqnum']) in self._gqsstarted:
+          self._gqsstarted.remove(int(args['gqnum']))
         return
     self.api.get('triggers.togglegroup')("gqcheck", False)
     self.api.get('triggers.togglegroup')("gqin", False)
@@ -375,8 +380,6 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('setting.change')('joined', False)
     self.api.get('setting.change')('extended', False)
     self.api.get('setting.change')('gqnum', 'default')
-    self._gqsdeclared = []
-    self._gqsstarted = []
     self.savestate()
 
   def savestate(self):
