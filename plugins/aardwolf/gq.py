@@ -51,12 +51,12 @@ class Plugin(AardwolfBasePlugin):
                   "^You have now joined Global Quest \#(?P<gqnum>.*)\. .*$")
     self.api.get('triggers.add')('gqstarted',
                   "^Global Quest: Global quest \#(?P<gqnum>.*) for levels .* "\
-                    " to .* has now started$")
+                    "to .* has now started\.$")
     self.api.get('triggers.add')('gqover',
                   "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
                     "cancelled due to lack of (activity|participants)\.$")
     self.api.get('triggers.add')('gqnone',
-                  "^You are not in a global quest.$",
+                  "^You are not in a global quest\.$",
                   enabled=False, group='gqcheck')
     self.api.get('triggers.add')('gqitem',
                   "^You still have to kill (?P<num>[\d]*) \* " \
@@ -160,7 +160,6 @@ class Plugin(AardwolfBasePlugin):
     """
     do something when a gq is joined
     """
-    self.api('send.client')('gq_joined: %s' % args)
     self.api.get('triggers.togglegroup')('gqdone', True)
     self.api.get('triggers.togglegroup')('gq_start', True)
     self.api.get('setting.change')('joined', True)
