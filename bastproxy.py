@@ -104,8 +104,6 @@ def setuppaths():
   except OSError:
     pass
 
-signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-
 api = API()
 
 class Listener(asyncore.dispatcher):
@@ -176,6 +174,9 @@ def start(listen_port, server_address, server_port):
   we do a single asyncore.loop then we check timers
   """
   Listener(listen_port, server_address, server_port)
+
+  signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+
   try:
     while True:
 
