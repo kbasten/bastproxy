@@ -7,6 +7,7 @@ import json
 import csv
 import os
 import shutil
+import stat
 from libs.api import API
 api = API()
 
@@ -59,7 +60,7 @@ class PersistentDict(dict):
     initialize the instance
     """
     self.flag = flag                    # r=readonly, c=create, or n=new
-    self.mode = mode                    # None or an octal triple like 0644
+    self.mode = stat.S_IWUSR | stat.S_IRUSR                   # None or an octal triple like 0644
     self.format = tformat                # 'csv', 'json', or 'pickle'
     self.filename = filename
     self.pload()
