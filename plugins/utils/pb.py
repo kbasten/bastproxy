@@ -47,10 +47,15 @@ class Plugin(BasePlugin):
     """
     first_line = ''
     filen = os.path.join(self.savedir, 'pushbullet')
-    with open(filen, 'r') as f:
-      first_line = f.readline()
+    try:
+      with open(filen, 'r') as f:
+        first_line = f.readline()
 
-    return first_line.strip()
+      return first_line.strip()
+    except IOError:
+      self.api('send.error')('Please create %s with the api key' % filen)
+
+    return''
 
   def load(self):
     """
@@ -97,6 +102,9 @@ class Plugin(BasePlugin):
     this function returns True if sent, False otherwise"""
     apikey = self.getapikey()
 
+    if not apikey:
+      return False
+
     pb = Pushbullet(apikey)
 
     rval = {}
@@ -132,6 +140,9 @@ class Plugin(BasePlugin):
 
     this function returns True if sent, False otherwise"""
     apikey = self.getapikey()
+
+    if not apikey:
+      return False
 
     pb = Pushbullet(apikey)
 
