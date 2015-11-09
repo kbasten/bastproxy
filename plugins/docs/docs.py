@@ -1,9 +1,10 @@
 """
 This module creates the documentation
+
+it requires the markdown2 library
 """
 import argparse
 import sys
-import markdown2
 import os
 import copy
 import distutils.dir_util as dir_util
@@ -167,6 +168,8 @@ class Plugin(BasePlugin):
     build the index page
     """
     #testdoc = __doc__
+    import markdown2
+
     testdoc = sys.modules['__main__'].__doc__
 
     about = markdown2.markdown(testdoc,
@@ -298,6 +301,8 @@ class Plugin(BasePlugin):
     """
     build a plugin page
     """
+    import markdown2
+
     tlist = plugin['fullimploc'].split('.')
     pdir = tlist[1]
 
