@@ -40,6 +40,9 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('note', self.api_note)
     self.api.get('api.add')('link', self.api_link)
 
+    global Pushbullet
+    from pushbullet import Pushbullet
+
   def getapikey(self):
     """
     read the api key from a file
@@ -99,8 +102,6 @@ class Plugin(BasePlugin):
     @Ybody@w      = the body of the note
 
     this function returns True if sent, False otherwise"""
-    from pushbullet import Pushbullet
-
     apikey = self.getapikey()
 
     if not apikey:
@@ -140,8 +141,6 @@ class Plugin(BasePlugin):
     @Yurl@w      = the body of the note
 
     this function returns True if sent, False otherwise"""
-    from pushbullet import Pushbullet
-
     apikey = self.getapikey()
 
     if not apikey:
