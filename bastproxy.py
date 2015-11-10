@@ -175,7 +175,8 @@ def start(listen_port, server_address, server_port):
   """
   Listener(listen_port, server_address, server_port)
 
-  signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+  if getattr(signal, 'SIGCHLD', None) is not None:
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
   try:
     while True:
