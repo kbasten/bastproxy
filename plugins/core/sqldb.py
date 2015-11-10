@@ -24,6 +24,7 @@ for an example of using sqldb
           \"\"\"
           sqldb.__init__(self, plugin, **kwargs)
 
+          # postinit will need to be run at the end of the subclass __init__
           self.postinit()
 
       return mydb(plugin, **kwargs)
@@ -101,20 +102,38 @@ class Sqldb(object):
 
     self.api.get('api.add')('select', self.api_select)
     self.api.get('api.add')('modify', self.api_modify)
+    self.api.get('api.add')('modifymany', self.api_modifymany)
 
   # execute a select statement against the database
-  def api_select(self, select):
+  def api_select(self, stmt):
     """
     run a select stmt against the db
     """
-    return self.select(select)
+    return self.select(stmt)
 
   # execute a update/insert statement against the database
-  def api_modify(self, select):
+  def api_modify(self, stmt, data=None):
     """
-    run a select stmt against the db
+    modify the database
     """
-    return self.modify(select)
+    return self.modify(stmt, data)
+
+  # execute a update/insert statement against the database
+  def api_modifymany(self, stmt, data):
+    """
+    update many rows in a database
+    """
+    result = []
+    cur = self.dbconn.cursor()
+    try:
+      cur.executemany(stmt, data)
+      rowid = cur.lastrowid
+      result = self.dbconn.commit()
+    except:
+      self.api.get('send.traceback')('could not run sql statement : %s' % \
+                            stmt)
+
+    return rowid, result
 
   def close(self):
     """
@@ -233,7 +252,7 @@ class Sqldb(object):
     if args:
       sqlstmt = args['stmt']
       if sqlstmt:
-        results = self.modify(sqlstmt)
+        rowid, results = self.modify(sqlstmt)
       else:
         msg.append('Please enter an update statement')
     return True, msg
@@ -516,20 +535,24 @@ class Sqldb(object):
     cur.close()
     return result
 
-  def modify(self, stmt):
+  def modify(self, stmt, data=None):
     """
     run a statement to modify the database
     """
     result = []
     cur = self.dbconn.cursor()
     try:
-      cur.execute(stmt)
+      if data:
+        cur.execute(stmt, data)
+      else:
+        cur.execute(stmt)
+      rowid = cur.lastrowid
       result = self.dbconn.commit()
     except:
       self.api.get('send.traceback')('could not run sql statement : %s' % \
                             stmt)
 
-    return result
+    return rowid, result
 
   def selectbykeyword(self, selectstmt, keyword):
     """
