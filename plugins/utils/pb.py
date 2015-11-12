@@ -37,8 +37,8 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
-    self.api.get('api.add')('note', self.api_note)
-    self.api.get('api.add')('link', self.api_link)
+    self.api('api.add')('note', self.api_note)
+    self.api('api.add')('link', self.api_link)
 
     global Pushbullet
     from pushbullet import Pushbullet
@@ -65,7 +65,7 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
-    self.api.get('setting.add')('channel', '', str,
+    self.api('setting.add')('channel', '', str,
                         'the channel to send to')
 
     parser = argparse.ArgumentParser(add_help=False,
@@ -78,7 +78,10 @@ class Plugin(BasePlugin):
                         help='the body of the note',
                         default='A Pushbullet note sent through bastproxy',
                         nargs='?')
-    self.api.get('commands.add')('note', self.cmd_note,
+    parser.add_argument('-c', "--channel",
+          help="the pushbullet channel to send to",
+              default='')
+    self.api('commands.add')('note', self.cmd_note,
                                         parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
@@ -91,11 +94,14 @@ class Plugin(BasePlugin):
                         help='the url of the link',
                         default='https://github.com/endavis/bastproxy',
                         nargs='?')
-    self.api.get('commands.add')('link', self.cmd_link,
+    parser.add_argument('-c', "--channel",
+          help="the pushbullet channel to send to",
+              default='')
+    self.api('commands.add')('link', self.cmd_link,
                                         parser=parser)
 
   # send a note through pushbullet
-  def api_note(self, title, body):
+  def api_note(self, title, body, channel=None):
     """ send a note through pushbullet
 
     @Ytitle@w  = the title of the note
@@ -111,30 +117,30 @@ class Plugin(BasePlugin):
 
     rval = {}
     found = False
-    if self.api.get('setting.gets')('channel'):
+    nchannel = channel or self.api.get('setting.gets')('channel')
+    if nchannel:
       for i in pb.channels:
-        if str(i.channel_tag) == str(self.api.get('setting.gets')('channel')):
+        if str(i.channel_tag) == nchannel:
           found = True
-          rval = i.push_note(title, body)
+          rval = i.push_note(title, url)
           break
 
       if not found:
-        self.api('send.error')('There was no channel %s' % \
-                    self.api.get('setting.gets')('channel'))
+        self.api('send.error')('There was no channel %s' % nchannel)
         return False
 
     else:
       rval = pb.push_note(title, body)
 
     if 'error' in rval:
-      self.api.get('send.error')('Pushbullet send failed with %s' % rval)
+      self.api('send.error')('Pushbullet send failed with %s' % rval)
       return False
     else:
       self.api('send.msg')('pb returned %s' % rval)
       return True
 
   # send a url through pushbullet
-  def api_link(self, title, url):
+  def api_link(self, title, url, channel=None):
     """ send a link through pushbullet
 
     @Ytitle@w  = the title of the note
@@ -149,23 +155,23 @@ class Plugin(BasePlugin):
     pb = Pushbullet(apikey)
 
     rval = {}
-    if self.api.get('setting.gets')('channel'):
+    nchannel = channel or self.api.get('setting.gets')('channel')
+    if nchannel:
       for i in pb.channels:
-        if str(i.channel_tag) == str(self.api.get('setting.gets')('channel')):
+        if str(i.channel_tag) == nchannel:
           found = True
           rval = i.push_link(title, url)
           break
 
       if not found:
-        self.api('send.error')('There was no channel %s' % \
-                    self.api.get('setting.gets')('channel'))
+        self.api('send.error')('There was no channel %s' % nchannel)
         return False
 
     else:
       rval = pb.push_link(title, url)
 
     if 'error' in rval:
-      self.api.get('send.error')('Pushbullet send failed with %s' % rval)
+      self.api('send.error')('Pushbullet send failed with %s' % rval)
       return False
     else:
       self.api('send.msg')('pb returned %s' % rval)
@@ -181,7 +187,8 @@ class Plugin(BasePlugin):
     """
     title = args['title']
     body = args['body']
-    if self.api.get('pb.note')(title, body):
+    channel = args['channel']
+    if self.api('pb.note')(title, body, channel):
       return True, ['Pushbullet note sent']
     else:
       return True, ['Attempt failed, please see error message']
@@ -196,7 +203,8 @@ class Plugin(BasePlugin):
     """
     title = args['title']
     body = args['url']
-    if self.api.get('pb.link')(title, body):
+    channel = args['channel']
+    if self.api('pb.link')(title, body, channel):
       return True, ['Pushbullet link sent']
     else:
       return True, ['Attempt failed, please see error message']
