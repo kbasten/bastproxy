@@ -230,7 +230,7 @@ class Plugin(AardwolfBasePlugin):
     """
     mxp = args['xp']
     newxp = int(mxp)
-    if 'blessing' in args['line']:
+    if 'your daily blessing' in args['line']:
       self.kill_info['blessingxp'] = newxp
     elif 'rare' in args['line']:
       self.kill_info['rarexp'] = newxp
