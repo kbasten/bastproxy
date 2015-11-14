@@ -117,7 +117,11 @@ class Plugin(AardwolfBasePlugin):
         else:
           avedamage = vdict['damage'] / vdict['hits']
 
-        tperc = vdict['damage'] / float(totald)
+        try:
+          tperc = vdict['damage'] / float(totald)
+        except ZeroDivisionError:
+          self.api('send.error')('totald = 0 for %s' % vdict)
+          tperc = 0
 
         msg.append(bstringt.format(
            statcolor=statcolor,
