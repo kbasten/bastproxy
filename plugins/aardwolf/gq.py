@@ -55,6 +55,8 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.add')('gqover',
                   "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
                     "cancelled due to lack of (activity|participants)\.$")
+
+    # GQ Check triggers
     self.api.get('triggers.add')('gqnone',
                   "^You are not in a global quest\.$",
                   enabled=False, group='gqcheck')
@@ -65,6 +67,10 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.add')('gqnotstarted',
                   "^The global quest has not yet started.$",
                   enabled=False, group='gqcheck')
+    self.api.get('triggers.add')('gqwins',
+                  "^You may win .* more gquests* at this level\.$",
+                  enabled=False, group='gqcheck')
+    
     self.api.get('triggers.add')('gqreward',
                   "^\s*Reward of (?P<amount>\d+) (?P<type>.+) .+ added\.$",
                   enabled=False, group='gqrew')
@@ -109,6 +115,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('trigger_gqstarted', self._gqstarted)
     self.api.get('events.register')('trigger_gqnone', self._notstarted)
     self.api.get('events.register')('trigger_gqitem', self._gqitem)
+    self.api.get('events.register')('trigger_gqwins', self._gqwins)
     self.api.get('events.register')('trigger_gqnotstarted', self._notstarted)
     self.api.get('events.register')('trigger_gqreward', self._gqreward)
     self.api.get('events.register')('trigger_gqmobdead', self._gqmobdead)
@@ -207,9 +214,8 @@ class Plugin(AardwolfBasePlugin):
     """
     self.api.get('triggers.togglegroup')('gqcheck', False)
     self.api.get('triggers.togglegroup')('gqin', False)
-    self.api.get('events.unregister')('trigger_emptyline', self._emptyline)
 
-  def _emptyline(self, _=None):
+  def _gqwins(self, _=None):
     """
     this will be enabled when gq check is enabled
     """
@@ -218,7 +224,6 @@ class Plugin(AardwolfBasePlugin):
       self.savestate()
 
     self.api.get('triggers.togglegroup')('gqcheck', False)
-    self.api.get('events.unregister')('trigger_emptyline', self._emptyline)
     self.api.get('events.eraise')('aard_gq_mobsleft',
                 {'mobsleft':copy.deepcopy(self.mobsleft)})
 
@@ -323,7 +328,6 @@ class Plugin(AardwolfBasePlugin):
     """
     self.mobsleft = []
     self.api.get('triggers.togglegroup')('gqcheck', True)
-    self.api.get('events.register')('trigger_emptyline', self._emptyline)
     return args
 
   def _gqquit(self, _=None):
