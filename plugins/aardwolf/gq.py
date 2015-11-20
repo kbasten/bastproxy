@@ -26,14 +26,11 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.__init__(self, *args, **kwargs)
     self.savegqfile = os.path.join(self.savedir, 'gq.txt')
     self.gqinfo = PersistentDict(self.savegqfile, 'c')
-    self._gqsdeclared = []
-    self._gqsstarted = []
-    self.api.get('setting.add')('gqnum', -1, int,
-                                'the gquest # that was joined')
-    self.api.get('setting.add')('joined', False, bool, 'flag for a gq joined')
-    self.api.get('setting.add')('extended', False, bool, 'flag for extended')
+    self._gqsdeclared = {}
+    self._gqsstarted = {}
+    self.api.get('setting.add')('joined', -1, int, 'the gq number joined')
+    self.api.get('setting.add')('maxkills', False, bool, 'no qp because of maxkills')
     self.mobsleft = []
-    self.nextdeath = False
     self.linecount = 0
 
   def load(self):
@@ -45,16 +42,24 @@ class Plugin(AardwolfBasePlugin):
       '^(gq|gqu|gque|gques|gquest) (c|ch|che|chec|check)$')
 
     self.api.get('triggers.add')('gqdeclared',
-                  "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
-                    "declared for levels (?P<lowlev>.*) to (?P<highlev>.*)\.$")
+                  "^Global Quest: Global quest \# *(?P<gqnum>\d*) has been " \
+                    "declared for levels (?P<lowlev>\d*) to (?P<highlev>\d*)( - .*)*\.$",
+                  argtypes={'gqnum':int})
     self.api.get('triggers.add')('gqjoined',
-                  "^You have now joined Global Quest \#(?P<gqnum>.*)\. .*$")
+                  "^You have now joined Global Quest \# *(?P<gqnum>\d*)\. .*$",
+                  argtypes={'gqnum':int})
     self.api.get('triggers.add')('gqstarted',
-                  "^Global Quest: Global quest \#(?P<gqnum>.*) for levels .* "\
-                    "to .* has now started\.$")
-    self.api.get('triggers.add')('gqover',
-                  "^Global Quest: Global quest \#(?P<gqnum>.*) has been " \
-                    "cancelled due to lack of (activity|participants)\.$")
+                  "^Global Quest: Global quest \# *(?P<gqnum>\d*) for levels .* "\
+                    "to .* has now started\.$",
+                  argtypes={'gqnum':int})
+    self.api.get('triggers.add')('gqcancelled',
+                  "^Global Quest: Global quest \# *(?P<gqnum>\d*) has been " \
+                    "cancelled due to lack of (activity|participants)\.$",
+                  argtypes={'gqnum':int})
+    self.api.get('triggers.add')('gqquit',
+                  "^You are no longer part of Global Quest \# *(?P<gqnum>\d*) " \
+                    "and will be unable to rejoin.$",
+                  argtypes={'gqnum':int})
 
     # GQ Check triggers
     self.api.get('triggers.add')('gqnone',
@@ -63,79 +68,76 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.add')('gqitem',
                   "^You still have to kill (?P<num>[\d]*) \* " \
                     "(?P<mob>.*?) \((?P<location>.*?)\)(|\.)$",
-                  enabled=False, group='gqcheck')
+                  enabled=False, group='gqcheck',
+                  argtypes={'num':int})
     self.api.get('triggers.add')('gqnotstarted',
-                  "^The global quest has not yet started.$",
-                  enabled=False, group='gqcheck')
+                  "^Global Quest \# *(?P<gqnum>\d*) has not yet started.",
+                  enabled=False, group='gqcheck',
+                  argtypes={'gqnum':int})
     self.api.get('triggers.add')('gqwins',
                   "^You may win .* more gquests* at this level\.$",
                   enabled=False, group='gqcheck')
-    
+
     self.api.get('triggers.add')('gqreward',
                   "^\s*Reward of (?P<amount>\d+) (?P<type>.+) .+ added\.$",
-                  enabled=False, group='gqrew')
+                  enabled=False, group='gqrew',
+                  argtypes={'amount':int})
+
     self.api.get('triggers.add')('gqmobdead',
                   "^Congratulations, that was one of the GLOBAL QUEST mobs!$",
                   enabled=False, group='gqin')
+
     self.api.get('triggers.add')('gqwon',
                   "^You were the first to complete this quest!$",
                   enabled=False, group='gqin')
-    self.api.get('triggers.add')('gqwon2',
-                  "^CONGRATULATIONS! You were the first to " \
-                    "complete this quest!$",
-                  enabled=False, group='gqin')
-    self.api.get('triggers.add')('gqdone',
-                  "Global Quest: Global Quest \#(?P<gqnum>.*) has been won " \
-                    "by (.*) - (.*) win.$",
-                  enabled=False, group='gqdone')
-    self.api.get('triggers.add')('gqquit',
-                  "^You are no longer part of Global Quest \#(?P<gqnum>.*) " \
-                    "and will be unable to rejoin.$",
-                  enabled=False, group='gqdone')
-    self.api.get('triggers.add')('gqextover',
-                  "^Global Quest: Global quest \#(?P<gqnum>.*) \(extended\) " \
-                  "is now over.$",
-                  enabled=False, group='gqext')
-    self.api.get('triggers.add')('gqextover2',
-                  "^Global Quest: No active players remaining, " \
-                    "global quest \#(?P<gqnum>.*) is now over.$",
-                  enabled=False, group='gqext')
     self.api.get('triggers.add')('gqextfin',
                   "^You have finished this global quest.$",
-                  enabled=False, group='gqext')
+                  enabled=False, group='gqin')
+    self.api.get('triggers.add')('gqwonannounce',
+                  "Global Quest: Global Quest \#(?P<gqnum>.*) has been won " \
+                    "by (?P<winner>.*) - (.*) win.$",
+                  enabled=False, group='gqin',
+                  argtypes={'gqnum':int})
+
     self.api.get('triggers.add')('gqnote',
                   "^INFO: New post \#(?P<bdnum>.*) in forum Gquest from " \
                     "Aardwolf Subj: Lvl (?P<low>.*) to (?P<high>.*) - " \
-                    "Global quest \#(?P<gqnum>.*)$")
+                    "Global quest \# *(?P<gqnum>\d*)$",
+                    argtypes={'gqnum':int})
+
     self.api.get('triggers.add')('gqmaxkills', "^You have reached the " \
         "maximum (.*) kills for which you can earn quest points this level\.$")
 
     self.api.get('events.register')('trigger_gqdeclared', self._gqdeclared)
     self.api.get('events.register')('trigger_gqjoined', self._gqjoined)
     self.api.get('events.register')('trigger_gqstarted', self._gqstarted)
+    self.api.get('events.register')('trigger_gqcancelled', self._gqcancelled)
+    self.api.get('events.register')('trigger_gqquit', self._gqquit)
+
     self.api.get('events.register')('trigger_gqnone', self._notstarted)
     self.api.get('events.register')('trigger_gqitem', self._gqitem)
-    self.api.get('events.register')('trigger_gqwins', self._gqwins)
     self.api.get('events.register')('trigger_gqnotstarted', self._notstarted)
-    self.api.get('events.register')('trigger_gqreward', self._gqreward)
-    self.api.get('events.register')('trigger_gqmobdead', self._gqmobdead)
-    self.api.get('events.register')('trigger_gqwon', self._gqwon)
-    self.api.get('events.register')('trigger_gqwon2', self._gqwon)
-    self.api.get('events.register')('trigger_gqdone', self._gqdone)
-    self.api.get('events.register')('trigger_gqquit', self._gqquit)
-    self.api.get('events.register')('trigger_gqover', self._gqover)
-    self.api.get('events.register')('trigger_gqextover', self._gqover)
-    self.api.get('events.register')('trigger_gqextover2', self._gqover)
-    self.api.get('events.register')('trigger_gqextfin', self._gqextfin)
-    self.api.get('events.register')('trigger_gqnote', self._gqreset)
-    self.api.get('events.register')('trigger_maxkills', self._gqmaxkills)
-    self.api.get('events.register')('watch_gq_check', self._gqcheckcmd)
+    self.api.get('events.register')('trigger_gqwins', self._gqwins)
 
+    self.api.get('events.register')('trigger_gqreward', self._gqreward)
+
+    self.api.get('events.register')('trigger_gqmobdead', self._gqmobdead)
+
+    self.api.get('events.register')('trigger_gqwon', self._gqwon)
+    self.api.get('events.register')('trigger_gqextfin', self._gqextfin)
+    self.api.get('events.register')('trigger_gqwonannounce',
+                                                self._gqwonannounce)
+
+    self.api.get('events.register')('trigger_gqnote', self._gqnote)
+    self.api.get('events.register')('trigger_gqmaxkills', self._gqmaxkills)
+
+    self.api.get('events.register')('watch_gq_check', self._gqcheckcmd)
 
   def _gqnew(self):
     """
     reset the gq info
     """
+    self.mobsleft = {}
     self.gqinfo.clear()
     self.gqinfo['mobs'] = {}
     self.gqinfo['trains'] = 0
@@ -157,42 +159,56 @@ class Plugin(AardwolfBasePlugin):
     """
     do something when a gq is declared
     """
-    self._gqnew()
-    self._gqsdeclared.append(int(args['gqnum']))
-    self.api.get('triggers.togglegroup')('gqdone', True)
-    self.api.get('triggers.togglegroup')('gq_start', True)
-    self.api.get('events.eraise')('aard_gq_declared', args)
+    self._gqsdeclared[args['gqnum']] = True
+    self._checkgqavailable()
+    self._raisegq('aard_gq_declared', args)
 
   def _gqjoined(self, args):
     """
     do something when a gq is joined
     """
-    self.api.get('triggers.togglegroup')('gqdone', True)
-    self.api.get('triggers.togglegroup')('gq_start', True)
-    self.api.get('setting.change')('joined', True)
+    self._gqnew()
+    self.api.get('setting.change')('joined', args['gqnum'])
 
     self.mobsleft = []
-    self.api('setting.change')('gqnum', int(args['gqnum']))
-    if (int(args['gqnum']) in self._gqsstarted):
-      self.gqinfo['starttime'] = time.time()
-      self.api.get('triggers.togglegroup')("gqin", True)
-      self.api.get('send.execute')("gq check")
-    elif not (int(args['gqnum']) in self._gqsdeclared):
-      self._gqstarted(args)
-    self.api.get('events.eraise')('aard_gq_joined', args)
 
-  def _gqstarted(self, args=None):
+    if args['gqnum'] in self._gqsstarted:
+      self._gqstarted(args)
+    elif not (args['gqnum'] in self._gqsdeclared):
+      self._gqsdeclared[args['gqnum']] = True
+      self._gqstarted(args)
+    self._raisegq('aard_gq_joined', args)
+
+  def _gqstarted(self, args):
     """
     do something when a gq starts
     """
-    if not args:
-      args = {}
-    self._gqsstarted.append(int(args['gqnum']))
-    self._gqnew()
-    if self.api.get('setting.gets')('joined'):
+    if not(args['gqnum'] in self._gqsstarted):
+      self._gqsstarted[args['gqnum']] = True
+      self._raisegq('aard_gq_started', args)
+      self._checkgqavailable()
+    if self.api.get('setting.gets')('joined') == args['gqnum']:
       self.gqinfo['starttime'] = time.time()
       self.api.get('triggers.togglegroup')("gqin", True)
       self.api.get('send.execute')("gq check")
+
+  def _gqcancelled(self, args):
+    """
+    the gq has been cancelled
+    """
+    self._raisegq('aard_gq_cancelled', {'gqnum':args['gqnum']})
+    if args['gqnum'] == self.api('setting.gets')('joined'):
+      if self.gqinfo['qpmobs'] > 0:
+        self.gqinfo['finishtime'] = time.time()
+        self._raisegq('aard_gq_done', self.gqinfo)
+      self._gqreset({'gqnum':args['gqnum']})
+
+    else:
+      if args['gqnum'] in self._gqsdeclared:
+        del(self._gqsdeclared[args['gqnum']])
+      if args['gqnum'] in self._gqsstarted:
+        del(self._gqsstarted[args['gqnum']])
+      self._checkgqavailable()
 
   def _gqitem(self, args):
     """
@@ -206,7 +222,7 @@ class Plugin(AardwolfBasePlugin):
     else:
       self.mobsleft.append({'name':name,
                     'nocolorname':self.api.get('colors.stripansi')(name),
-                    'location':location, 'num':int(num)})
+                    'location':location, 'num':num})
 
   def _notstarted(self, _=None):
     """
@@ -224,22 +240,22 @@ class Plugin(AardwolfBasePlugin):
       self.savestate()
 
     self.api.get('triggers.togglegroup')('gqcheck', False)
-    self.api.get('events.eraise')('aard_gq_mobsleft',
+    self._raisegq('aard_gq_mobsleft',
                 {'mobsleft':copy.deepcopy(self.mobsleft)})
 
   def _gqmobdead(self, _=None):
     """
     called when a gq mob is killed
     """
-    self.gqinfo['qpmobs'] = self.gqinfo['qpmobs'] + 3
+    if not self.api.get('setting.gets')('maxkills'):
+      self.gqinfo['qpmobs'] = self.gqinfo['qpmobs'] + 3
     self.api.get('events.register')('aard_mobkill', self._mobkillevent)
-    self.nextdeath = True
 
   def _gqmaxkills(self, args):
-   """
-   didn't get xp for that last kill
-   """
-   self.gqinfo['qpmobs'] = self.gqinfo['gqmobs'] - 3
+    """
+    didn't get xp for that last kill
+    """
+    self.api.get('setting.change')('maxkills', True)
 
   def _mobkillevent(self, args):
     """
@@ -264,8 +280,8 @@ class Plugin(AardwolfBasePlugin):
       del(self.mobsleft[removeitem])
 
     if found:
-      self.api.get('events.eraise')('aard_gq_mobsleft',
-                        copy.deepcopy({'mobsleft':self.mobsleft}))
+      self._raisegq('aard_gq_mobsleft',
+                        {'mobsleft':self.mobsleft})
     else:
       self.api.get('send.msg')("GQ: could not find mob: %s" % args['name'])
       self.api.get('send.execute')("gq check")
@@ -275,40 +291,17 @@ class Plugin(AardwolfBasePlugin):
     the gquest was won
     """
     self.gqinfo['won'] = 1
+    self.gqinfo['finishtime'] = time.time()
     self.api.get('triggers.togglegroup')("gqrew", True)
 
-  def _gqdone(self, args=None):
+  def _gqwonannounce(self, args):
     """
-    do something on the done line
+    the mud announced that someone won the gquest
     """
-    if self.api.get('setting.gets')('joined') == 0:
-      return
-    if args and int(args['gqnum']) == self.api('setting.gets')('gqnum') and \
-                self.gqinfo['won'] == 1:
-      #print('I won, so no extra!')
-      self._raisegq('aard_gq_won')
-    else:
-      #need to check for extended time
-      self.linecount = 0
-      self.api.get('events.register')('trigger_all', self._triggerall)
-
-  def _triggerall(self, args=None):
-    """
-    do something when we see the next line after done
-    """
-    self.linecount = self.linecount + 1
-
-    if 'extended time for 3 more minutes' in args['line']:
-      self.api.get('triggers.togglegroup')("gqext", True)
-      self.api.get('setting.change')('extended', True)
-
-    if self.linecount < 3:
-      return
-
-    self.api.get('events.unregister')('trigger_all', self._triggerall)
-
-    if not self.api.get('setting.gets')('extended'):
-      self._raisegq('aard_gq_done')
+    if self.api('GMCP.getv')('char.base.name') == args['winner']:
+      # we won
+      self._raisegq('aard_gq_won', self.gqinfo)
+      self._gqreset(args)
 
   def _gqreward(self, args=None):
     """
@@ -317,10 +310,8 @@ class Plugin(AardwolfBasePlugin):
     rtype = args['type']
     ramount = args['amount']
     rewardt = self.api.get('aardu.rewardtable')()
-    self.gqinfo['won'] = 1
     self.gqinfo[rewardt[rtype]] = ramount
     self.savestate()
-    self.api.get('triggers.togglegroup')('gqdone', True)
 
   def _gqcheckcmd(self, args=None):
     """
@@ -330,60 +321,75 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('triggers.togglegroup')('gqcheck', True)
     return args
 
-  def _gqquit(self, _=None):
+  def _gqquit(self, args):
     """
     quit the gq
     """
-    self.api.get('setting.change')('joined', False)
-    self.api.get('events.eraise')('aard_gq_quit', {})
+    if self.gqinfo['qpmobs'] > 0:
+      self.gqinfo['finishtime'] = time.time()
+      self._raisegq('aard_gq_done', self.gqinfo)
+    self._gqreset(args)
 
   def _gqextfin(self, _=None):
     """
     the character finished the extended gq
     """
     self.gqinfo['completed'] = 1
-    self._raisegq('aard_gq_completed')
+    self.gqinfo['finishtime'] = time.time()
+    self._raisegq('aard_gq_completed', self.gqinfo)
+    self._gqreset({'gqnum':self.api('setting.gets')('joined')})
 
-  def _gqover(self, args=None):
-    """
-    the gq is over
-    """
-    if args:
-      if not (int(args['gqnum']) == self.api('setting.gets')('gqnum')):
-        return
-    self._raisegq('aard_gq_done')
-
-  def _raisegq(self, event):
+  def _raisegq(self, event, data=None):
     """
     raise a gq event
     """
-    self.gqinfo['finishtime'] = time.time()
+    self.api('send.msg')('raising %s with %s' % (event, data))
     self.savestate()
-    self.api.get('events.eraise')(event, copy.deepcopy(self.gqinfo))
-    self._gqreset()
+    if data:
+      self.api.get('events.eraise')(event, copy.deepcopy(data))
+    else:
+      self.api.get('events.eraise')(event)
+
+  def _gqnote(self, args):
+    """
+    do something on the gquest note
+    """
+    if args['gqnum'] == self.api('setting.gets')('joined'):
+      if self.gqinfo['qpmobs'] > 0:
+        self.gqinfo['finishtime'] = time.time()
+        self._raisegq('aard_gq_done', self.gqinfo)
+      self._gqreset(args)
+    if args['gqnum'] in self._gqsdeclared:
+      del(self._gqsdeclared[args['gqnum']])
+    if args['gqnum'] in self._gqsstarted:
+      del(self._gqsstarted[args['gqnum']])
+    self._checkgqavailable()
+
 
   def _gqreset(self, args=None):
     """
-    reset gq triggers
+    reset gq settings
     """
-    self.api.get('setting.change')('extended', False)
+    self._gqnew()
     if args:
-      if not (int(args['gqnum']) == self.api('setting.gets')('gqnum')):
-        if int(args['gqnum']) in self._gqsdeclared:
-          self._gqsdeclared.remove(int(args['gqnum']))
-        if int(args['gqnum']) in self._gqsstarted:
-          self._gqsstarted.remove(int(args['gqnum']))
-        return
+      if args['gqnum'] in self._gqsdeclared:
+        del(self._gqsdeclared[args['gqnum']])
+      if args['gqnum'] in self._gqsstarted:
+        del(self._gqsstarted[args['gqnum']])
+      self._checkgqavailable()
     self.api.get('triggers.togglegroup')("gqcheck", False)
     self.api.get('triggers.togglegroup')("gqin", False)
     self.api.get('triggers.togglegroup')("gqrew", False)
-    self.api.get('triggers.togglegroup')("gqdone", False)
-    self.api.get('triggers.togglegroup')("gqext", False)
     self.api.get('events.unregister')('aard_mobkill', self._mobkillevent)
-    self.api.get('setting.change')('joined', False)
-    self.api.get('setting.change')('extended', False)
-    self.api.get('setting.change')('gqnum', 'default')
+    self.api.get('setting.change')('joined', 'default')
+    self.api.get('setting.change')('maxkills', False)
     self.savestate()
+
+  def _checkgqavailable(self):
+    if len(self._gqsdeclared) > 0:
+      self._raisegq('aard_gq_available')
+    else:
+      self._raisegq('aard_gq_notavailable')
 
   def savestate(self):
     """
