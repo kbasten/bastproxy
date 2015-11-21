@@ -258,7 +258,7 @@ class Plugin(AardwolfBasePlugin):
               statcolor, trains))
       msg.append(' %strains ' % infocolor)
     if args['type'] == 'level':
-      msg.append(' %s%d %spracs ' % (statcolor,
+      msg.append('%s%d %spracs ' % (statcolor,
               args['pracs'], infocolor))
     stats = False
     for i in ['str', 'dex', 'con', 'luc', 'int', 'wis']:
