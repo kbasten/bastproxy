@@ -124,7 +124,7 @@
         </div>
        </div>
     <div class="nav">
-        <div class="divpluginname">aardwolf.agmcp</div>
+        <div class="divpluginname">utils.pb</div>
     </div>
     </div>
 
@@ -138,6 +138,13 @@
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgrouppbMenu">
+           pb <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgrouppbMenu">
+  <li><a href="#cmdapikey">apikey</a></li>
+  <li><a href="#cmdlink">link</a></li>
+  <li><a href="#cmdnote">note</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
@@ -150,34 +157,88 @@
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
 </ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
+           Settings <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="settingsMenu">
+  <li><a href="#setchannel">channel</a></li>
+</ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
+           API <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="apiMenu">
+  <li><a href="#setnote">note</a></li>
+  <li><a href="#setlink">link</a></li>
+</ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
         <div class="indenth2"><h2 id="about" class="bph2">About</h2>
 
-<p>This plugin runs gmcp commands after connecting to aardwolf</p>
+<p>This plugin sends messages through the pushbullet api</p>
 
-<p>When GMCP is enabled it requests:</p>
-
-<ul>
-<li>rawcolor on</li>
-<li>group on</li>
-<li>the Char module to be enabled</li>
-<li>the Room module to be enabled</li>
-<li>The Comm module to be enabled</li>
-<li>The Core module to be enabled</li>
-<li>The Group module to be enabled</li>
-</ul>
+<p>To use this plugin:
+ 1. You must install pushbullet.py
+      (https://pypi.python.org/pypi/pushbullet.py)
+ 2. Enter your api key with the apikey command</p>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
+<div class="indenth3">
+<h3 id="cmdgrouppb" class="bph3">pb</h3>
+</div>
+<div class="indenth4">
+<h4 id="cmdapikey" class="bph4">apikey</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.pb.apikey</span><span style="color:#e5e5e5"> [-h] [apikey]</span>
+
+send a link
+
+positional arguments:
+  apikey      an apikey from pushbullet
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+<h4 id="cmdlink" class="bph4">link</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.pb.link</span><span style="color:#e5e5e5"> [-c CHANNEL] [-h] [title] [url]</span>
+
+send a link
+
+positional arguments:
+  title                 the title of the link
+  url                   the url of the link
+
+optional arguments:
+  -c CHANNEL, --channel CHANNEL
+                        the pushbullet channel to send to
+  -h, --help            show help
+
+</code></pre>
+<h4 id="cmdnote" class="bph4">note</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.pb.note</span><span style="color:#e5e5e5"> [-c CHANNEL] [-h] [title] [body]</span>
+
+send a note
+
+positional arguments:
+  title                 the title of the note
+  body                  the body of the note
+
+optional arguments:
+  -c CHANNEL, --channel CHANNEL
+                        the pushbullet channel to send to
+  -h, --help            show help
+
+</code></pre>
+</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
+usage: <span style="color:#5c5cff">#bp.pb.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -190,7 +251,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pb.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -202,7 +263,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdinspect" class="bph4">inspect</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pb.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
 
 inspect a plugin
 
@@ -214,7 +275,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.reset</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pb.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -224,7 +285,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.save</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pb.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -234,7 +295,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
+usage: <span style="color:#5c5cff">#bp.pb.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -251,13 +312,47 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.stats</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pb.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
 optional arguments:
   -h, --help  show help
 
+</code></pre>
+</div>
+<h2 id="settings" class="bph2">Settings</h2>
+<div class="indenth4">
+<h3 id="setchannel" class="bph4">channel</h3>
+<pre><code>
+the channel to send to
+</code></pre>
+</div>
+<h2 id="api" class="bph2">API</h2>
+<div class="indenth4">
+<h3 id="setnote" class="bph4">note</h3>
+<pre><code>
+<span style="color:#00ff00">pb.note</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">title</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">body</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">channel=None</span><span style="color:#e5e5e5">)</span>
+ send a note through pushbullet
+
+    <span style="color:#ffff00">title</span><span style="color:#e5e5e5">  = the title of the note</span>
+    <span style="color:#ffff00">body</span><span style="color:#e5e5e5">      = the body of the note</span>
+
+    this function returns True if sent, False otherwise
+
+original defined in plugins/utils/pb.py
+</code></pre>
+<h3 id="setlink" class="bph4">link</h3>
+<pre><code>
+<span style="color:#00ff00">pb.link</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">title</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">url</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">channel=None</span><span style="color:#e5e5e5">)</span>
+ send a link through pushbullet
+
+    <span style="color:#ffff00">title</span><span style="color:#e5e5e5">  = the title of the note</span>
+    <span style="color:#ffff00">url</span><span style="color:#e5e5e5">      = the body of the note</span>
+
+    this function returns True if sent, False otherwise
+
+original defined in plugins/utils/pb.py
 </code></pre>
 </div>
         </div><!-- /.col-xs-12 main -->

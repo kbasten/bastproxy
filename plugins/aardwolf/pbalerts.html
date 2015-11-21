@@ -124,7 +124,7 @@
         </div>
        </div>
     <div class="nav">
-        <div class="divpluginname">aardwolf.agmcp</div>
+        <div class="divpluginname">aardwolf.pbalerts</div>
     </div>
     </div>
 
@@ -155,18 +155,14 @@
         <div class="col-xs-12 col-sm-9">
         <div class="indenth2"><h2 id="about" class="bph2">About</h2>
 
-<p>This plugin runs gmcp commands after connecting to aardwolf</p>
+<p>This plugin sends pushbullet alerts when certain events happen in aardwolf</p>
 
-<p>When GMCP is enabled it requests:</p>
+<p>It sends alerts for the following:</p>
 
 <ul>
-<li>rawcolor on</li>
-<li>group on</li>
-<li>the Char module to be enabled</li>
-<li>the Room module to be enabled</li>
-<li>The Comm module to be enabled</li>
-<li>The Core module to be enabled</li>
-<li>The Group module to be enabled</li>
+<li>quests available</li>
+<li>gq available</li>
+<li>ice age</li>
 </ul>
 
 </div>
@@ -177,7 +173,7 @@
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
@@ -190,7 +186,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
@@ -202,7 +198,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdinspect" class="bph4">inspect</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
 
 inspect a plugin
 
@@ -214,7 +210,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.reset</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
@@ -224,7 +220,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.save</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
@@ -234,7 +230,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -251,7 +247,7 @@ optional arguments:
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.agmcp.stats</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.pbalerts.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 

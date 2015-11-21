@@ -38,12 +38,12 @@
 <li><a href="/bastproxy/plugins/aardwolf/aardu.html">aardu</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/afk.html">afk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/agmcp.html">agmcp</a></li>
-<li><a href="/bastproxy/plugins/aardwolf/alerts.html">alerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/connect.html">connect</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/cp.html">cp</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/ct.html">ct</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/eq.html">eq</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/gq.html">gq</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/iceage.html">iceage</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/idle.html">idle</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemid.html">itemid</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemkeep.html">itemkeep</a></li>
@@ -51,6 +51,7 @@
 <li><a href="/bastproxy/plugins/aardwolf/level.html">level</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/mobk.html">mobk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/move.html">move</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/pbalerts.html">pbalerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/quest.html">quest</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/repop.html">repop</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/scanh.html">scanh</a></li>
@@ -104,10 +105,17 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test</a>
+                  <ul class="dropdown-menu">
+<li><a href="/bastproxy/plugins/test/evt.html">evt</a></li>
+</ul>
+</li>
+<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Utils</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/utils/apihelp.html">apihelp</a></li>
 <li><a href="/bastproxy/plugins/utils/mail.html">mail</a></li>
+<li><a href="/bastproxy/plugins/utils/pb.html">pb</a></li>
 </ul>
 </li>
               </ul>
@@ -141,6 +149,7 @@
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdinspect">inspect</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -166,31 +175,32 @@ for an example of using sqldb</p>
 
 </div><div class="indenth3"><h3 id="wrap-the-class-creation-in-a-function" class="bph3">Wrap the class creation in a function</h3>
 
-<div class="codehilite"><pre><code>    <span class="k">def</span> <span class="nf">dbcreate</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-      <span class="sd">"""</span>
-<span class="sd">      create the mydb class, this is needed because the Sqldb baseclass</span>
-<span class="sd">      can be reloaded since it is a plugin</span>
-<span class="sd">      """</span>
-      <span class="k">class</span> <span class="nc">mydb</span><span class="p">(</span><span class="n">sqldb</span><span class="p">):</span>
-        <span class="sd">"""</span>
-<span class="sd">        a class to manage a sqlite database</span>
-<span class="sd">        """</span>
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-          <span class="sd">"""</span>
-<span class="sd">          initialize the class</span>
-<span class="sd">          """</span>
-          <span class="n">sqldb</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<pre><code>    def dbcreate(sqldb, plugin, **kwargs):
+      """
+      create the mydb class, this is needed because the Sqldb baseclass
+      can be reloaded since it is a plugin
+      """
+      class mydb(sqldb):
+        """
+        a class to manage a sqlite database
+        """
+        def __init__(self, plugin, **kwargs):
+          """
+          initialize the class
+          """
+          sqldb.__init__(self, plugin, **kwargs)
 
-          <span class="bp">self</span><span class="o">.</span><span class="n">postinit</span><span class="p">()</span>
+          # postinit will need to be run at the end of the subclass __init__
+          self.postinit()
 
-      <span class="k">return</span> <span class="n">mydb</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</code></pre></div>
+      return mydb(plugin, **kwargs)
+</code></pre>
 
 </div><div class="indenth3"><h3 id="call-the-function-in-load" class="bph3">call the function in load</h3>
 
-<div class="codehilite"><pre><code>    <span class="n">mydb</span> <span class="o">=</span> <span class="n">dbcreate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'sqldb.baseclass'</span><span class="p">)(),</span> <span class="bp">self</span><span class="p">,</span>
-                           <span class="n">dbname</span><span class="o">=</span><span class="s">'mydb'</span><span class="p">)</span>
-</code></pre></div>
+<pre><code>    mydb = dbcreate(self.api('sqldb.baseclass')(), self,
+                           dbname='mydb')
+</code></pre>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
@@ -221,6 +231,18 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
+
+</code></pre>
+<h4 id="cmdinspect" class="bph4">inspect</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.sqldb.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+
+inspect a plugin
+
+optional arguments:
+  -m METHOD, --method METHOD
+                        get code for a method
+  -h, --help            show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>

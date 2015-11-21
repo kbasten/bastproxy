@@ -38,12 +38,12 @@
 <li><a href="/bastproxy/plugins/aardwolf/aardu.html">aardu</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/afk.html">afk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/agmcp.html">agmcp</a></li>
-<li><a href="/bastproxy/plugins/aardwolf/alerts.html">alerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/connect.html">connect</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/cp.html">cp</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/ct.html">ct</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/eq.html">eq</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/gq.html">gq</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/iceage.html">iceage</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/idle.html">idle</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemid.html">itemid</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemkeep.html">itemkeep</a></li>
@@ -51,6 +51,7 @@
 <li><a href="/bastproxy/plugins/aardwolf/level.html">level</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/mobk.html">mobk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/move.html">move</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/pbalerts.html">pbalerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/quest.html">quest</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/repop.html">repop</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/scanh.html">scanh</a></li>
@@ -104,10 +105,17 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test</a>
+                  <ul class="dropdown-menu">
+<li><a href="/bastproxy/plugins/test/evt.html">evt</a></li>
+</ul>
+</li>
+<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Utils</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/utils/apihelp.html">apihelp</a></li>
 <li><a href="/bastproxy/plugins/utils/mail.html">mail</a></li>
+<li><a href="/bastproxy/plugins/utils/pb.html">pb</a></li>
 </ul>
 </li>
               </ul>
@@ -135,6 +143,7 @@
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdinspect">inspect</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -144,9 +153,7 @@
   <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
            Settings <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="settingsMenu">
-  <li><a href="#setstarted">started</a></li>
-  <li><a href="#setdeclared">declared</a></li>
-  <li><a href="#setextended">extended</a></li>
+  <li><a href="#setmaxkills">maxkills</a></li>
   <li><a href="#setjoined">joined</a></li>
 </ul></li>
         </div>
@@ -185,6 +192,18 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
+
+</code></pre>
+<h4 id="cmdinspect" class="bph4">inspect</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.gq.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+
+inspect a plugin
+
+optional arguments:
+  -m METHOD, --method METHOD
+                        get code for a method
+  -h, --help            show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
@@ -237,21 +256,13 @@ optional arguments:
 </div>
 <h2 id="settings" class="bph2">Settings</h2>
 <div class="indenth4">
-<h3 id="setstarted" class="bph4">started</h3>
+<h3 id="setmaxkills" class="bph4">maxkills</h3>
 <pre><code>
-flag for a gq started
-</code></pre>
-<h3 id="setdeclared" class="bph4">declared</h3>
-<pre><code>
-flag for a gq being declared
-</code></pre>
-<h3 id="setextended" class="bph4">extended</h3>
-<pre><code>
-flag for extended
+no qp because of maxkills
 </code></pre>
 <h3 id="setjoined" class="bph4">joined</h3>
 <pre><code>
-flag for a gq joined
+the gq number joined
 </code></pre>
 </div>
         </div><!-- /.col-xs-12 main -->

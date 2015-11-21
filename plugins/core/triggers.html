@@ -38,12 +38,12 @@
 <li><a href="/bastproxy/plugins/aardwolf/aardu.html">aardu</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/afk.html">afk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/agmcp.html">agmcp</a></li>
-<li><a href="/bastproxy/plugins/aardwolf/alerts.html">alerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/connect.html">connect</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/cp.html">cp</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/ct.html">ct</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/eq.html">eq</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/gq.html">gq</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/iceage.html">iceage</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/idle.html">idle</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemid.html">itemid</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemkeep.html">itemkeep</a></li>
@@ -51,6 +51,7 @@
 <li><a href="/bastproxy/plugins/aardwolf/level.html">level</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/mobk.html">mobk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/move.html">move</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/pbalerts.html">pbalerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/quest.html">quest</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/repop.html">repop</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/scanh.html">scanh</a></li>
@@ -104,10 +105,17 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test</a>
+                  <ul class="dropdown-menu">
+<li><a href="/bastproxy/plugins/test/evt.html">evt</a></li>
+</ul>
+</li>
+<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Utils</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/utils/apihelp.html">apihelp</a></li>
 <li><a href="/bastproxy/plugins/utils/mail.html">mail</a></li>
+<li><a href="/bastproxy/plugins/utils/pb.html">pb</a></li>
 </ul>
 </li>
               </ul>
@@ -141,6 +149,7 @@
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdinspect">inspect</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -226,6 +235,18 @@ optional arguments:
   -h, --help      show help
 
 </code></pre>
+<h4 id="cmdinspect" class="bph4">inspect</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.triggers.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+
+inspect a plugin
+
+optional arguments:
+  -m METHOD, --method METHOD
+                        get code for a method
+  -h, --help            show help
+
+</code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.triggers.reset</span><span style="color:#e5e5e5"> [-h]</span>
@@ -301,6 +322,9 @@ original defined in plugins/core/triggers.py
       <span style="color:#ffff00">omit</span><span style="color:#e5e5e5">     = (optional) True to omit the line from the client,</span>
                               False otherwise
       <span style="color:#ffff00">argtypes</span><span style="color:#e5e5e5"> = (optional) a dict of keywords in the regex and their type</span>
+      <span style="color:#ffff00">priority</span><span style="color:#e5e5e5"> = (optional) the priority of the trigger, default is 100</span>
+      <span style="color:#ffff00">stopevaluating</span><span style="color:#e5e5e5"> = (optional) True to stop trigger evauluation if this</span>
+                              trigger is matched
 
     this function returns no values
 

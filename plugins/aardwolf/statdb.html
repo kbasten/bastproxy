@@ -38,12 +38,12 @@
 <li><a href="/bastproxy/plugins/aardwolf/aardu.html">aardu</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/afk.html">afk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/agmcp.html">agmcp</a></li>
-<li><a href="/bastproxy/plugins/aardwolf/alerts.html">alerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/connect.html">connect</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/cp.html">cp</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/ct.html">ct</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/eq.html">eq</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/gq.html">gq</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/iceage.html">iceage</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/idle.html">idle</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemid.html">itemid</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/itemkeep.html">itemkeep</a></li>
@@ -51,6 +51,7 @@
 <li><a href="/bastproxy/plugins/aardwolf/level.html">level</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/mobk.html">mobk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/move.html">move</a></li>
+<li><a href="/bastproxy/plugins/aardwolf/pbalerts.html">pbalerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/quest.html">quest</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/repop.html">repop</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/scanh.html">scanh</a></li>
@@ -104,10 +105,17 @@
 </ul>
 </li>
 <li class="dropdown-submenu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test</a>
+                  <ul class="dropdown-menu">
+<li><a href="/bastproxy/plugins/test/evt.html">evt</a></li>
+</ul>
+</li>
+<li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Utils</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/utils/apihelp.html">apihelp</a></li>
 <li><a href="/bastproxy/plugins/utils/mail.html">mail</a></li>
+<li><a href="/bastproxy/plugins/utils/pb.html">pb</a></li>
 </ul>
 </li>
               </ul>
@@ -140,14 +148,18 @@
   <li><a href="#cmddbselect">dbselect</a></li>
   <li><a href="#cmddbvac">dbvac</a></li>
 </ul></li>
+  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupMilestonesMenu">
+           Milestones <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="cmdgroupMilestonesMenu">
+  <li><a href="#cmdcomp">comp</a></li>
+  <li><a href="#cmdlist">list</a></li>
+</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupStatsMenu">
            Stats <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupStatsMenu">
-  <li><a href="#cmdcomp">comp</a></li>
   <li><a href="#cmdcps">cps</a></li>
   <li><a href="#cmdgqs">gqs</a></li>
   <li><a href="#cmdlevels">levels</a></li>
-  <li><a href="#cmdlist">list</a></li>
   <li><a href="#cmdmobs">mobs</a></li>
   <li><a href="#cmdquests">quests</a></li>
 </ul></li>
@@ -156,6 +168,7 @@
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
   <li><a href="#cmdapi">api</a></li>
   <li><a href="#cmdhelp">help</a></li>
+  <li><a href="#cmdinspect">inspect</a></li>
   <li><a href="#cmdreset">reset</a></li>
   <li><a href="#cmdsave">save</a></li>
   <li><a href="#cmdset">set</a></li>
@@ -171,6 +184,7 @@
   <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
            API <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="apiMenu">
+  <li><a href="#setmodifymany">modifymany</a></li>
   <li><a href="#setmodify">modify</a></li>
   <li><a href="#setselect">select</a></li>
 </ul></li>
@@ -271,7 +285,7 @@ optional arguments:
 </code></pre>
 </div>
 <div class="indenth3">
-<h3 id="cmdgroupStats" class="bph3">Stats</h3>
+<h3 id="cmdgroupMilestones" class="bph3">Milestones</h3>
 </div>
 <div class="indenth4">
 <h4 id="cmdcomp" class="bph4">comp</h4>
@@ -288,6 +302,21 @@ optional arguments:
   -h, --help  show help
 
 </code></pre>
+<h4 id="cmdlist" class="bph4">list</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.list</span><span style="color:#e5e5e5"> [-h]</span>
+
+list milestones
+
+optional arguments:
+  -h, --help  show help
+
+</code></pre>
+</div>
+<div class="indenth3">
+<h3 id="cmdgroupStats" class="bph3">Stats</h3>
+</div>
+<div class="indenth4">
 <h4 id="cmdcps" class="bph4">cps</h4>
 <pre><code>
 usage: <span style="color:#5c5cff">#bp.statdb.cps</span><span style="color:#e5e5e5"> [-h] [count]</span>
@@ -303,15 +332,17 @@ optional arguments:
 </code></pre>
 <h4 id="cmdgqs" class="bph4">gqs</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.statdb.gqs</span><span style="color:#e5e5e5"> [-h] [count]</span>
+usage: <span style="color:#5c5cff">#bp.statdb.gqs</span><span style="color:#e5e5e5"> [-n NUMBER] [-h] [count]</span>
 
 show gq stats
 
 positional arguments:
-  count       the number of gqs to show
+  count                 the number of gqs to show
 
 optional arguments:
-  -h, --help  show help
+  -n NUMBER, --number NUMBER
+                        show info for gq number
+  -h, --help            show help
 
 </code></pre>
 <h4 id="cmdlevels" class="bph4">levels</h4>
@@ -322,16 +353,6 @@ show level stats
 
 positional arguments:
   count       the number of levels to show
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdlist" class="bph4">list</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.statdb.list</span><span style="color:#e5e5e5"> [-h]</span>
-
-list milestones
 
 optional arguments:
   -h, --help  show help
@@ -391,6 +412,18 @@ optional arguments:
   -a, --api       show functions this plugin has in the api
   -c, --commands  show commands in this plugin
   -h, --help      show help
+
+</code></pre>
+<h4 id="cmdinspect" class="bph4">inspect</h4>
+<pre><code>
+usage: <span style="color:#5c5cff">#bp.statdb.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+
+inspect a plugin
+
+optional arguments:
+  -m METHOD, --method METHOD
+                        get code for a method
+  -h, --help            show help
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
@@ -454,18 +487,27 @@ the interval to backup the db, default every 4 hours
 </div>
 <h2 id="api" class="bph2">API</h2>
 <div class="indenth4">
+<h3 id="setmodifymany" class="bph4">modifymany</h3>
+<pre><code>
+<span style="color:#00ff00">statdb.modifymany</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">stmt</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">data</span><span style="color:#e5e5e5">)</span>
+
+    update many rows in a database
+
+
+original defined in plugins/core/sqldb.py
+</code></pre>
 <h3 id="setmodify" class="bph4">modify</h3>
 <pre><code>
-<span style="color:#00ff00">statdb.modify</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">select</span><span style="color:#e5e5e5">)</span>
+<span style="color:#00ff00">statdb.modify</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">stmt</span><span style="color:#e5e5e5">, </span><span style="color:#ffff00">data=None</span><span style="color:#e5e5e5">)</span>
 
-    run a select stmt against the db
+    modify the database
 
 
 original defined in plugins/core/sqldb.py
 </code></pre>
 <h3 id="setselect" class="bph4">select</h3>
 <pre><code>
-<span style="color:#00ff00">statdb.select</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">select</span><span style="color:#e5e5e5">)</span>
+<span style="color:#00ff00">statdb.select</span><span style="color:#e5e5e5">(</span><span style="color:#ffff00">stmt</span><span style="color:#e5e5e5">)</span>
 
     run a select stmt against the db
 
