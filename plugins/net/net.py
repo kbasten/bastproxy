@@ -51,6 +51,8 @@ class Plugin(BasePlugin):
     clientformat = '%-6s %-17s %-7s %-17s %-s'
     tmsg = ['']
     if proxy:
+      tmsg.append('Host: %s' % proxy.host)
+      tmsg.append('Port: %s' % proxy.port)
       if proxy.connectedtime:
         tmsg.append('PROXY: connected for %s' %
                 self.api.get('utils.timedeltatostring')(proxy.connectedtime,
