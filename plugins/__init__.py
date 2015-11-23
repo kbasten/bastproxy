@@ -199,6 +199,32 @@ class PluginMgr(object):
         msg.append('The following files would not import')
         for bad in badplugins:
           msg.append(bad.replace('plugins.', ''))
+    elif args['changed']:
+      plugins = sorted(self.plugins.values(),
+                          key=operator.attrgetter('package'))
+      packageheader = []
+
+      msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
+                          ('Short Name', 'Name', 'Author', 'Vers', 'Purpose'))
+      msg.append('-' * 75)
+      for tpl in plugins:
+        if tpl.ischangedondisk():
+          if not (tpl.package in packageheader):
+            if len(packageheader) > 0:
+              msg.append('')
+            packageheader.append(tpl.package)
+            limp = 'plugins.%s' % tpl.package
+            mod = __import__(limp)
+            try:
+              desc = getattr(mod, tpl.package).DESCRIPTION
+            except AttributeError:
+              desc = ''
+            msg.append('@GPackage: %s%s@w' % (
+                                tpl.package, ' - ' + desc if desc else ''))
+            msg.append('@G' + '-' * 75 + '@w')
+          msg.append("%-10s : %-25s %-10s %-5s %s@w" % \
+                    (tpl.sname, tpl.name,
+                     tpl.author, tpl.version, tpl.purpose))
     elif args['package']:
       plist = []
       for plugin in self.plugins.values():
@@ -679,6 +705,9 @@ class PluginMgr(object):
                 description="list plugins")
     parser.add_argument('-n', "--notloaded",
               help="list plugins that are not loaded",
+              action="store_true")
+    parser.add_argument('-c', "--changed",
+              help="list plugins that are load but are changed on disk",
               action="store_true")
     parser.add_argument('package', help='the to list', default='', nargs='?')
     self.api.get('commands.add')('list', self.cmd_list,
