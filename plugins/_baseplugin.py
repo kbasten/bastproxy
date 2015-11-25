@@ -475,9 +475,6 @@ class BasePlugin(object):
     check to see if the file this plugin is based on has changed on disk
     """
     ftime = os.path.getmtime(self.pluginfile)
-    print self.sname
-    print 'ftime     ', ftime
-    print 'loadedtime', self.loadedtime
     if ftime > self.loadedtime:
       return True
 
