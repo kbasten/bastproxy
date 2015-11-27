@@ -56,8 +56,6 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('shutdown', self.cmd_shutdown,
                               shelp='shutdown the proxy')
 
-    self.api.get('commands.default')('clients')
-
     self.api('events.register')('client_connected', self.client_connected)
     self.api('events.register')('var_net_listenport', self.listenportchange)
 
