@@ -78,21 +78,22 @@ class Plugin(BasePlugin):
                         help='the command in the category (can be left out)',
                         default='', nargs='?')
     self.api.get('commands.add')('list', self.cmd_list, shelp='list commands',
-                                 parser=parser)
+                                 parser=parser, history=False)
 
     parser = argparse.ArgumentParser(add_help=False,
                  description='list or run a command in history')
     parser.add_argument('-c', "--clear",
           help="clear the history", action='store_true')
     self.api.get('commands.add')('history', self.cmd_history, shelp='list or run a command in history',
-                                 parser=parser)
+                                 parser=parser, history=False)
 
     parser = argparse.ArgumentParser(add_help=False,
                  description='run a command in history')
     parser.add_argument('number', help='the history # to run',
                         default=-1, nargs='?', type=int)
     self.api.get('commands.add')('!', self.cmd_runhistory, shelp='run a command in history',
-                                 parser=parser, preamble=False, format=False)
+                                 parser=parser, preamble=False, format=False,
+                                 history=False)
 
     self.api.get('events.register')('from_client_event', self.chkcmd, prio=2)
     self.api.get('events.eraise')('plugin_cmdman_loaded', {})
@@ -108,6 +109,7 @@ class Plugin(BasePlugin):
     msg.append('')
     return msg
 
+  # return the help for a command
   def api_cmdhelp(self, plugin, cmd):
     """
     get the help for a command
@@ -144,7 +146,7 @@ class Plugin(BasePlugin):
       else:
         return cmd['func'](args)
 
-  def runcmd(self, cmd, targs, fullargs):
+  def runcmd(self, cmd, targs, fullargs, data):
     """
     run a command that has an ArgParser
     """
@@ -176,6 +178,7 @@ class Plugin(BasePlugin):
                                                   msg, cmd['sname'],
                                                   cmd['commandname'])))
       else:
+        self.addtohistory(data, cmd)
         if not cmd['format']:
           self.api.get('send.client')(msg, preamble=cmd['preamble'])
         else:
@@ -186,19 +189,28 @@ class Plugin(BasePlugin):
 
     return retval
 
+  def addtohistory(self, data, cmd=None):
+    """
+    add to the command history
+    """
+    if cmd and not cmd['history']:
+      return
+
+    tdat = data['fromdata']
+    if data['fromclient']:
+      if tdat in self.cmdhistory:
+        self.cmdhistory.remove(tdat)
+      self.cmdhistory.append(tdat)
+      if len(self.cmdhistory) >= self.api('setting.gets')('historysize'):
+        self.cmdhistory.pop(0)
+      self.cmdhistorydict.sync()
+
   def chkcmd(self, data):
     """
     check a line from a client for a command
     """
     tdat = data['fromdata']
-    if data['fromclient']:
-      if not('commands.history' in tdat) and not('commands.!' in tdat):
-        if tdat in self.cmdhistory:
-          self.cmdhistory.remove(tdat)
-        self.cmdhistory.append(tdat)
-        if len(self.cmdhistory) >= self.api('setting.gets')('historysize'):
-          self.cmdhistory.pop(0)
-        self.cmdhistorydict.sync()
+
     if tdat[0:3] == '#bp':
       targs = shlex.split(tdat.strip())
       try:
@@ -222,7 +234,7 @@ class Plugin(BasePlugin):
         except ValueError:
           pass
         cmd = self.cmds[self.sname]['list']
-        self.runcmd(cmd, [sname, scmd], fullargs)
+        self.runcmd(cmd, [sname, scmd], fullargs, data)
 
       elif sname:
         if not (sname in self.cmds):
@@ -235,7 +247,7 @@ class Plugin(BasePlugin):
               cmd = self.cmds[sname][scmd]
             if cmd:
               try:
-                self.runcmd(cmd, targs, fullargs)
+                self.runcmd(cmd, targs, fullargs, data)
               except:
                 self.api.get('send.traceback')('Error when calling command %s.%s' % (sname, scmd))
                 return {'fromdata':''}
@@ -246,14 +258,14 @@ class Plugin(BasePlugin):
             if 'default' in self.cmds[sname]:
               cmd = self.cmds[sname]['default']
               try:
-                self.runcmd(cmd, targs, fullargs)
+                self.runcmd(cmd, targs, fullargs, data)
               except:
                 self.api.get('send.traceback')('Error when calling command %s.%s' % (sname, scmd))
                 return {'fromdata':''}
             else:
               cmd = self.cmds[self.sname]['list']
               try:
-                self.runcmd(cmd, [sname, scmd], '')
+                self.runcmd(cmd, [sname, scmd], '', data)
               except:
                 self.api.get('send.traceback')('Error when calling command %s.%s' % (sname, scmd))
                 return {'fromdata':''}
@@ -264,13 +276,14 @@ class Plugin(BasePlugin):
           pass
         cmd = self.cmds[self.sname]['list']
         try:
-          self.runcmd(cmd, [sname, scmd], '')
+          self.runcmd(cmd, [sname, scmd], '', data)
         except:
           self.api.get('send.traceback')('Error when calling command %s.%s' % (sname, scmd))
           return {'fromdata':''}
 
       return {'fromdata':''}
     else:
+      self.addtohistory(data)
       if tdat.strip() == self.api.get('setting.gets')('lastcmd'):
         self.api.get('setting.change')('cmdcount',
                             self.api.get('setting.gets')('cmdcount') + 1)
@@ -372,6 +385,8 @@ class Plugin(BasePlugin):
       args['preamble'] = True
     if not ('format' in args):
       args['format'] = True
+    if not ('history' in args):
+      args['history'] = True
     self.cmds[sname][cmdname] = args
 
   # remove a command
