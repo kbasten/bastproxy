@@ -151,6 +151,8 @@ def api_tomud(data):
 
   this function returns no values
   """
+  if data[-1] != '\n':
+    data = data + '\n'
   api.get('events.eraise')('to_mud_event',
                            {'data':data, 'dtype':'fromclient'})
 
