@@ -67,8 +67,14 @@ class Proxy(Telnet):
 
         if tosend != None:
           #data cannot be transformed here
-          tnoansi = self.api.get('colors.stripansi')(tosend)
-          tconvertansi = self.api.get('colors.convertansi')(tosend)
+          if self.api.get('api.has')('colors.stripansi'):
+            tnoansi = self.api.get('colors.stripansi')(tosend)
+          else:
+            tnoansi = tosend
+          if self.api.get('api.has')('colors.convertansi'):
+            tconvertansi = self.api.get('colors.convertansi')(tosend)
+          else:
+            tconvertansi = tosend
           self.api.get('events.eraise')('to_client_event',
              {'original':tosend, 'dtype':'frommud',
                 'noansi':tnoansi,
