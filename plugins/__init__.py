@@ -597,6 +597,7 @@ class PluginMgr(object):
         if reloadedplugin in plugin.dependencies:
           self.api.get('send.msg')('reloading dependent %s of %s' % (plugin.sname,
                                                           reloadedplugin))
+          plugin.savestate()
           self.reload_module(plugin.sname, True)
 
   def loadplugin(self, plugin):
