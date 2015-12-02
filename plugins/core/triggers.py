@@ -37,6 +37,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('add', self.api_addtrigger)
     self.api.get('api.add')('remove', self.api_remove)
     self.api.get('api.add')('toggle', self.api_toggle)
+    self.api.get('api.add')('gett', self.api_gett)
     self.api.get('api.add')('togglegroup', self.api_togglegroup)
     self.api.get('api.add')('toggleomit', self.api_toggleomit)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
@@ -67,23 +68,6 @@ class Plugin(BasePlugin):
 
     self.api.get('events.register')('from_mud_event',
                                     self.checktrigger, prio=1)
-#    self.api.get('events.register')('plugin_stats', self.getpluginstats)
-
-  #def plugin_stats(self, args=None):
-    #"""
-    #get stats for a specific plugin
-    #"""
-    #if not args:
-      #args = {}
-    #if not ('plugin' in args):
-      #return {}
-
-    #stats = {}
-    #totaltriggers = 0
-    #enabledtriggers = 0
-    #totalhits = 0
-    #for i in self.triggers:
-      #pass
 
   # add a trigger
   def api_addtrigger(self, triggername, regex, plugin, **kwargs):
@@ -171,6 +155,16 @@ class Plugin(BasePlugin):
       self.api.get('send.msg')('deletetrigger: trigger %s does not exist' % \
                         triggername)
       return False
+
+  # get a trigger
+  def api_gett(self, triggername):
+    """get a trigger
+    @Ytriggername@w   = The trigger name
+    """
+    if triggername in self.triggers:
+      return self.triggers[triggername]
+    else:
+      return None
 
   # remove all triggers related to a plugin
   def api_removeplugin(self, plugin):
