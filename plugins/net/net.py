@@ -167,10 +167,13 @@ class Plugin(BasePlugin):
     disconnect from the mud
     """
     proxy = self.api.get('managers.getm')('proxy')
-    proxy.connectmud(self.api.get('setting.gets')('mudhost'),
-                     self.api.get('setting.gets')('mudport'))
+    if proxy.connected:
+      return True, ['The proxy is currently connected']
+    else:
+      proxy.connectmud(self.api.get('setting.gets')('mudhost'),
+                      self.api.get('setting.gets')('mudport'))
 
-    return True, ['Connecting to the mud']
+      return True, ['Connecting to the mud']
 
   def cmd_shutdown(self, args):
     """
