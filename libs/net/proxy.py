@@ -128,6 +128,8 @@ class Proxy(Telnet):
     """
     connect to the mud
     """
+    if self.connected:
+      return
     self.outbuffer = ''
     self.doconnect(mudhost, mudport)
     self.connectedtime = time.mktime(time.localtime())
