@@ -2,6 +2,7 @@
 This plugin will handle watching for commands coming from the client
 """
 import re
+import argparse
 from plugins._baseplugin import BasePlugin
 
 #these 5 are required
@@ -45,6 +46,67 @@ class Plugin(BasePlugin):
 
     self.api.get('events.register')('from_client_event', self.checkcmd)
 
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='list watches')
+    parser.add_argument('match',
+                    help='list only aliases that have this argument in them',
+                    default='', nargs='?')
+    self.api.get('commands.add')('list', self.cmd_list,
+                                 parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='get details of a watch')
+    parser.add_argument('watch', help='the trigger to detail',
+                        default=[], nargs='*')
+    self.api.get('commands.add')('detail', self.cmd_detail,
+                                 parser=parser)
+
+  def cmd_list(self, args):
+    """
+    list watches
+    """
+    tmsg = []
+    tkeys = self.watchcmds.keys()
+    tkeys.sort()
+    match = args['match']
+
+    tmsg.append('%-25s : %-13s %s' % ('Name', 'Defined in',
+                                            'Hits'))
+    tmsg.append('@B' + '-' * 60 + '@w')
+    for i in tkeys:
+      watch = self.watchcmds[i]
+      if not match or match in i or watch['plugin'] == match:
+        tmsg.append('%-25s : %-13s %s' % (i, watch['plugin'],
+                                        watch['hits']))
+
+    return True, tmsg
+
+  def cmd_detail(self, args):
+    """
+    @G%(name)s@w - @B%(cmdname)s@w
+      list the details of a watch
+      @CUsage@w: detail watchname
+    """
+    tmsg = []
+    if len(args['watch']) > 0:
+      for watch in args['watch']:
+        if watch in self.watchcmds:
+          eventname = self.watchcmds[watch]['eventname']
+          eventstuff = self.api.get('events.detail')(eventname)
+          tmsg.append('%-13s : %s' % ('Name', watch))
+          tmsg.append('%-13s : %s' % ('Defined in',
+                                            self.watchcmds[watch]['plugin']))
+          tmsg.append('%-13s : %s' % ('Regex',
+                                            self.watchcmds[watch]['regex']))
+          tmsg.append('%-13s : %s' % ('Hits', self.watchcmds[watch]['hits']))
+          tmsg.extend(eventstuff)
+        else:
+          tmsg.append('trigger %s does not exist' % trigger)
+    else:
+      tmsg.append('Please provide a watch name')
+
+    return True, tmsg
+
   # add a command watch
   def api_addwatch(self, watchname, regex, plugin, **kwargs):
     """  add a command watch
@@ -67,6 +129,7 @@ class Plugin(BasePlugin):
     args['eventname'] = 'watch_' + watchname
     try:
       self.watchcmds[watchname] = args
+      self.watchcmds[watchname]['hits'] = 0
       self.watchcmds[watchname]['compiled'] = re.compile(args['regex'])
       self.regexlookup[args['regex']] = watchname
       self.api.get('send.msg')(
@@ -119,10 +182,11 @@ class Plugin(BasePlugin):
     check input from the client and see if we are watching for it
     """
     tdat = data['fromdata'].strip()
-    for i in self.watchcmds:
+    for i in self.watchcmds.keys():
       cmdre = self.watchcmds[i]['compiled']
       mat = cmdre.match(tdat)
       if mat:
+        self.watchcmds[i]['hits'] = self.watchcmds[i]['hits'] + 1
         targs = mat.groupdict()
         targs['cmdname'] = 'cmd_' + i
         targs['data'] = tdat
