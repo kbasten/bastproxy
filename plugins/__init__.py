@@ -535,7 +535,8 @@ class PluginMgr(object):
       _oldmodule = _module
       try:
         if "proxy_import" in _module.__dict__:
-
+          self.api.get('send.client')(
+                          'unload: unloading %s' % fullimploc)
           if "unload" in _module.__dict__:
             try:
               _module.unload()
@@ -669,6 +670,10 @@ class PluginMgr(object):
       plugin = self.plugins[pluginname]
       try:
         plugin.unload()
+        self.api.get('events.eraise')('%s_plugin_unload' % plugin.sname, {})
+        self.api.get('events.eraise')('plugin_unloaded', {'name':plugin.sname})
+        self.api.get('send.msg')('Plugin %s unloaded' % plugin.sname,
+                               self.sname, plugin.sname)
       except:
         self.api.get('send.traceback')(
                     "unload: had problems running the unload method for %s." \
@@ -680,8 +685,6 @@ class PluginMgr(object):
       del self.pluginm[plugin.sname]
       del self.loadedplugins[plugin.modpath]
       self.loadedplugins.sync()
-
-      self.api.get('events.eraise')('%s_plugin_unload' % plugin.sname, {})
 
       plugin = None
 
