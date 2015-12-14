@@ -37,6 +37,7 @@ class Plugin(BasePlugin):
     self._variables = PersistentDict(self.variablefile, 'c')
     self.api.get('api.add')('getv', self.api_getv)
     self.api.get('api.add')('setv', self.api_setv)
+    self.api.get('api.add')('replace', self.api_replace)
 
   def load(self):
     """
@@ -69,9 +70,9 @@ class Plugin(BasePlugin):
                                  parser=parser)
 
     self.api.get('commands.default')('list')
-    self.api.get('events.register')('from_client_event', self.checkvariable,
-                                        prio=1)
-    self.api.get('events.register')('from_client_event', self.checkvariable,
+    #self.api.get('events.register')('from_client_event', self.checkvariable,
+                                        #prio=1)
+    self.api.get('events.register')('from_client_event', self.checkline,
                                         prio=99)
 
   # get the variable
@@ -101,18 +102,30 @@ class Plugin(BasePlugin):
     except:
       return False
 
-  def checkvariable(self, args):
+  # replace variables in data
+  def api_replace(self, data):
+    """replace the variables in data
+    @Ydata@w  = the variable to get
+
+    this function returns the data after variable substition
+    """
+    templ = Template(data)
+    return templ.safe_substitute(self._variables)
+
+  def checkline(self, args):
     """
     this function checks for variables in input
     """
     data = args['fromdata'].strip()
 
-    templ = Template(data)
-    datan = templ.safe_substitute(self._variables)
+    datan = self.api('vars.replace')(data)
+
     if datan != data:
       self.api.get('send.msg')('replacing "%s" with "%s"' % (data.strip(),
                                                              datan.strip()))
       args['fromdata'] = datan
+      args['beforevar'] = data
+
     return args
 
   def cmd_add(self, args):
