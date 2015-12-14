@@ -133,6 +133,16 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('stats', self.cmd_stats,
                                  parser=parser)
 
+    self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
+
+  def pluginunloaded(self, args):
+    """
+    a plugin was unloaded
+    """
+    self.api('send.msg')('removing timers for plugin %s' % args['name'],
+                         secondary=args['name'])
+    self.api('%s.removeplugin' % self.sname)(args['name'])
+
   def cmd_stats(self, args=None):
     """
     @G%(name)s@w - @B%(cmdname)s@w

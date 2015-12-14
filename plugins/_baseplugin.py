@@ -298,21 +298,6 @@ class BasePlugin(object):
     # remove anything out of the api
     self.api.get('api.remove')(self.sname)
 
-    #clear all commands for this plugin
-    self.api.get('commands.removeplugin')(self.sname)
-
-    #remove all events
-    self.api.get('events.removeplugin')(self.sname)
-
-    # delete all timers
-    self.api.get('timers.removeplugin')(self.sname)
-
-    # delete all triggers
-    self.api.get('triggers.removeplugin')(self.sname)
-
-    # delete all watches
-    self.api.get('watch.removeplugin')(self.sname)
-
     #save the state
     self.savestate()
 

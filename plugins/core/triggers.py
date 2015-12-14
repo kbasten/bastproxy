@@ -69,6 +69,16 @@ class Plugin(BasePlugin):
     self.api.get('events.register')('from_mud_event',
                                     self.checktrigger, prio=1)
 
+    self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
+
+  def pluginunloaded(self, args):
+    """
+    a plugin was unloaded
+    """
+    self.api('send.msg')('removing triggers for plugin %s' % args['name'],
+                         secondary=args['name'])
+    self.api('%s.removeplugin' % self.sname)(args['name'])
+
   # add a trigger
   def api_addtrigger(self, triggername, regex, plugin, **kwargs):
     """  add a trigger

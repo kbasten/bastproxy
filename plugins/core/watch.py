@@ -61,6 +61,16 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('detail', self.cmd_detail,
                                  parser=parser)
 
+    self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
+
+  def pluginunloaded(self, args):
+    """
+    a plugin was unloaded
+    """
+    self.api('send.msg')('removing watches for plugin %s' % args['name'],
+                         secondary=args['name'])
+    self.api('%s.removeplugin' % self.sname)(args['name'])
+
   def cmd_list(self, args):
     """
     list watches

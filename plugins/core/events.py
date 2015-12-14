@@ -69,10 +69,20 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('list', self.cmd_list,
                                  parser=parser)
 
+    self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
+
+  def pluginunloaded(self, args):
+    """
+    a plugin was unloaded
+    """
+    self.api('send.msg')('removing events for plugin %s' % args['name'],
+                         secondary=args['name'])
+    self.api('%s.removeplugin' % self.sname)(args['name'])
+
   # return the event, will have registered functions
   def api_getevent(self, eventname):
-    """  register a function with an event
-    @Yeventname@w   = The event to register with
+    """  return an event
+    @Yeventname@w   = the event to return
 
     this function returns a dictionary of format
       pluginslist = list of plugins that use this event
