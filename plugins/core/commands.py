@@ -95,8 +95,17 @@ class Plugin(BasePlugin):
                                  parser=parser, preamble=False, format=False,
                                  history=False)
 
-    self.api.get('events.register')('from_client_event', self.chkcmd, prio=2)
+    self.api.get('events.register')('from_client_event', self.chkcmd, prio=5)
+    self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
     self.api.get('events.eraise')('plugin_cmdman_loaded', {})
+
+  def pluginunloaded(self, args):
+    """
+    a plugin was unloaded
+    """
+    self.api('send.msg')('removing commands for plugin %s' % args['name'],
+                         secondary=args['name'])
+    self.api('%s.removeplugin' % self.sname)(args['name'])
 
   def formatretmsg(self, msg, sname, cmd):
     """
@@ -163,6 +172,7 @@ class Plugin(BasePlugin):
                                                   cmd['commandname'])))
 
     else:
+      args['data'] = data
       retvalue = cmd['func'](args)
       if isinstance(retvalue, tuple):
         retval = retvalue[0]
@@ -193,6 +203,8 @@ class Plugin(BasePlugin):
     """
     add to the command history
     """
+    if 'history' in data and not data['history']:
+      return
     if cmd and not cmd['history']:
       return
 
@@ -211,7 +223,10 @@ class Plugin(BasePlugin):
     """
     tdat = data['fromdata']
 
-    if tdat[0:3] == '#bp':
+    if tdat == '':
+      return
+
+    if tdat[0:3].lower() == '#bp':
       targs = shlex.split(tdat.strip())
       try:
         tmpind = tdat.index(' ')
