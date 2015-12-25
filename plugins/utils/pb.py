@@ -1,10 +1,9 @@
 """
 This plugin sends messages through the pushbullet api
 
-To use this plugin:
- 1. You must install pushbullet.py
-      (https://pypi.python.org/pypi/pushbullet.py)
- 2. Enter your api key with the apikey command
+## Usage
+ * You must install [pushbullet.py](https://pypi.python.org/pypi/pushbullet.py)
+ * Enter your api key with the apikey command
 
 """
 import smtplib
@@ -54,9 +53,9 @@ class Plugin(BasePlugin):
 
       return first_line.strip()
     except IOError:
-      self.api('send.error')('Please create %s with the api key' % filen)
+      self.api('send.error')('Please setup your password with #bp.pb.apikey')
 
-    return''
+    return ''
 
   def load(self):
     """
@@ -100,20 +99,26 @@ class Plugin(BasePlugin):
                                         parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='send a link')
+                 description='add the apikey')
     parser.add_argument('apikey',
                         help='an apikey from pushbullet',
                         default='',
                         nargs='?')
-    self.api('commands.add')('apikey', self.cmd_apikey,
+    self.api('commands.add')('apikey', self.cmd_apikey, history=False,
+                                        parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
+                 description='show channels associated with pb')
+    self.api('commands.add')('channels', self.cmd_channels,
                                         parser=parser)
 
   # send a note through pushbullet
   def api_note(self, title, body, channel=None):
     """ send a note through pushbullet
 
-    @Ytitle@w  = the title of the note
+    @Ytitle@w     = the title of the note
     @Ybody@w      = the body of the note
+    @Ychannel@w   = the pushbullet channel to send to
 
     this function returns True if sent, False otherwise"""
     apikey = self.getapikey()
@@ -140,6 +145,8 @@ class Plugin(BasePlugin):
     else:
       rval = pb.push_note(title, body)
 
+    pb._session.close()
+
     if 'error' in rval:
       self.api('send.error')('Pushbullet send failed with %s' % rval)
       return False
@@ -153,6 +160,7 @@ class Plugin(BasePlugin):
 
     @Ytitle@w  = the title of the note
     @Yurl@w      = the body of the note
+    @Ychannel@w   = the pushbullet channel to send to
 
     this function returns True if sent, False otherwise"""
     apikey = self.getapikey()
@@ -178,12 +186,32 @@ class Plugin(BasePlugin):
     else:
       rval = pb.push_link(title, url)
 
+    pb._session.close()
+
     if 'error' in rval:
       self.api('send.error')('Pushbullet send failed with %s' % rval)
       return False
     else:
       self.api('send.msg')('pb returned %s' % rval)
       return True
+
+  def cmd_channels(self, args):
+    """
+    list the channels
+    """
+    tmsg = []
+    apikey = self.getapikey()
+
+    if not apikey:
+      return False
+
+    pb = Pushbullet(apikey)
+
+    tmsg.append('Channels')
+    for i in pb.channels:
+      tmsg.append(i.channel_tag)
+
+    return True, tmsg
 
   def cmd_apikey(self, args):
     """
