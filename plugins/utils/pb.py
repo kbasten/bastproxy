@@ -210,8 +210,6 @@ class Plugin(BasePlugin):
     for i in pb.channels:
       tmsg.append(str(i.channel_tag))
 
-    print tmsg
-
     return True, tmsg
 
   def cmd_apikey(self, args):
