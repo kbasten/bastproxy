@@ -41,10 +41,6 @@ class Plugin(BasePlugin):
                         'the port of the mud')
     self.api('setting.add')('listenport', 9999, int,
                         'the port for the proxy to listen on')
-    self.api('setting.add')('proxypass', 'defaultpass', str,
-                        'the password of the proxy')
-    self.api('setting.add')('proxypassview', 'defaultviewpass', str,
-                        'the view password of the proxy')
     self.api('setting.add')('username', '', str,
                         'username')
 
@@ -64,14 +60,13 @@ class Plugin(BasePlugin):
     self.api('events.register')('mudconnect', self.sendusernameandpw)
     self.api('events.register')('var_net_listenport', self.listenportchange)
 
-    parser = argparse.ArgumentParser(add_help=False,
-                 description='set a password')
-    parser.add_argument('password',
-                        help='the password',
-                        default='',
-                        nargs='?')
-    self.api('commands.add')('password', self.cmd_password, history=False,
-                                        parser=parser)
+    ssc = self.api('ssc.baseclass')()
+    self.apikey = ssc('proxypw', self, desc='Proxy Password',
+                      default='defaultpass')
+    self.apikey = ssc('proxypwview', self, desc='Proxy View Password',
+                      default='defaultviewpass')
+    self.apikey = ssc('mudpw', self, desc='Mud Password')
+
 
   def sendusernameandpw(self, args):
     """
@@ -80,41 +75,9 @@ class Plugin(BasePlugin):
     """
     if self.api('setting.gets')('username') != '':
       self.api('send.mud')(self.api('setting.gets')('username'))
-      pw = self.getpw()
+      pw = self.api('%s.mudpw' % self.sname)()
       if pw != '':
         self.api('send.mud')(pw)
-
-  def getpw(self):
-    """
-    read the password from a file
-    """
-    first_line = ''
-    filen = os.path.join(self.savedir, 'stuff')
-    try:
-      with open(filen, 'r') as f:
-        first_line = f.readline()
-
-      return first_line.strip()
-    except IOError:
-      self.api('send.error')('Please setup your password with #bp.net.password')
-
-    return ''
-
-  def cmd_password(self, args):
-    """
-    @G%(name)s@w - @B%(cmdname)s@w
-    enter the user's password for autoconnect
-    @CUsage@w: @B%(cmdname)s@w @Yapikey@x
-      @Yusername@w   = the user's password
-    """
-    if args['password']:
-      filen = os.path.join(self.savedir, 'stuff')
-      apifile = open(filen, 'w')
-      apifile.write(args['password'])
-      os.chmod(filen, stat.S_IRUSR | stat.S_IWUSR)
-      return True, ['password saved']
-    else:
-      return True, ['Please enter the password']
 
   def cmd_clients(self, _):
     """
@@ -204,18 +167,20 @@ class Plugin(BasePlugin):
     else:
       tmsg.append(divider)
       tmsg.append('@R#BP@W: @GThe proxy is already connected to the mud@w')
-    if self.api('setting.gets')('proxypass') == 'defaultpass':
+    if self.api('%s.proxypw' % self.sname)() == 'defaultpass':
       tmsg.append(divider)
       tmsg.append('The proxy password is still the default password.')
       tmsg.append('Please set the proxy password!')
-      tmsg.append('#bp.net.set proxypass "This is a password"')
-    if self.api('setting.gets')('proxypassview') == 'defaultviewpass':
+      tmsg.append('#bp.%s.proxypw "This is a password"' % self.sname)
+    if self.api('%s.proxypwview' % self.sname)() == 'defaultviewpass':
       tmsg.append(divider)
       tmsg.append('The proxy view password is still the default password.')
       tmsg.append('Please set the proxy view password!')
-      tmsg.append('#bp.net.set proxyviewpass "This is a view password"')
-    if tmsg.count(divider) % 2 == 0:
+      tmsg.append('#bp.%s.proxypwview "This is a view password"' % self.sname)
+    if tmsg[-1] != divider:
       tmsg.append(divider)
+    if tmsg[0] != divider:
+      tmsg.insert(0, divider)
 
     if tmsg:
       self.api('send.client')(tmsg)
