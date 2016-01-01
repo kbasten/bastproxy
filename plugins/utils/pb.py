@@ -35,27 +35,13 @@ class Plugin(BasePlugin):
     initialize the instance
     """
     BasePlugin.__init__(self, *args, **kwargs)
+    self.api.get('dependency.add')('ssc')
+
     self.api('api.add')('note', self.api_note)
     self.api('api.add')('link', self.api_link)
 
     global Pushbullet
     from pushbullet import Pushbullet
-
-  def getapikey(self):
-    """
-    read the api key from a file
-    """
-    first_line = ''
-    filen = os.path.join(self.savedir, 'pushbullet')
-    try:
-      with open(filen, 'r') as f:
-        first_line = f.readline()
-
-      return first_line.strip()
-    except IOError:
-      self.api('send.error')('Please setup your password with #bp.pb.apikey')
-
-    return ''
 
   def load(self):
     """
@@ -99,18 +85,12 @@ class Plugin(BasePlugin):
                                         parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='add the apikey')
-    parser.add_argument('apikey',
-                        help='an apikey from pushbullet',
-                        default='',
-                        nargs='?')
-    self.api('commands.add')('apikey', self.cmd_apikey, history=False,
-                                        parser=parser)
-
-    parser = argparse.ArgumentParser(add_help=False,
                  description='show channels associated with pb')
     self.api('commands.add')('channels', self.cmd_channels,
                                         parser=parser)
+
+    ssc = self.api('ssc.baseclass')()
+    self.apikey = ssc('apikey', self, desc='Pushbullet API key')
 
   # send a note through pushbullet
   def api_note(self, title, body, channel=None):
@@ -121,7 +101,7 @@ class Plugin(BasePlugin):
     @Ychannel@w   = the pushbullet channel to send to
 
     this function returns True if sent, False otherwise"""
-    apikey = self.getapikey()
+    apikey = self.api('%s.apikey' % self.sname)()
 
     if not apikey:
       return False
@@ -211,22 +191,6 @@ class Plugin(BasePlugin):
       tmsg.append(str(i.channel_tag))
 
     return True, tmsg
-
-  def cmd_apikey(self, args):
-    """
-    @G%(name)s@w - @B%(cmdname)s@w
-    enter the apikey
-    @CUsage@w: @B%(cmdname)s@w @Yapikey@x
-      @Yapikey@w   = the apikey from pushbullet.com
-    """
-    if args['apikey']:
-      filen = os.path.join(self.savedir, 'pushbullet')
-      apifile = open(filen, 'w')
-      apifile.write(args['apikey'])
-      os.chmod(filen, stat.S_IRUSR | stat.S_IWUSR)
-      return True, ['APIkey saved']
-    else:
-      return True, ['Please enter the apikey']
 
   def cmd_note(self, args):
     """
