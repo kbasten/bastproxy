@@ -51,7 +51,6 @@
 <li><a href="/bastproxy/plugins/aardwolf/level.html">level</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/mobk.html">mobk</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/move.html">move</a></li>
-<li><a href="/bastproxy/plugins/aardwolf/pbalerts.html">pbalerts</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/quest.html">quest</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/repop.html">repop</a></li>
 <li><a href="/bastproxy/plugins/aardwolf/scanh.html">scanh</a></li>
@@ -83,6 +82,7 @@
 <li><a href="/bastproxy/plugins/core/log.html">log</a></li>
 <li><a href="/bastproxy/plugins/core/options.html">options</a></li>
 <li><a href="/bastproxy/plugins/core/sqldb.html">sqldb</a></li>
+<li><a href="/bastproxy/plugins/core/ssc.html">ssc</a></li>
 <li><a href="/bastproxy/plugins/core/timers.html">timers</a></li>
 <li><a href="/bastproxy/plugins/core/triggers.html">triggers</a></li>
 <li><a href="/bastproxy/plugins/core/utils.html">utils</a></li>
@@ -101,20 +101,20 @@
 <li><a href="/bastproxy/plugins/net/GMCP.html">GMCP</a></li>
 <li><a href="/bastproxy/plugins/net/MCCP.html">MCCP</a></li>
 <li><a href="/bastproxy/plugins/net/TTYPE.html">TTYPE</a></li>
-<li><a href="/bastproxy/plugins/net/net.html">net</a></li>
+<li><a href="/bastproxy/plugins/net/proxy.html">proxy</a></li>
 </ul>
 </li>
 <li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/test/evt.html">evt</a></li>
+<li><a href="/bastproxy/plugins/test/tm.html">tm</a></li>
 </ul>
 </li>
 <li class="dropdown-submenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Utils</a>
                   <ul class="dropdown-menu">
 <li><a href="/bastproxy/plugins/utils/apihelp.html">apihelp</a></li>
-<li><a href="/bastproxy/plugins/utils/mail.html">mail</a></li>
 <li><a href="/bastproxy/plugins/utils/pb.html">pb</a></li>
 </ul>
 </li>
@@ -124,7 +124,7 @@
         </div>
        </div>
     <div class="nav">
-        <div class="divpluginname">net.net</div>
+        <div class="divpluginname">core.ssc</div>
     </div>
     </div>
 
@@ -135,17 +135,10 @@
         <div class="col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <ul class="nav sidebar-fixed">
   <li><a href="#about">About</a></li>
+  <li><a href="#using">Using</a></li>
   <li><a href="#" data-toggle="collapse" data-target="#commandsMenu">
            Commands <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="commandsMenu">
-  <li><a href="#" data-toggle="collapse" data-target="#cmdgroupnetMenu">
-           net <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="cmdgroupnetMenu">
-  <li><a href="#cmdclients">clients</a></li>
-  <li><a href="#cmdconnect">connect</a></li>
-  <li><a href="#cmddisconnect">disconnect</a></li>
-  <li><a href="#cmdshutdown">shutdown</a></li>
-</ul></li>
   <li><a href="#" data-toggle="collapse" data-target="#cmdgroupBaseMenu">
            Base <i class="glyphicon glyphicon-chevron-right"></i>
            <ul class="list-unstyled collapse" id="cmdgroupBaseMenu">
@@ -158,133 +151,96 @@
   <li><a href="#cmdstats">stats</a></li>
 </ul></li>
 </ul></li>
-  <li><a href="#" data-toggle="collapse" data-target="#settingsMenu">
-           Settings <i class="glyphicon glyphicon-chevron-right"></i>
-           <ul class="list-unstyled collapse" id="settingsMenu">
-  <li><a href="#setproxypassview">proxypassview</a></li>
-  <li><a href="#setproxypass">proxypass</a></li>
-  <li><a href="#setmudport">mudport</a></li>
-  <li><a href="#setlistenport">listenport</a></li>
-  <li><a href="#setmudhost">mudhost</a></li>
+  <li><a href="#" data-toggle="collapse" data-target="#apiMenu">
+           API <i class="glyphicon glyphicon-chevron-right"></i>
+           <ul class="list-unstyled collapse" id="apiMenu">
+  <li><a href="#setbaseclass">baseclass</a></li>
 </ul></li>
         </div>
 
         <div class="col-xs-12 col-sm-9">
         <div class="indenth2"><h2 id="about" class="bph2">About</h2>
 
-<p>This plugin will show information about connections to the proxy</p>
+<p>this module is for saving settings that should not appear in memory
+the setting is saved to a file with read only permissions for the user
+the proxy is running under</p>
+
+</div><div class="indenth2"><h2 id="using" class="bph2">Using</h2>
+
+<p>See the source for <a href="/bastproxy/plugins/net/net.html">net.net</a>
+for an example of using this plugin</p>
+
+<p>'''python
+    ssc = self.api('ssc.baseclass')()
+    self.apikey = ssc('somepassword', self, desc='Password for something')
+'''</p>
 
 </div>
 <h2 id="commands" class="bph2">Commands</h2>
-<div class="indenth3">
-<h3 id="cmdgroupnet" class="bph3">net</h3>
-</div>
-<div class="indenth4">
-<h4 id="cmdclients" class="bph4">clients</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.net.clients</span><span style="color:#e5e5e5"> [-h]</span>
-
-list clients that are connected
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdconnect" class="bph4">connect</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.net.connect</span><span style="color:#e5e5e5"> [-h]</span>
-
-connect to the mud
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmddisconnect" class="bph4">disconnect</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.net.disconnect</span><span style="color:#e5e5e5"> [-h]</span>
-
-disconnect from the mud
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-<h4 id="cmdshutdown" class="bph4">shutdown</h4>
-<pre><code>
-usage: <span style="color:#5c5cff">#bp.net.shutdown</span><span style="color:#e5e5e5"> [-h]</span>
-
-shutdown the proxy
-
-optional arguments:
-  -h, --help  show help
-
-</code></pre>
-</div>
 <div class="indenth3">
 <h3 id="cmdgroupBase" class="bph3">Base</h3>
 </div>
 <div class="indenth4">
 <h4 id="cmdapi" class="bph4">api</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.api</span><span style="color:#e5e5e5"> [-h] [api]</span>
 
 list functions in the api
 
 positional arguments:
-  api         api to get details of
+  api         api to get details of (default: )
 
 optional arguments:
-  -h, --help  show help
+  -h, --help  show help (default: False)
 
 </code></pre>
 <h4 id="cmdhelp" class="bph4">help</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.help</span><span style="color:#e5e5e5"> [-a] [-c] [-h]</span>
 
 show help info for this plugin
 
 optional arguments:
-  -a, --api       show functions this plugin has in the api
-  -c, --commands  show commands in this plugin
-  -h, --help      show help
+  -a, --api       show functions this plugin has in the api (default: False)
+  -c, --commands  show commands in this plugin (default: False)
+  -h, --help      show help (default: False)
 
 </code></pre>
 <h4 id="cmdinspect" class="bph4">inspect</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.inspect</span><span style="color:#e5e5e5"> [-m METHOD] [-h]</span>
 
 inspect a plugin
 
 optional arguments:
   -m METHOD, --method METHOD
-                        get code for a method
-  -h, --help            show help
+                        get code for a method (default: )
+  -h, --help            show help (default: False)
 
 </code></pre>
 <h4 id="cmdreset" class="bph4">reset</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.reset</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.reset</span><span style="color:#e5e5e5"> [-h]</span>
 
 reset the plugin
 
 optional arguments:
-  -h, --help  show help
+  -h, --help  show help (default: False)
 
 </code></pre>
 <h4 id="cmdsave" class="bph4">save</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.save</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.save</span><span style="color:#e5e5e5"> [-h]</span>
 
 save the plugin state
 
 optional arguments:
-  -h, --help  show help
+  -h, --help  show help (default: False)
 
 </code></pre>
 <h4 id="cmdset" class="bph4">set</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.set</span><span style="color:#e5e5e5"> [-h] [name] [value]</span>
 
 change a setting in the plugin
 
@@ -292,45 +248,34 @@ if there are no arguments or 'list' is the first argument then
 it will list the settings for the plugin
 
 positional arguments:
-  name        the setting name
-  value       the new value of the setting
+  name        the setting name (default: list)
+  value       the new value of the setting (default: )
 
 optional arguments:
-  -h, --help  show help
+  -h, --help  show help (default: False)
 
 </code></pre>
 <h4 id="cmdstats" class="bph4">stats</h4>
 <pre><code>
-usage: <span style="color:#5c5cff">#bp.net.stats</span><span style="color:#e5e5e5"> [-h]</span>
+usage: <span style="color:#5c5cff">#bp.ssc.stats</span><span style="color:#e5e5e5"> [-h]</span>
 
 show plugin stats
 
 optional arguments:
-  -h, --help  show help
+  -h, --help  show help (default: False)
 
 </code></pre>
 </div>
-<h2 id="settings" class="bph2">Settings</h2>
+<h2 id="api" class="bph2">API</h2>
 <div class="indenth4">
-<h3 id="setproxypassview" class="bph4">proxypassview</h3>
+<h3 id="setbaseclass" class="bph4">baseclass</h3>
 <pre><code>
-the view password of the proxy
-</code></pre>
-<h3 id="setproxypass" class="bph4">proxypass</h3>
-<pre><code>
-the password of the proxy
-</code></pre>
-<h3 id="setmudport" class="bph4">mudport</h3>
-<pre><code>
-the port of the mud
-</code></pre>
-<h3 id="setlistenport" class="bph4">listenport</h3>
-<pre><code>
-the port for the proxy to listen on
-</code></pre>
-<h3 id="setmudhost" class="bph4">mudhost</h3>
-<pre><code>
-the hostname/ip of the mud
+<span style="color:#00ff00">ssc.baseclass</span><span style="color:#e5e5e5">()</span>
+
+    return the sql baseclass
+
+
+original defined in plugins/core/ssc.py
 </code></pre>
 </div>
         </div><!-- /.col-xs-12 main -->
