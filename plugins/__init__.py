@@ -76,6 +76,7 @@ class PluginMgr(object):
     self.api.add(self.sname, 'allplugininfo', self.api_allplugininfo)
     self.api.add(self.sname, 'savestate', self.savestate)
 
+  # return the dictionary of all plugins
   def api_allplugininfo(self):
     """
     return the plugininfo dictionary
@@ -692,6 +693,7 @@ class PluginMgr(object):
     else:
       return False
 
+  # save all plugins
   def savestate(self):
     """
     save all plugins
