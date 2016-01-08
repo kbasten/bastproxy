@@ -204,6 +204,7 @@ class Plugin(AardwolfBasePlugin):
     AardwolfBasePlugin.afterfirstactive(self)
     self.checkskills()
 
+  # check if the spells/skills list is up to date
   def api_isuptodate(self):
     """
     return True if we have seen affected or all spells refresh
@@ -457,7 +458,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.eraise')(evname, {})
     self.current = ''
 
-  @timeit
+  # get a spell/skill by number
   def api_getskill(self, tsn):
     """
     get a skill
@@ -495,6 +496,7 @@ class Plugin(AardwolfBasePlugin):
 
     return tskill
 
+  # send the command to active a skill/spell
   def api_sendcmd(self, spellnum):
     """
     send the command to activate a skill/spell
@@ -509,6 +511,7 @@ class Plugin(AardwolfBasePlugin):
         self.api.get('send.msg')('sending skill %s' % skill['name'])
         self.api.get('send.execute')(name)
 
+  # check if a skill/spell can be used
   def api_canuse(self, spellnum):
     """
     return True if the spell can be used
@@ -520,6 +523,7 @@ class Plugin(AardwolfBasePlugin):
 
     return True
 
+  # check if a skill/spell is a spellup
   def api_isspellup(self, spellnum):
     """
     return True for a spellup, else return False
@@ -530,6 +534,7 @@ class Plugin(AardwolfBasePlugin):
 
     return False
 
+  # check if a skill/spell is active
   def api_isaffected(self, spellnum):
     """
     return True for a spellup, else return False
@@ -540,6 +545,7 @@ class Plugin(AardwolfBasePlugin):
 
     return False
 
+  # check if a skill/spell is blocked by a recovery
   def api_isblockedbyrecovery(self, spellnum):
     """
     check to see if a spell/skill is blocked by a recovery
@@ -552,6 +558,7 @@ class Plugin(AardwolfBasePlugin):
 
     return False
 
+  # check if a skill/spell is practiced
   def api_ispracticed(self, spellnum):
     """
     is the spell learned
@@ -563,6 +570,7 @@ class Plugin(AardwolfBasePlugin):
 
     return False
 
+  # get the list of spellup spells/skills
   def api_getspellups(self):
     """
     return a list of spellup spells

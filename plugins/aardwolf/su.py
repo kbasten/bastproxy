@@ -168,7 +168,7 @@ class Plugin(AardwolfBasePlugin):
 
   def _recoff(self, args):
     """
-    catch an affoff event
+    catch a recoff event
     """
     self.nextspell()
 
