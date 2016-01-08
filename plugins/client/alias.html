@@ -206,15 +206,15 @@ usage: <span style="color:#5c5cff">#bp.alias.add</span><span style="color:#e5e5e
 add an alias
 
 positional arguments:
-  original              the input to replace (default: )
-  replacement           the string to replace it with (default: )
+  original              the input to replace
+  replacement           the string to replace it with
 
 optional arguments:
   -o, --overwrite       overwrite an alias if it already exists (default:
                         False)
   -d, --disable         disable the alias (default: False)
   -g GROUP, --group GROUP
-                        the alias group (default: )
+                        the alias group
   -h, --help            show help (default: False)
 
 </code></pre>
@@ -225,7 +225,7 @@ usage: <span style="color:#5c5cff">#bp.alias.detail</span><span style="color:#e5
 get detail for an alias
 
 positional arguments:
-  alias       the alias to get details for (default: )
+  alias       the alias to get details for
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -238,7 +238,7 @@ usage: <span style="color:#5c5cff">#bp.alias.groupt</span><span style="color:#e5
 toggle all aliases in a group
 
 positional arguments:
-  group          the group to toggle (default: )
+  group          the group to toggle
 
 optional arguments:
   -d, --disable  disable the group (default: False)
@@ -252,7 +252,7 @@ usage: <span style="color:#5c5cff">#bp.alias.list</span><span style="color:#e5e5
 list aliases
 
 positional arguments:
-  match       list only aliases that have this argument in them (default: )
+  match       list only aliases that have this argument in them
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -265,7 +265,7 @@ usage: <span style="color:#5c5cff">#bp.alias.remove</span><span style="color:#e5
 remove an alias
 
 positional arguments:
-  alias       the alias to remove (default: )
+  alias       the alias to remove
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -278,7 +278,7 @@ usage: <span style="color:#5c5cff">#bp.alias.toggle</span><span style="color:#e5
 toggle enabled flag
 
 positional arguments:
-  alias       the alias to toggle (default: )
+  alias       the alias to toggle
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -296,7 +296,7 @@ usage: <span style="color:#5c5cff">#bp.alias.api</span><span style="color:#e5e5e
 list functions in the api
 
 positional arguments:
-  api         api to get details of (default: )
+  api         api to get details of
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -322,7 +322,7 @@ inspect a plugin
 
 optional arguments:
   -m METHOD, --method METHOD
-                        get code for a method (default: )
+                        get code for a method
   -h, --help            show help (default: False)
 
 </code></pre>
@@ -357,7 +357,7 @@ it will list the settings for the plugin
 
 positional arguments:
   name        the setting name (default: list)
-  value       the new value of the setting (default: )
+  value       the new value of the setting
 
 optional arguments:
   -h, --help  show help (default: False)

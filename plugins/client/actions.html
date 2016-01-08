@@ -205,8 +205,8 @@ usage: <span style="color:#5c5cff">#bp.actions.add</span><span style="color:#e5e
 add a action
 
 positional arguments:
-  regex                 the regex to match (default: )
-  action                the action to take (default: )
+  regex                 the regex to match
+  action                the action to take
   {execute,traceback,mud,client,error,msg}
                         where to send the action (default: execute)
 
@@ -214,7 +214,7 @@ optional arguments:
   -c, --color           match colors (@colors) (default: False)
   -d, --disable         disable the action (default: False)
   -g GROUP, --group GROUP
-                        the action group (default: )
+                        the action group
   -o, --overwrite       overwrite an action if it already exists (default:
                         False)
   -h, --help            show help (default: False)
@@ -227,7 +227,7 @@ usage: <span style="color:#5c5cff">#bp.actions.detail</span><span style="color:#
 get detail for an action
 
 positional arguments:
-  action      the action to get details for (default: )
+  action      the action to get details for
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -240,7 +240,7 @@ usage: <span style="color:#5c5cff">#bp.actions.groupt</span><span style="color:#
 toggle all actions in a group
 
 positional arguments:
-  group          the group to toggle (default: )
+  group          the group to toggle
 
 optional arguments:
   -d, --disable  disable the group (default: False)
@@ -254,7 +254,7 @@ usage: <span style="color:#5c5cff">#bp.actions.list</span><span style="color:#e5
 list actions
 
 positional arguments:
-  match       list only actions that have this argument in them (default: )
+  match       list only actions that have this argument in them
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -267,7 +267,7 @@ usage: <span style="color:#5c5cff">#bp.actions.remove</span><span style="color:#
 remove an action
 
 positional arguments:
-  action      the action to remove (default: )
+  action      the action to remove
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -280,7 +280,7 @@ usage: <span style="color:#5c5cff">#bp.actions.toggle</span><span style="color:#
 toggle enabled flag
 
 positional arguments:
-  action      the action to toggle (default: )
+  action      the action to toggle
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -298,7 +298,7 @@ usage: <span style="color:#5c5cff">#bp.actions.api</span><span style="color:#e5e
 list functions in the api
 
 positional arguments:
-  api         api to get details of (default: )
+  api         api to get details of
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -324,7 +324,7 @@ inspect a plugin
 
 optional arguments:
   -m METHOD, --method METHOD
-                        get code for a method (default: )
+                        get code for a method
   -h, --help            show help (default: False)
 
 </code></pre>
@@ -359,7 +359,7 @@ it will list the settings for the plugin
 
 positional arguments:
   name        the setting name (default: list)
-  value       the new value of the setting (default: )
+  value       the new value of the setting
 
 optional arguments:
   -h, --help  show help (default: False)

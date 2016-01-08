@@ -222,7 +222,7 @@ usage: <span style="color:#5c5cff">#bp.statdb.dbbackup</span><span style="color:
 backup the database
 
 positional arguments:
-  name        the name to backup to (default: )
+  name        the name to backup to
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -245,7 +245,7 @@ usage: <span style="color:#5c5cff">#bp.statdb.dbmodify</span><span style="color:
 run a sql update/insert against the database
 
 positional arguments:
-  stmt        the sql statement (default: )
+  stmt        the sql statement
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -258,7 +258,7 @@ usage: <span style="color:#5c5cff">#bp.statdb.dbremove</span><span style="color:
 remove a row from a table
 
 positional arguments:
-  table       the table to remove the row from (default: )
+  table       the table to remove the row from
   rownumber   the row number to remove (default: -1)
 
 optional arguments:
@@ -272,7 +272,7 @@ usage: <span style="color:#5c5cff">#bp.statdb.dbselect</span><span style="color:
 run a sql statement against the database
 
 positional arguments:
-  stmt        the sql statement (default: )
+  stmt        the sql statement
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -300,8 +300,8 @@ usage: <span style="color:#5c5cff">#bp.statdb.comp</span><span style="color:#e5e
 compare milestones
 
 positional arguments:
-  milestone1  the first milestone (default: )
-  milestone2  the second milestone (default: )
+  milestone1  the first milestone
+  milestone2  the second milestone
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -346,7 +346,7 @@ positional arguments:
 
 optional arguments:
   -n NUMBER, --number NUMBER
-                        show info for gq number (default: )
+                        show info for gq number
   -h, --help            show help (default: False)
 
 </code></pre>
@@ -401,7 +401,7 @@ usage: <span style="color:#5c5cff">#bp.statdb.api</span><span style="color:#e5e5
 list functions in the api
 
 positional arguments:
-  api         api to get details of (default: )
+  api         api to get details of
 
 optional arguments:
   -h, --help  show help (default: False)
@@ -427,7 +427,7 @@ inspect a plugin
 
 optional arguments:
   -m METHOD, --method METHOD
-                        get code for a method (default: )
+                        get code for a method
   -h, --help            show help (default: False)
 
 </code></pre>
@@ -462,7 +462,7 @@ it will list the settings for the plugin
 
 positional arguments:
   name        the setting name (default: list)
-  value       the new value of the setting (default: )
+  value       the new value of the setting
 
 optional arguments:
   -h, --help  show help (default: False)
