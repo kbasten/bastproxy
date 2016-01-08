@@ -1,7 +1,7 @@
 """
 This module creates the documentation
 
-it requires the markdown2 library
+it requires the markdown2 and lxml libraries
 """
 import argparse
 import sys
