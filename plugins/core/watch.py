@@ -49,7 +49,7 @@ class Plugin(BasePlugin):
     parser = argparse.ArgumentParser(add_help=False,
                  description='list watches')
     parser.add_argument('match',
-                    help='list only aliases that have this argument in them',
+                    help='list only watches that have this argument in them',
                     default='', nargs='?')
     self.api.get('commands.add')('list', self.cmd_list,
                                  parser=parser)
@@ -93,9 +93,7 @@ class Plugin(BasePlugin):
 
   def cmd_detail(self, args):
     """
-    @G%(name)s@w - @B%(cmdname)s@w
-      list the details of a watch
-      @CUsage@w: detail watchname
+    list the details of a watch
     """
     tmsg = []
     if len(args['watch']) > 0:
@@ -121,7 +119,7 @@ class Plugin(BasePlugin):
   def api_addwatch(self, watchname, regex, plugin, **kwargs):
     """  add a command watch
     @Ywatchname@w   = name
-    @Yregex@w    = the regular expression that matches this trigger
+    @Yregex@w    = the regular expression that matches this command
     @Yplugin@w   = the plugin this comes from, added
           automatically if using the api through BaseClass
     @Ykeyword args@w arguments:
@@ -153,7 +151,8 @@ class Plugin(BasePlugin):
   # remove a command watch
   def api_removewatch(self, watchname, force=False):
     """  remove a command watch
-    @Ywatchname@w   = The trigger name
+    @Ywatchname@w   = The watch name
+    @Yforce@w       = force removal if functions are registered
 
     this function returns no values"""
     if watchname in self.watchcmds:
@@ -177,7 +176,7 @@ class Plugin(BasePlugin):
   # remove all watches related to a plugin
   def api_removeplugin(self, plugin):
     """  remove all watches related to a plugin
-    @Ywatchname@w   = The trigger name
+    @Yplugin@w   = The plugin
 
     this function returns no values"""
     self.api.get('send.msg')('removing watches for plugin %s' % plugin,

@@ -235,6 +235,7 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('example', self.cmd_example,
                                     parser=parser)
 
+  # convert color codes to html
   def api_colorcodestohtml(self, input):
     """
     convert colorcodes to html
@@ -297,7 +298,7 @@ class Plugin(BasePlugin):
 
     return '\n'.join(olist) + lastchar
 
-
+  # get the length difference of a colored string and its noncolor equivalent
   def api_getlengthdiff(self, colorstring):
     """
     get the length difference of a colored string and its noncolor equivalent
@@ -306,6 +307,7 @@ class Plugin(BasePlugin):
     lencolor = len(colorstring)
     return lencolor - lennocolor
 
+  # check if a string is an @@ color, either xterm or ansi
   def api_iscolor(self, color):
     """
     check if a string is a @ color, either xterm or ansi
@@ -321,6 +323,7 @@ class Plugin(BasePlugin):
 
     return False
 
+  # convert @@ colors in a string
   def api_convertcolors(self, tstr):
     """
     convert @ colors in a string
@@ -358,9 +361,10 @@ class Plugin(BasePlugin):
     tstr = re.sub("\0", "@", tstr)    # put @ back in
     return tstr
 
+  # convert ansi color escape sequences to @@ colors
   def api_convertansi(self, text):
     """
-    convert ansi color escape sequences to @colors
+    convert ansi color escape sequences to @@ colors
     """
     def single_sub(match):
       """
@@ -382,21 +386,24 @@ class Plugin(BasePlugin):
 
     return ANSI_COLOR_REGEX.sub(single_sub, text)
 
+  # return an ansi coded string
   def api_ansicode(self, color, data):
     """
-    return an ansicoded string
+    return an ansi coded string
     """
     return "%c[%sm%s" % (chr(27), color, data)
 
+  # strip all ansi from a string
   def api_stripansi(self, text):
     """
     strip all ansi from a string
     """
     return ANSI_COLOR_REGEX.sub('', text)
 
+  # strip @@ colors from a string
   def api_stripcolor(self, text):
     """
-    strip @colors
+    strip @@ colors
     """
     return self.api_stripansi(self.api_convertcolors(text))
 

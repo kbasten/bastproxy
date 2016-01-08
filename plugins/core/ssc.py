@@ -62,9 +62,10 @@ class SSC(object):
                                         parser=parser)
 
 
+  # read the secret from a file
   def getss(self):
     """
-    read the password from a file
+    read the secret from a file
     """
     first_line = ''
     filen = os.path.join(self.plugin.savedir, self.ssname)
@@ -82,6 +83,7 @@ class SSC(object):
 
   def cmd_setssc(self, args):
     """
+    set the secret
     """
     if args['value']:
       filen = os.path.join(self.plugin.savedir, self.ssname)
@@ -109,6 +111,7 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
+  # return the secret setting baseclass
   def api_baseclass(self):
     """
     return the sql baseclass

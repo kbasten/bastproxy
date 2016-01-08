@@ -17,7 +17,7 @@ AUTOLOAD = True
 
 class CmdQueue(object):
   """
-  a class to manage sqlite3 databases
+  a class to manage commands
   """
   def __init__(self, plugin, **kwargs):
     """
@@ -120,8 +120,9 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
+  # return the cmdq baseclass
   def api_baseclass(self):
     """
-    return the sql baseclass
+    return the cmdq baseclass
     """
     return CmdQueue

@@ -43,6 +43,7 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
+  # return the difference of two times
   def api_timedeltatostring(self, stime, etime, fmin=False, colorn='',
                         colors='', nosec=False):
     """
@@ -74,6 +75,7 @@ class Plugin(BasePlugin):
     out   = ":".join(tmsg)
     return out
 
+  # convert a number to a shorter readable number
   def api_readablenumber(self, num, places=2):
     """
     convert a number to a shorter readable number
@@ -94,6 +96,7 @@ class Plugin(BasePlugin):
       ret = num # hundreds
     return ret
 
+  # convert seconds to years, days, hours, mins, secs
   def api_secondstodhms(self, sseconds):
     """
     convert seconds to years, days, hours, mins, secs
@@ -120,6 +123,7 @@ class Plugin(BasePlugin):
     dtime['secs'] = int(nseconds % 60)
     return dtime
 
+  # format a length of time into a string
   def api_formattime(self, length, nosec=False):
     """
     format a length of time into a string
@@ -155,6 +159,7 @@ class Plugin(BasePlugin):
 
     return ''.join(msg)
 
+  # verify a value to be a boolean
   def verify_bool(self, val):
     """
     convert a value to a bool, also converts some string and numbers
@@ -172,6 +177,7 @@ class Plugin(BasePlugin):
 
     return bool(val)
 
+  # verify a value to contain an @ color
   def verify_color(self, val):
     """
     verify an @ color
@@ -181,6 +187,7 @@ class Plugin(BasePlugin):
 
     raise ValueError
 
+  # verify a time to be military
   def verify_miltime(self, mtime):
     """
     verify a time like 0830 or 1850
@@ -192,6 +199,7 @@ class Plugin(BasePlugin):
 
     return mtime
 
+  # verfiy a time to be valid
   def verify_timelength(self, usertime):
     """
     verify a user time length
@@ -208,6 +216,7 @@ class Plugin(BasePlugin):
 
     return ttime
 
+  # verify different types
   def api_verify(self, val, vtype):
     """
     verify values
@@ -223,6 +232,7 @@ class Plugin(BasePlugin):
     else:
       return vtype(val)
 
+  # center a string with color codes
   def api_center(self, tstr, fillerc, length):
     """
     center a string with color codes
@@ -245,6 +255,7 @@ class Plugin(BasePlugin):
 
     return tstr
 
+  # check a list for a match
   def api_checklistformatch(self, arg, tlist):
     """
     check a list for a match of arg
@@ -271,6 +282,7 @@ class Plugin(BasePlugin):
 
     return tdict
 
+  # convert a time length to seconds
   def api_timelengthtosecs(self, timel):
     """
     converts a time length to seconds

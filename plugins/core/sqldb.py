@@ -672,6 +672,7 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
+  # return the sql baseclass
   def api_baseclass(self):
     """
     return the sql baseclass

@@ -92,6 +92,7 @@ class Plugin(BasePlugin):
     """
     self.api.get('events.eraise')('OPTRELOAD', {'option':mod})
 
+  # prepare the client to process telnet options
   def api_prepareclient(self, client):
     """
     add an option to a client
@@ -103,6 +104,7 @@ class Plugin(BasePlugin):
         self.api.get('send.msg')('Did not add option to client: %s' % i,
                                                                     'telopt')
 
+  # prepare the server to process telnet options
   def api_prepareserver(self, server):
     """
     add an option to a server
