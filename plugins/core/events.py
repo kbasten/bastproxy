@@ -128,6 +128,8 @@ class Plugin(BasePlugin):
       plugin = func.im_self.sname
     except AttributeError:
       plugin = ''
+    if not plugin and 'plugin' in kwargs:
+      plugin = kwargs['plugin']
 
     if not (eventname in self.events):
       self.events[eventname] = {}
