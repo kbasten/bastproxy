@@ -43,10 +43,11 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_gq_declared', self._gqdeclared)
     self.api.get('events.register')('aard_quest_ready', self._quest)
     self.api.get('events.register')('aard_iceage', self._iceage)
+    self.api.get('events.register')('aard_reboot', self._reboot)
 
   def _gqdeclared(self, args):
     """
-    do something when a gq is declared
+    send an email that a gq has been declared
     """
     proxy = self.api.get('managers.getm')('proxy')
     times = time.asctime(time.localtime())
@@ -62,7 +63,7 @@ class Plugin(AardwolfBasePlugin):
 
   def _quest(self, _=None):
     """
-    do something when you can quest
+    send an email that it is time to quest
     """
     proxy = self.api.get('managers.getm')('proxy')
     times = time.asctime(time.localtime())
@@ -89,3 +90,18 @@ class Plugin(AardwolfBasePlugin):
               email)
     else:
       self.api.get('mail.send')('Ice Age', msg)
+
+  def _reboot(self, _=None):
+    """
+    send an email that Aardwolf is rebooting
+    """
+    proxy = self.api.get('managers.getm')('proxy')
+    times = time.asctime(time.localtime())
+    msg = '%s:%s - Aardwolf is rebooting (%s)' % (
+              proxy.host, proxy.port, times)
+    email = self.api.get('setting.gets')('email')
+    if email:
+      self.api.get('mail.send')('Reboot', msg,
+              email)
+    else:
+      self.api.get('mail.send')('Reboot', msg)
