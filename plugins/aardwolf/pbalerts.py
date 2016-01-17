@@ -42,10 +42,11 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_gq_declared', self._gqdeclared)
     self.api.get('events.register')('aard_quest_ready', self._quest)
     self.api.get('events.register')('aard_iceage', self._iceage)
+    self.api.get('events.register')('aard_reboot', self._reboot)
 
   def _gqdeclared(self, args):
     """
-    do something when a gq is declared
+    send an pushbullet note that a gq has been declared
     """
     proxy = self.api.get('managers.getm')('proxy')
     times = time.asctime(time.localtime())
@@ -56,7 +57,7 @@ class Plugin(AardwolfBasePlugin):
 
   def _quest(self, _=None):
     """
-    do something when you can quest
+    send an pushbullet note that it is time to quest
     """
     proxy = self.api.get('managers.getm')('proxy')
     times = time.asctime(time.localtime())
@@ -66,10 +67,20 @@ class Plugin(AardwolfBasePlugin):
 
   def _iceage(self, _=None):
     """
-    send an email that an iceage approaches
+    send an pushbullet note that an iceage approaches
     """
     proxy = self.api.get('managers.getm')('proxy')
     times = time.asctime(time.localtime())
     msg = '%s:%s - An ice age approaches! (%s)' % (
               proxy.host, proxy.port, times)
     self.api.get('pb.note')('Ice Age', msg)
+
+  def _reboot(self, _=None):
+    """
+    send an pushbullet note that Aardwolf is rebooting
+    """
+    proxy = self.api.get('managers.getm')('proxy')
+    times = time.asctime(time.localtime())
+    msg = '%s:%s - Aardwolf is rebooting (%s)' % (
+              proxy.host, proxy.port, times)
+    self.api.get('pb.note')('Reboot', msg)
