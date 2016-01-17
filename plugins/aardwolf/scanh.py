@@ -83,7 +83,7 @@ class Plugin(AardwolfBasePlugin):
     gqbackcolor = self.api.get('setting.gets')('gqbackcolor')
     questtextcolor = self.api.get('setting.gets')('questtextcolor')
     questbackcolor = self.api.get('setting.gets')('questbackcolor')
-    if not line or args['line'][0] != ' ':
+    if not args['line'] or args['line'][0] != ' ':
       return
     line = args['line'].lower().strip()
     self.api.get('send.msg')('scanline: %s' % line)
