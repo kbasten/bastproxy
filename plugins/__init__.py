@@ -747,5 +747,5 @@ class PluginMgr(object):
     self.api.get('events.register')('savestate', self.savestate,
                                     plugin=self.sname)
 
-    self.api.get('timers.add')('save', self.savestate, 60, nodupe=True)
+    self.api.get('timers.add')('save', self.savestate, 60, nodupe=True, log=False)
 
