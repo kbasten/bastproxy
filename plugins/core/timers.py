@@ -44,6 +44,10 @@ class TimerEvent(Event):
     if 'time' in kwargs:
       self.time = kwargs['time']
 
+    self.log = True
+    if 'log' in kwargs:
+      self.log = kwargs['log']
+
     self.nextcall = self.getnext() or -1
 
   def getnext(self):
@@ -122,6 +126,14 @@ class Plugin(BasePlugin):
                                  parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
+                 description='toggle log flag for a timer')
+    parser.add_argument('timername',
+              help='the timer name',
+              default='', nargs='?')
+    self.api.get('commands.add')('log', self.cmd_log,
+                                 parser=parser)
+
+    parser = argparse.ArgumentParser(add_help=False,
                  description='get details for timers')
     parser.add_argument('timers', help='a list of timers to get details',
                         default=[], nargs='*')
@@ -142,6 +154,20 @@ class Plugin(BasePlugin):
     self.api('send.msg')('removing timers for plugin %s' % args['name'],
                          secondary=args['name'])
     self.api('%s.removeplugin' % self.sname)(args['name'])
+
+  def cmd_log(self, args=None):
+    """
+    change the log flag for a timer
+    """
+    msg = []
+    if args['timername'] in self.timerlookup:
+      self.timerlookup[args['timername']].log = not self.timerlookup[args['timername']].log
+      msg.append('changed log flag to %s for timer %s' % (self.timerlookup[args['timername']].log,
+                                                     args['timername']))
+    else:
+      msg.append('timer %s does not exist' % args['timername'])
+
+    return True, msg
 
   def cmd_stats(self, args=None):
     """
@@ -211,6 +237,7 @@ class Plugin(BasePlugin):
           tmsg.append('%-13s : %s' % ('Time', timerc.time))
           tmsg.append('%-13s : %s' % ('Seconds', timerc.seconds))
           tmsg.append('%-13s : %s' % ('Times Fired', timerc.timesfired))
+          tmsg.append('%-13s : %s' % ('Log', timerc.log))
           tmsg.append('%-13s : %s' % ('Next Fire',
                                         time.strftime('%a %b %d %Y %H:%M:%S',
                                         time.localtime(timerc.nextcall))))
@@ -340,14 +367,16 @@ class Plugin(BasePlugin):
               timer.execute()
               timer.timesfired = timer.timesfired + 1
               self.overallfire = self.overallfire + 1
-              self.api.get('send.msg')('Timer fired: %s' % timer,
+              if timer.log:
+                self.api.get('send.msg')('Timer fired: %s' % timer,
                                          secondary=timer.plugin.sname)
             except:
               self.api.get('send.traceback')('A timer had an error')
           self.timerevents[i].remove(timer)
           if not timer.onetime:
             timer.nextcall = timer.nextcall + timer.seconds
-            self.api.get('send.msg')('Re adding timer %s for %s' % (timer.name,
+            if timer.log:
+              self.api.get('send.msg')('Re adding timer %s for %s' % (timer.name,
                                     time.strftime('%a %b %d %Y %H:%M:%S',
                                              time.localtime(timer.nextcall))),
                                     secondary=timer.plugin.sname)
