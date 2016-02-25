@@ -213,9 +213,9 @@ class Plugin(BasePlugin):
                                                   cmd['commandname'])))
       else:
         self.addtohistory(data, cmd)
-        if not cmd['format']:
+        if (not cmd['format']) and msg:
           self.api.get('send.client')(msg, preamble=cmd['preamble'])
-        else:
+        elif msg:
           self.api.get('send.client')('\n'.join(self.formatretmsg(
                                                   msg, cmd['sname'],
                                                   cmd['commandname'])),
