@@ -86,11 +86,13 @@ class CmdQueue(object):
       self.currentcmd = {}
       self.sendnext()
 
-  def addtoqueue(self, cmdtype, arguments):
+  def addtoqueue(self, cmdtype, arguments=''):
     """
     add a command to the queue
     """
-    cmd = self.cmds[cmdtype]['cmd'] + ' ' + str(arguments)
+    cmd = self.cmds[cmdtype]['cmd']
+    if arguments:
+      cmd = cmd + ' ' + str(arguments)
     if self.checkinqueue(cmd) or \
             ('cmd' in self.currentcmd and self.currentcmd['cmd'] == cmd):
       return
