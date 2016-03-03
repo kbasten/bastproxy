@@ -361,7 +361,7 @@ class Plugin(BasePlugin):
       self.api.get('send.msg')('timer had to check multiple seconds')
     for i in range(self.lasttime, ntime + 1):
       if i in self.timerevents and len(self.timerevents[i]) > 0:
-        for timer in self.timerevents[i]:
+        for timer in self.timerevents[i][:]:
           if timer.enabled:
             try:
               timer.execute()
@@ -372,7 +372,10 @@ class Plugin(BasePlugin):
                                          secondary=timer.plugin.sname)
             except:
               self.api.get('send.traceback')('A timer had an error')
-          self.timerevents[i].remove(timer)
+          try:
+            self.timerevents[i].remove(timer)
+          except ValueError:
+            self.api.get('send.msg')('timer %s did not exist in timerevents' % timer.name)
           if not timer.onetime:
             timer.nextcall = timer.nextcall + timer.seconds
             if timer.log:
