@@ -86,7 +86,9 @@ class Plugin(BasePlugin):
       pw = self.api('%s.mudpw' % self.sname)()
       if pw != '':
         self.api('send.mud')(pw)
-
+      self.api('send.mud')('\n')
+      self.api('send.mud')('\n')
+      
   def cmd_clients(self, _):
     """
     show all clients
