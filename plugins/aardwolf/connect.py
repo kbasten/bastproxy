@@ -35,10 +35,20 @@ class Plugin(BasePlugin):
     """
     BasePlugin.load(self)
 
+    self.api.get('triggers.add')('reconnect',
+            "^############# Reconnecting to Game #############$")
+
     self.api.get('events.register')('GMCP:char.status', self._charstatus)
     self.api.get('events.register')('GMCP:room.info', self._roominfo)
+    self.api.get('events.register')('trigger_reconnect', self.reconnect)
 
     self._charstatus()
+
+  def reconnect(self, _=None):
+    """
+    send a look on reconnect
+    """
+    self.api('send.mud')('look')
 
   def disconnect(self, _=None):
     """
