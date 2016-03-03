@@ -43,6 +43,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('events.register')('aard_quest_ready', self._quest)
     self.api.get('events.register')('aard_iceage', self._iceage)
     self.api.get('events.register')('aard_reboot', self._reboot)
+    self.api.get('events.register')('aard_daily_available', self._daily)
 
   def _gqdeclared(self, args):
     """
@@ -84,3 +85,14 @@ class Plugin(AardwolfBasePlugin):
     msg = '%s:%s - Aardwolf is rebooting (%s)' % (
               proxy.host, proxy.port, times)
     self.api.get('pb.note')('Reboot', msg)
+
+  def _daily(self, _=None):
+    """
+    send a pushbullet note when daily blessing is available
+    """
+    self.api('send.msg')('got daily blessing event')
+    proxy = self.api.get('managers.getm')('proxy')
+    times = time.asctime(time.localtime())
+    msg = '%s:%s - Daily blessing is available (%s)' % (
+              proxy.host, proxy.port, times)
+    self.api.get('pb.note')('Daily Blessing', msg)
