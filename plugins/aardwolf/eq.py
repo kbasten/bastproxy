@@ -15,6 +15,30 @@ AUTOLOAD = False
 
 OPTIONALLOCS = [8, 9, 10, 11, 25, 28, 29, 30, 31, 32]
 
+class Item(object):
+  def __init__(self, attributes):
+    self._dump_shallow_attrs = ['curcontainer', 'origcontainer']
+
+    self.score = 'Unkn'
+    self.wearslot = None
+
+    self.upditem(attributes)
+
+    self.curcontainer = None
+    self.origcontainer = None
+    self.hasbeenided = False
+
+  def upditem(self, attributes):
+    for k, v in attributes.items():
+      setattr(self, k, v)
+
+  def checkattr(self, attr):
+    if hasattr(self, attr) and self.__dict__[attr]:
+      return True
+
+    return False
+
+
 class EqContainer(object):
   def __init__(self, plugin, cid, cmd=None, cmdregex=None,
                   startregex=None, endregex=None):
@@ -35,10 +59,15 @@ class EqContainer(object):
     self.needsrefresh = True
     self.items = []
 
+    self._dump_shallow_attrs = ['plugin', 'api', 'cmdqueue', 'itemcache']
+
     self.cmdqueue.addcmdtype(self.cid, self.cmd, self.cmdregex,
                        self.databefore, self.dataafter)
 
     self.reset()
+
+  def __str__(self):
+    return 'Container: %s' % self.cid
 
   def count(self):
     """
@@ -62,7 +91,7 @@ class EqContainer(object):
     """
     add an item into this container
     """
-    self.itemcache[serial]['curcontainer'] = self
+    self.itemcache[serial].curcontainer = self
     if place >= 0:
       self.items.insert(place, serial)
     else:
@@ -72,7 +101,7 @@ class EqContainer(object):
     """
     remove an item from this container
     """
-    self.itemcache[serial]['curcontainer'] = ''
+    self.itemcache[serial].curcontainer = None
     itemindex = self.items.index(serial)
     del self.items[itemindex]
 
@@ -146,12 +175,13 @@ class EqContainer(object):
     if line != self.startregex:
       #self.api.get('send.msg')('invdata args: %s' % args)
       try:
-        titem = self.api.get('itemu.dataparse')(line, 'eqdata')
-        self.itemcache[titem['serial']] = titem
+        attributes = self.api.get('itemu.dataparse')(line, 'eqdata')
+        titem = Item(attributes)
+        self.itemcache[titem.serial] = titem
         #self.api.get('send.msg')('invdata parsed item: %s' % titem)
-        self.add(titem['serial'])
-        if titem['type'] == 11 and not (titem['serial'] in self.plugin.containers):
-          self.plugin.containers[titem['serial']] = EqContainer(self.plugin, titem['serial'])
+        self.add(titem.serial)
+        if titem.itype == 11 and not (titem.serial in self.plugin.containers):
+          self.plugin.containers[titem.serial] = EqContainer(self.plugin, titem.serial)
       except (IndexError, ValueError):
         self.api.get('send.msg')('incorrect invdata line: %s' % line)
         self.api('send.traceback')()
@@ -230,7 +260,7 @@ class EqContainer(object):
       for serial in self.items:
         item = self.itemcache[serial]
         #item = i
-        stylekey = item['name'] + item['shortflags'] + str(item['level'])
+        stylekey = item.name + item.shortflags + str(item.level)
         doit = True
         sitem = []
         if not args['nogroup'] and stylekey in numstyles:
@@ -252,7 +282,7 @@ class EqContainer(object):
             sitem.append(" %3s  " % " ")
             if not (stylekey in numstyles):
               numstyles[stylekey] = {'item':sitem, 'countcol':len(sitem) - 1,
-                                     'serial':item['serial']}
+                                     'serial':item.serial}
 
           if not args['noflags']:
             sitem.append('(')
@@ -262,7 +292,7 @@ class EqContainer(object):
             for flag in self.api.get('itemu.itemflags')():
               aardcolour = flagaardcolors[flag]
               count = count + 1
-              if flag in item['shortflags']:
+              if flag in item.shortflags:
                 if count == 1:
                   sitem.append(' @' + aardcolour + flag + ' ')
                 else:
@@ -277,13 +307,12 @@ class EqContainer(object):
             sitem.append(' ')
 
           sitem.append('(')
-          sitem.append("@G%3s@w" % (item['level'] or ""))
+          sitem.append("@G%3s@w" % (item.level or ""))
           sitem.append(') ')
 
           if args['serial']:
             sitem.append('(@x136')
-            sitem.append("%-12s" % (
-                              item['serial'] if 'serial' in item else ""))
+            sitem.append("%-12s" % (item.serial))
             if not args['nogroup']:
               if stylekey in numstyles:
                 numstyles[stylekey]['serialcol'] = len(sitem) - 1
@@ -291,11 +320,10 @@ class EqContainer(object):
 
           if args['score']:
             sitem.append('(@C')
-            sitem.append("%5s" % (
-                              item['score'] if 'score' in item else 'Unkn'))
+            sitem.append("%5s" % (item.score))
             sitem.append('@w) ')
 
-          sitem.append(item['cname'])
+          sitem.append(item.cname)
           items.append(sitem)
 
       for item in items:
@@ -327,6 +355,8 @@ class Worn(EqContainer):
                          cmdregex='^eqdata$', startregex="{eqdata}",
                          endregex="{/eqdata}")
 
+    self.lastworn = {}
+
   def reset(self):
     """
     reset worn eq
@@ -342,25 +372,35 @@ class Worn(EqContainer):
     """
     self.api('send.execute')('remove %s' % (serial))
 
-  def put(self, serial):
+  def put(self, serial, location=None):
     """
     put an item into container
     """
-    self.api('send.execute')('wear %s' % (serial))
+    cmd = 'wear %s' % serial
+    if location:
+      if location == 'lastworn' and serial in self.lastworn:
+        cmd = cmd + ' ' + self.lastworn[serial]
+      else:
+        cmd = cmd + ' ' + location
+    self.api('send.execute')(cmd)
 
   def add(self, serial, wearloc):
     """
     wear an item
     """
-    del self.items[wearloc]
-    self.itemcache[serial]['curcontainer'] = self
+    if wearloc:
+      del self.items[wearloc]
+    self.itemcache[serial].curcontainer = self
     self.items.insert(wearloc, serial)
+    self.lastworn[serial] = wearloc
+    self.itemcache[serial].wearslot = wearloc
 
   def remove(self, serial):
     """
     take off an item
     """
-    self.itemcache[serial]['curcontainer'] = 'Inventory'
+    self.itemcache[serial].curcontainer = 'Inventory'
+    self.itemcache[serial].wearslot = None
     try:
       location = self.items.index(serial)
       del self.items[location]
@@ -376,12 +416,13 @@ class Worn(EqContainer):
     if line != self.startregex:
       #self.api.get('send.msg')('invdata args: %s' % args)
       try:
-        titem = self.api.get('itemu.dataparse')(line, 'eqdata')
-        self.itemcache[titem['serial']] = titem
+        attributes = self.api.get('itemu.dataparse')(line, 'eqdata')
+        titem = Item(attributes)
+        self.itemcache[titem.serial] = titem
         #self.api.get('send.msg')('invdata parsed item: %s' % titem)
-        self.add(titem['serial'], titem['wearslot'])
-        if titem['type'] == 11 and not (titem['serial'] in self.plugin.containers):
-          self.plugin.containers[titem['serial']] = EqContainer(self.plugin, titem['serial'])
+        self.add(titem.serial, titem.wearslot)
+        if titem.itype == 11 and not (titem.serial in self.plugin.containers):
+          self.plugin.containers[titem.serial] = EqContainer(self.plugin, titem.serial)
       except (IndexError, ValueError):
         self.api.get('send.msg')('incorrect invdata line: %s' % line)
         self.api('send.traceback')()
@@ -415,7 +456,7 @@ class Worn(EqContainer):
       for flag in self.api.get('itemu.itemflags')():
         aardcolour = flagaardcolors[flag]
         count = count + 1
-        if flag in item['shortflags']:
+        if item.checkattr('shortflags') and flag in item.shortflags:
           if count == 1:
             sitem.append(' @' + aardcolour + flag + ' ')
           else:
@@ -430,20 +471,23 @@ class Worn(EqContainer):
       sitem.append(' ')
 
     sitem.append('(')
-    sitem.append("@G%3s@w" % (item['level'] or ""))
+    try:
+      sitem.append("@G%3s@w" % item.level)
+    except:
+      print(item)
     sitem.append(') ')
 
     if args['serial']:
       sitem.append('(@x136')
-      sitem.append("%-12s" % (item['serial'] if 'serial' in item else ""))
+      sitem.append("%-12s" % item.serial)
       sitem.append('@w) ')
 
     if args['score']:
       sitem.append('(@C')
-      sitem.append("%5s" % (item['score'] if 'score' in item else 'Unkn'))
+      sitem.append("%5s" % item.score)
       sitem.append('@w) ')
 
-    sitem.append(item['cname'])
+    sitem.append(item.cname)
 
     return ''.join(sitem)
 
@@ -451,7 +495,9 @@ class Worn(EqContainer):
     """
     build the output of a container
     """
-    print self.items
+    emptyitem = Item({'cname':"@r< empty >@w", 'shortflags':"", 'level':'',
+                  'serial':''})
+
     wearlocs = self.api.get('itemu.wearlocs')()
     self.api.get('send.msg')('build_worn args: %s' % args)
     msg = ['You are using:']
@@ -509,9 +555,7 @@ class Worn(EqContainer):
         if (i == 23 or i == 26) and self.items[25] != -1:
           doit = False
         if doit:
-          item = {'cname':"@r< empty >@w", 'shortflags':"", 'level':'',
-                  'serial':''}
-          msg.append(self.build_wornitem(item, i, args))
+          msg.append(self.build_wornitem(emptyitem, i, args))
 
     msg.append('')
     return msg
@@ -622,6 +666,8 @@ class Plugin(AardwolfBasePlugin):
 
     self.cmdqueue = None
 
+    self._dump_shallow_attrs.append('itemcache')
+
     self.api.get('dependency.add')('aardwolf.itemu')
     self.api.get('dependency.add')('cmdq')
 
@@ -630,6 +676,10 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('api.add')('put', self.api_putincontainer)
     self.api.get('api.add')('findname', self.api_findname)
     self.api.get('api.add')('getworn', self.api_getworn)
+    self.api.get('api.add')('equip', self.api_equipitem)
+    self.api.get('api.add')('unequip', self.api_unequipitem)
+    self.api.get('api.add')('addidentify', self.api_addidentify)
+
 
   def load(self):
     """
@@ -667,11 +717,6 @@ class Plugin(AardwolfBasePlugin):
                                 parser=parser, format=False, preamble=False)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show some internal variables')
-    self.api.get('commands.add')('sv', self.cmd_showinternal,
-                                parser=parser)
-
-    parser = argparse.ArgumentParser(add_help=False,
                  description='refresh eq')
     self.api.get('commands.add')('refresh', self.cmd_refresh,
                                 parser=parser)
@@ -693,8 +738,8 @@ class Plugin(AardwolfBasePlugin):
                                 parser=parser, format=False, preamble=False)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='get an item')
-    parser.add_argument('item', help='the item to get', default='', nargs='?')
+                 description='show an item from the cache')
+    parser.add_argument('item', help='the item to show', default='', nargs='?')
     self.api.get('commands.add')('icache', self.cmd_icache,
                                 parser=parser)
 
@@ -739,6 +784,15 @@ class Plugin(AardwolfBasePlugin):
     self.containers['Keyring'] = Keyring(self)
     self.containers['Vault'] = Vault(self)
 
+  # add identify information to an item
+  def api_addidentify(self, serial, attributes):
+    """
+    add identify information to an item
+    """
+    if serial in self.itemcache:
+      self.itemcache[serial].upditem(attributes)
+      self.itemcache[serial].hasbeenided = True
+
   # return the item worn at a specified location
   def api_getworn(self, location):
     """
@@ -764,7 +818,7 @@ class Plugin(AardwolfBasePlugin):
     """
     results = []
     for i in self.itemcache:
-      if name in self.itemcache[i]['name']:
+      if name in self.itemcache[i].name:
         results.append(self.itemcache[i])
 
     return results
@@ -810,9 +864,9 @@ class Plugin(AardwolfBasePlugin):
     """
     serial = int(serial)
     if serial in self.itemcache:
-      container = self.itemcache[serial]['curcontainer']
+      container = self.itemcache[serial].curcontainer
       if container.cid != 'Inventory':
-        self.itemcache[serial]['origcontainer'] = container
+        self.itemcache[serial].origcontainer = container
         container.get(serial)
       else:
         container = ''
@@ -821,50 +875,55 @@ class Plugin(AardwolfBasePlugin):
       return False, ''
 
   # put an item into a container
-  def api_putincontainer(self, serial, container=None):
+  def api_putincontainer(self, serial, container=None, location=None):
     """
     put an item into a container
     """
     serial = int(serial)
     oldcontainer = None
 
-    if not container:
-      if serial in self.itemcache:
-        if 'origcontainer' in self.itemcache[serial]:
-          container = self.itemcache[serial]['origcontainer']
+    serial = int(serial)
 
     if serial in self.itemcache:
-      if  'curcontainer' in self.itemcache[serial] and \
-          self.itemcache[serial]['curcontainer'].cid != 'Inventory':
-        oldcontainer = self.itemcache[serial]['curcontainer']
-
-    try:
-      container = int(container)
-
-    except (ValueError, TypeError):
-      pass
-
-    if container in self.containers:
-      container = self.containers[container]
+      item = self.itemcache[serial]
     else:
-      container = None
+      item = None
+
+    if not item:
+      return
+
+    if not container:
+      if serial in self.itemcache:
+        if self.itemcache[serial].checkattr('origcontainer'):
+          container = self.itemcache[serial].origcontainer
+
+    if serial in self.itemcache:
+      if self.itemcache[serial].checkattr('curcontainer') and \
+          self.itemcache[serial].curcontainer.cid != 'Inventory' and \
+          self.itemcache[serial].curcontainer != container:
+        oldcontainer = self.itemcache[serial].curcontainer
 
     if container:
       if oldcontainer:
         oldcontainer.get(serial)
 
-      container.put(serial)
+      if container.cid == 'Worn' and location:
+        container.put(serial, location)
+      else:
+        container.put(serial)
       return True, container
 
     return False, ''
 
-  def api_wearitem(self, serial):
+  # equip an item
+  def api_equipitem(self, serial, location=None):
     """
     wear an item
     """
-    self.containers['Worn'].put(serial)
+    self.containers['Worn'].put(serial, location)
 
-  def api_removeitem(self, serial):
+  # unequip an item
+  def api_unequipitem(self, serial):
     """
     remove an item
     """
@@ -887,22 +946,9 @@ class Plugin(AardwolfBasePlugin):
     for container in self.containers:
       self.containers[container].reset()
 
-  def cmd_showinternal(self, args):
-    """
-    show internal stuff
-    """
-    msg = []
-    msg.append('Queue     : %s' % self.cmdqueue.queue)
-    msg.append('Cur cmd   : %s' % self.cmdqueue.currentcmd)
-    msg.append('Inventory : %s' % self.containers['Inventory'].items)
-    msg.append('Worn      : %s' % self.containers['Worn'].items)
-    msg.append('itemcache : %s' % self.itemcache)
-
-    return True, msg
-
   def cmd_icache(self, args):
     """
-    show internal stuff
+    show what's in the cache for an item
     """
     msg = []
     item = args['item']
@@ -934,6 +980,8 @@ class Plugin(AardwolfBasePlugin):
       else:
         return "'%s'" % item if ' ' in item else item
 
+    return None
+
   def cmd_get(self, args):
     """
     get an item
@@ -962,9 +1010,9 @@ class Plugin(AardwolfBasePlugin):
 
     destination = None
     if len(args['otherargs']) == 0:
-      if item in self.itemcache and 'origcontainer' in self.itemcache[item]:
-        destination = self.itemcache[item]['origcontainer']
-        if destination != self.itemcache[item]['curcontainer']:
+      if item in self.itemcache and self.itemcache[item].checkattr('origcontainer'):
+        destination = self.itemcache[item].origcontainer
+        if destination != self.itemcache[item].curcontainer:
           self.api_putincontainer(item, destination)
           return True, []
 
@@ -987,11 +1035,11 @@ class Plugin(AardwolfBasePlugin):
     """
     check to see if an item is valid
     """
-    if item['serial'] == "" or \
-        item['level'] == "" or \
-        item['type'] == "" or \
-        item['name'] == "" or \
-        item['cname'] == "":
+    if item.serial == "" or \
+        item.level == "" or \
+        item.itype == "" or \
+        item.name == "" or \
+        item.cname == "":
       return False
 
     return True
@@ -1001,10 +1049,13 @@ class Plugin(AardwolfBasePlugin):
     run when an invitem is seen
     """
     #self.api.get('send.msg')('invitem args: %s' % args)
-    titem = self.api.get('itemu.dataparse')(args['data'], 'eqdata')
-    self.itemcache[titem['serial']] = titem
+    data = self.api.get('itemu.dataparse')(args['data'], 'eqdata')
+    if data['serial'] in self.itemcache:
+      self.itemcache[data['serial']].upditem(data)
+    else:
+      titem = Item(data)
+      self.itemcache[titem.serial] = titem
     #self.api.get('send.msg')('invitem parsed item: %s' % titem)
-    self.itemcache[titem['serial']] = titem
 
   def cmd_eq(self, args):
     """
@@ -1069,7 +1120,7 @@ class Plugin(AardwolfBasePlugin):
       # 3 = Removed from inventory, 7 = consumed
       if serial in self.containers['Inventory'].items:
         titem = self.itemcache[serial]
-        #if titem['type'] == 11:
+        #if titem.itype == 11:
           #for item in self.containers[serial].items:
             #del self.itemcache[item]
         self.containers['Inventory'].remove(serial)
@@ -1082,7 +1133,7 @@ class Plugin(AardwolfBasePlugin):
       try:
         self.containers['Inventory'].add(serial, place=0)
         titem = self.itemcache[serial]
-        if titem['type'] == 11:
+        if titem.itype == 11:
           self.containers[serial].refresh()
         self.api.get('events.eraise')('inventory_added', {'item':titem})
       except KeyError:
