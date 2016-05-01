@@ -50,7 +50,6 @@ class Plugin(BasePlugin):
     load the module
     """
     BasePlugin.load(self)
-    self.api.get('managers.add')(self.sname, self)
     self.api.get('events.register')('log_plugin_loaded', self.logloaded)
     self.api.get('events.eraise')('event_plugin_loaded', {})
 

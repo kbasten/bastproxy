@@ -385,7 +385,6 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     #print('log api before adding', self.api.api)
-    self.api.get('managers.add')('log', self)
 
     #print('log api after adding', self.api.api)
     self.api.get('events.register')('from_mud_event', self.logmud)

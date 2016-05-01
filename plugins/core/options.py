@@ -32,7 +32,6 @@ class Plugin(BasePlugin):
     self.clientoptions = {}
     self.serveroptions = {}
 
-    self.api.get('managers.add')(self.sname, self)
     self.api.get('api.add')('addserveroption', self.api_addserveroption)
     self.api.get('api.add')('addclientoption', self.api_addclientoption)
     self.api.get('api.add')('prepareclient', self.api_prepareclient)
