@@ -18,6 +18,7 @@ class API(object):
     initialize the class
     """
     self.overloadedapi = {}
+    self.classapi = self.__class__.api
     self.timestring = '%a %b %d %Y %H:%M:%S'
     self.splitre = '(?<=[^\|])\|(?=[^\|])'
     self.overload('managers', 'add', self.addmanager)
@@ -39,11 +40,11 @@ class API(object):
     the function is added as toplevel.name into the api
 
     this function returns no values"""
-    if not (toplevel in API.api):
-      API.api[toplevel] = {}
+    if not (toplevel in self.__class__.api):
+      self.__class__.api[toplevel] = {}
 
-    if not (name in API.api[toplevel]):
-      API.api[toplevel][name] = function
+    if not (name in self.__class__.api[toplevel]):
+      self.__class__.api[toplevel][name] = function
 
   # overload a function in the api
   def overload(self, toplevel, name, function):
@@ -92,8 +93,8 @@ class API(object):
     @Ytoplevel@w  = the toplevel of the api to remove
 
     this function returns no values"""
-    if toplevel in API.api:
-      del API.api[toplevel]
+    if toplevel in self.__class__.api:
+      del self.__class__.api[toplevel]
 
   def get(self, apiname, toplevelapi=False):
     """
