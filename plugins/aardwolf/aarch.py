@@ -106,7 +106,7 @@ class Plugin(AardwolfBasePlugin):
     items = 0
     pam = 0
     for item in aarchi:
-      nname = item['name'].replace('(Aarchaeology) ', '')
+      nname = item.name.replace('(Aarchaeology) ', '')
       if 'Collectable Pamphlet' in nname:
         pam = pam + 1
         pamnum = int(nname.split('#')[1])
