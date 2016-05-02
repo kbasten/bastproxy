@@ -171,7 +171,7 @@ class EqContainer(object):
     """
     parse a line of data
     """
-    line = args['line'].strip()
+    line = args['colorline'].strip()
     if line != self.startregex:
       #self.api.get('send.msg')('invdata args: %s' % args)
       try:
@@ -412,7 +412,7 @@ class Worn(EqContainer):
     """
     parse a line of data
     """
-    line = args['line'].strip()
+    line = args['colorline'].strip()
     if line != self.startregex:
       #self.api.get('send.msg')('invdata args: %s' % args)
       try:
