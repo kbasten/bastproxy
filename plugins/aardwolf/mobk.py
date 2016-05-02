@@ -345,9 +345,9 @@ class Plugin(AardwolfBasePlugin):
     wielded = self.api('eq.getworn')(24)
     second = self.api('eq.getworn')(25)
     if wielded:
-      self.kill_info['wielded_weapon'] = wielded['serial']
+      self.kill_info['wielded_weapon'] = wielded.serial
     if second:
-      self.kill_info['second_weapon'] = second['serial']
+      self.kill_info['second_weapon'] = second.serial
 
     if not self.kill_info['raised']:
       if not self.kill_info['name']:
