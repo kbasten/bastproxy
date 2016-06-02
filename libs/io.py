@@ -18,6 +18,12 @@ def api_msg(tmsg, primary='default', secondary='None'):
                         (default: 'None')
 
   this function returns no values"""
+  if primary == 'default':
+    try:
+      primary = api.get('utils.funccallerplugin')() or primary
+    except (AttributeError, RuntimeError):
+      pass
+
   try:
     api.get('log.msg')({'msg':tmsg},
                        {'primary':primary, 'secondary':secondary})
