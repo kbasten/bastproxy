@@ -1,6 +1,6 @@
 """
-This plugin is a utility plugin for aardwolf functions
-It adds functions to exported.aardu
+This is the base plugin for aardwolf plugins
+it adds some dependencies
 """
 from plugins._baseplugin import BasePlugin
 
@@ -14,7 +14,7 @@ AUTOLOAD = False
 
 class AardwolfBasePlugin(BasePlugin):
   """
-  a plugin to handle aardwolf cp events
+  base plugin for aardwolf
   """
   def __init__(self, *args, **kwargs):
     BasePlugin.__init__(self, *args, **kwargs)
