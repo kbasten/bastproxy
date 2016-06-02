@@ -672,6 +672,7 @@ class Plugin(AardwolfBasePlugin):
     self.api.get('dependency.add')('cmdq')
 
     self.api.get('api.add')('getitem', self.api_getitem)
+    self.api.get('api.add')('getcontainer', self.api_getcontainer)
     self.api.get('api.add')('get', self.api_putininventory)
     self.api.get('api.add')('put', self.api_putincontainer)
     self.api.get('api.add')('findname', self.api_findname)
@@ -857,6 +858,21 @@ class Plugin(AardwolfBasePlugin):
     else:
       return None
 
+  # get a container
+  def api_getcontainer(self, container):
+    """
+    get an item from the cache
+    """
+    try:
+      container = int(container)
+    except ValueError:
+      pass
+
+    if container in self.containers:
+      return self.containers[container]
+
+    return None
+
   # put an item into inventory
   def api_putininventory(self, serial):
     """
@@ -968,6 +984,9 @@ class Plugin(AardwolfBasePlugin):
     """
     find and item by serial or identifier
     """
+    if type(item) == Item:
+      return item
+
     try:
       item = int(item)
       if item in self.itemcache:
