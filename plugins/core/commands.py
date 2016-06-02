@@ -478,14 +478,23 @@ class Plugin(BasePlugin):
                                             secondary=sname)
 
   # set the default command for a plugin
-  def api_setdefault(self, sname, cmd):
+  def api_setdefault(self, cmd, plugin=None):
     """  set the default command for a plugin
     @Ysname@w    = the plugin of the command
     @Ycmdname@w  = the name of the command
 
     this function returns True if the command exists, False if it doesn't"""
-    if sname in self.cmds and cmd in self.cmds[sname]:
-      self.cmds[sname]['default'] = self.cmds[sname][cmd]
+
+    if not plugin:
+      plugin = self.api('utils.funccallerplugin')()
+
+    if not plugin:
+      print 'could not add a default cmd', cmd
+      return False
+
+    if plugin in self.cmds and cmd in self.cmds[plugin]:
+      self.api('send.msg')('added default command %s for plugin %s' % (cmd, plugin), secondary=plugin)
+      self.cmds[plugin]['default'] = self.cmds[plugin][cmd]
       return True
 
     return False
