@@ -6,6 +6,7 @@ import datetime
 import math
 import time
 import fnmatch
+import inspect
 from plugins._baseplugin import BasePlugin
 
 NAME = 'Utility functions'
@@ -36,6 +37,7 @@ class Plugin(BasePlugin):
     self.api.get('api.add')('checklistformatch', self.api_checklistformatch)
     self.api.get('api.add')('timelengthtosecs', self.api_timelengthtosecs)
     self.api.get('api.add')('verify', self.api_verify)
+    self.api.get('api.add')('funccallerplugin', self.api_callerplugin)
 
   def load(self):
     """
@@ -326,3 +328,21 @@ class Plugin(BasePlugin):
 
     return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
 
+  def api_callerplugin(self):
+    """
+    check to see if the caller is a plugin, if so return the plugin object
+    """
+    stack = inspect.stack()
+
+    for ifr in stack[2:]:
+      parentframe = ifr[0]
+
+      if 'self' in parentframe.f_locals:
+          # I don't know any way to detect call from the object method
+          # XXX: there seems to be no way to detect static method call - it will
+          #      be just a function call
+          tc = parentframe.f_locals['self']
+          if tc != self and isinstance(tc, BasePlugin):
+            return tc.sname
+
+    return None
