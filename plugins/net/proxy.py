@@ -48,6 +48,8 @@ class Plugin(BasePlugin):
                         'the port for the proxy to listen on')
     self.api('setting.add')('username', '', str,
                         'username')
+    self.api('setting.add')('linelen', 79, int,
+                        'the line length for data')
 
     self.api.get('commands.add')('clients', self.cmd_clients,
                               shelp='list clients that are connected')
@@ -88,7 +90,7 @@ class Plugin(BasePlugin):
         self.api('send.mud')(pw)
       self.api('send.mud')('\n')
       self.api('send.mud')('\n')
-      
+
   def cmd_clients(self, _):
     """
     show all clients
