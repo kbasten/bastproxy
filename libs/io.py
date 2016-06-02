@@ -9,8 +9,6 @@ from libs.api import API
 
 api = API()
 
-ERRORS = []
-
 # send a message
 def api_msg(tmsg, primary='default', secondary='None'):
   """  send a message through the log plugin
@@ -57,14 +55,18 @@ def api_error(text):
     else:
       test.append(i)
   tmsg = '\n'.join(test)
-  ERRORS.append({'timestamp':time.strftime(api.timestring,
-                                          time.localtime()),
-                 'msg':tmsg})
+
   try:
     api.get('log.msg')({'msg':tmsg, 'primary':'error'})
   except (AttributeError, TypeError):
     print '%s - No Log Plugin - %s : %s' % (time.strftime(api.timestring,
                                           time.localtime()), 'error', tmsg)
+
+  try:
+    api.get('errors.add')(time.strftime(api.timestring,
+                                          time.localtime()), tmsg)
+  except (AttributeError, TypeError):
+    pass
 
 # send text to the clients
 def api_client(text, raw=False, preamble=True):
@@ -158,33 +160,9 @@ def api_tomud(data):
   api.get('events.eraise')('to_mud_event',
                            {'data':data, 'dtype':'fromclient'})
 
-# get the errors that have been seen
-def api_geterrors():
-  """ get errors
-
-  this function has no arguments
-
-  this function returns the list of errors
-  """
-  return ERRORS
-
-# clear errors
-def api_clearerrors():
-  """ clear errors
-
-  this function has no arguments
-
-  this function returns no values
-  """
-  global ERRORS
-
-  ERRORS = []
-
 api.add('send', 'msg', api_msg)
 api.add('send', 'error', api_error)
 api.add('send', 'traceback', api_traceback)
 api.add('send', 'client', api_client)
 api.add('send', 'mud', api_tomud)
 api.add('send', 'execute', api_execute)
-api.add('errors', 'gete', api_geterrors)
-api.add('errors', 'clear', api_clearerrors)
