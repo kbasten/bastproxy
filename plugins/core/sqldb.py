@@ -103,6 +103,7 @@ class Sqldb(object):
     self.api('api.add')('select', self.api_select)
     self.api('api.add')('modify', self.api_modify)
     self.api('api.add')('modifymany', self.api_modifymany)
+    self.api('api.add')('getrow', self.api_getrow)
 
   # execute a select statement against the database
   def api_select(self, stmt):
@@ -124,6 +125,13 @@ class Sqldb(object):
     update many rows in a database
     """
     return self.modifymany(stmt, data)
+
+  # get a row from a table
+  def api_getrow(self, rowid, ttable):
+    """
+    get a row from a table
+    """
+    return self.getrow(rowid, ttable)
 
   def close(self):
     """
@@ -604,6 +612,22 @@ class Sqldb(object):
     else:
       tstring = "SELECT * FROM %s ORDER by %s desc limit %d" % \
                         (ttable, colid, num)
+
+    results = self.api('%s.select' % self.plugin.sname)(tstring)
+
+    return results
+
+  def getrow(self, rowid, ttable):
+    """
+    get a row by id
+    """
+    if not (ttable in self.tables):
+      self.api('send.msg')('table %s does not exist in getrow' % ttable)
+      return
+
+    colid = self.tables[ttable]['keyfield']
+
+    tstring = "SELECT * FROM %s WHERE %s = %s" % (ttable, colid, rowid)
 
     results = self.api('%s.select' % self.plugin.sname)(tstring)
 
