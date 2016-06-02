@@ -109,23 +109,29 @@ class Plugin(BasePlugin):
           tmsg.append('%-13s : %s' % ('Hits', self.watchcmds[watch]['hits']))
           tmsg.extend(eventstuff)
         else:
-          tmsg.append('trigger %s does not exist' % trigger)
+          tmsg.append('trigger %s does not exist' % watch)
     else:
       tmsg.append('Please provide a watch name')
 
     return True, tmsg
 
   # add a command watch
-  def api_addwatch(self, watchname, regex, plugin, **kwargs):
+  def api_addwatch(self, watchname, regex, plugin=None, **kwargs):
     """  add a command watch
     @Ywatchname@w   = name
     @Yregex@w    = the regular expression that matches this command
-    @Yplugin@w   = the plugin this comes from, added
-          automatically if using the api through BaseClass
+    @Yplugin@w   = the plugin this comes from
     @Ykeyword args@w arguments:
       None as of now
 
     this function returns no values"""
+    if not plugin:
+      plugin = self.api('utils.funccallerplugin')()
+
+    if not plugin:
+      print 'could not add a watch for watchname', watchname
+      return
+
     if regex in self.regexlookup:
       self.api.get('send.msg')(
           'watch %s tried to add a regex that already existed for %s' % \
