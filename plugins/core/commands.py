@@ -64,6 +64,7 @@ class Plugin(BasePlugin):
 
     self.api.get('api.add')('add', self.api_addcmd)
     self.api.get('api.add')('remove', self.api_removecmd)
+    self.api.get('api.add')('change', self.api_changecmd)
     self.api.get('api.add')('default', self.api_setdefault)
     self.api.get('api.add')('removeplugin', self.api_removeplugin)
     self.api.get('api.add')('list', self.api_listcmds)
@@ -133,12 +134,35 @@ class Plugin(BasePlugin):
     """
     format a return message
     """
+
+    linelen = self.api('plugins.getp')('proxy').api('setting.gets')('linelen')
+
     msg.insert(0, '')
     msg.insert(1, '#bp.%s.%s' % (sname, cmd))
-    msg.insert(2, '@G' + '-' * 73 + '@w')
-    msg.append('@G' + '-' * 73 + '@w')
+    msg.insert(2, '@G' + '-' * linelen + '@w')
+    msg.append('@G' + '-' * linelen + '@w')
     msg.append('')
     return msg
+
+  # change an attribute for a command
+  def api_changecmd(self, plugin, command, flag, value):
+    """
+    change an attribute for a command
+    """
+    if not (command in self.cmds[plugin]):
+      self.api('send.error')('command %s does not exist in plugin %s' % (
+			    command, plugin))
+      return False
+
+    if not (flag in self.cmds[plugin][command]):
+      self.api('send.error')(
+		'flag %s does not exist in command %s in plugin %s' % (
+			    flag, command, plugin))
+      return False
+
+    self.cmds[plugin][command][flag] = value
+
+    return True
 
   # return the help for a command
   def api_cmdhelp(self, plugin, cmd):
@@ -172,6 +196,8 @@ class Plugin(BasePlugin):
     if plugin in self.cmds and cmdname in self.cmds[plugin]:
       cmd = self.cmds[plugin][cmdname]
       args, other_args = cmd['parser'].parse_known_args(argstring)
+
+      args = vars(args)
 
       if args['help']:
         return cmd['parser'].format_help().split('\n')
