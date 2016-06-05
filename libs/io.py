@@ -10,7 +10,7 @@ from libs.api import API
 api = API()
 
 # send a message
-def api_msg(tmsg, primary='default', secondary='None'):
+def api_msg(tmsg, primary='default', secondary=[]):
   """  send a message through the log plugin
     @Ymsg@w        = This message to send
     @Yprimary@w    = the primary datatype of the message (default: 'default')
@@ -23,6 +23,11 @@ def api_msg(tmsg, primary='default', secondary='None'):
       primary = api.get('utils.funccallerplugin')() or primary
     except (AttributeError, RuntimeError):
       pass
+
+  if not(type(secondary) == list):
+    tmpl = []
+    tmpl.append(secondary)
+    secondary = tmpl
 
   try:
     api.get('log.msg')({'msg':tmsg},
