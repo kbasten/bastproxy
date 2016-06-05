@@ -25,7 +25,7 @@ class Plugin(BasePlugin):
 
     self.errors = []
 
-    self.api('api.add')('add', self.api_add)
+    self.api('api.add')('add', self.api_adderror)
     self.api('api.add')('gete', self.api_geterrors)
     self.api('api.add')('clear', self.api_clearerrors)
 
@@ -46,7 +46,7 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('clear', self.cmd_clear, parser=parser)
 
   # add an error to the list
-  def api_add(self, timestamp, error):
+  def api_adderror(self, timestamp, error):
     """add an error
 
     this function adds an error to the list
