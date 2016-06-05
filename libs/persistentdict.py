@@ -114,7 +114,7 @@ class PersistentDict(dict):
       csv.writer(fileobj).writerows(self.items())
     elif self.format == 'json':
       try:
-        json.dump(self, fileobj, separators=(',', ':'))
+        json.dump(self, fileobj, separators=(',', ':'), skipkeys=True)
       except TypeError:
 	self.api('send.traceback')('Could not save object')
     elif self.format == 'pickle':
@@ -171,6 +171,9 @@ class PersistentDict(dict):
     for k, val in dict(*args, **kwargs).iteritems():
       self[k] = val
 
+  def __deepcopy__(self, memo):
+    return self
+
 class PersistentDictEvent(PersistentDict):
   """
   a class to send events when a dictionary object is set
@@ -193,11 +196,12 @@ class PersistentDictEvent(PersistentDict):
     else:
       oldvalue = None
     dict.__setitem__(self, key, val)
+
     eventname = 'var_%s_%s' % (self.plugin.sname, key)
     if not self.plugin.resetflag and key != '_version':
-      self.api.get('events.eraise')(eventname, {'var':key,
-                                        'newvalue':val,
-                                        'oldvalue':oldvalue})
+      self.plugin.api.get('events.eraise')(eventname, {'var':key,
+                                      'newvalue':val,
+                                      'oldvalue':oldvalue})
 
   def sync(self):
     """
