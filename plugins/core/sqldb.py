@@ -533,6 +533,7 @@ class Sqldb(object):
     run a statement to modify the database
     """
     result = []
+    rowid = -1
     cur = self.dbconn.cursor()
     try:
       if data:
@@ -552,6 +553,7 @@ class Sqldb(object):
     run a statement to modify many rows in the database
     """
     result = []
+    rowid = -1
     cur = self.dbconn.cursor()
     try:
       cur.executemany(stmt, data)
@@ -568,6 +570,7 @@ class Sqldb(object):
     run a statement to execute a script
     """
     result = []
+    rowid = -1
     cur = self.dbconn.cursor()
     try:
       cur.executescript(stmt)
