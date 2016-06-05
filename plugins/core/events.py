@@ -202,16 +202,20 @@ class Plugin(BasePlugin):
     @Yargs@w        = A table of arguments
 
     this function returns no values"""
+    calledfrom = self.api('utils.funccallerplugin')()
+
     if eventname != 'global_timer':
-      self.api.get('send.msg')('raiseevent %s' % eventname)
+      self.api.get('send.msg')('raiseevent %s' % eventname, secondary=calledfrom)
     nargs = args.copy()
     nargs['eventname'] = eventname
     if eventname in self.events:
+      self.api('send.msg')('event %s: %s' % (eventname, self.events[eventname]), secondary=calledfrom)
       keys = self.events[eventname].keys()
+      self.api('send.msg')('event %s: keys %s' % (eventname, keys), secondary=calledfrom)
       if keys:
         keys.sort()
         for k in keys:
-          for i in self.events[eventname][k]:
+          for i in self.events[eventname][k][:]:
             try:
               try:
                 plugin = i.im_self.sname
@@ -219,15 +223,15 @@ class Plugin(BasePlugin):
                 plugin = ''
               if eventname != 'global_timer':
                 self.api.get('send.msg')(
-      'event %s : calling function %s (%s) with args %s' % \
-                  (eventname, i.__name__, plugin or 'Unknown', nargs),
-                  secondary=plugin)
+                  'event %s : calling function %s (%s) with args %s' % \
+                    (eventname, i.__name__, plugin or 'Unknown', nargs),
+                    secondary=[plugin, calledfrom])
               tnargs = i(nargs)
               if eventname != 'global_timer':
                 self.api.get('send.msg')(
-      'event %s : function %s (%s) returned %s' % \
-                  (eventname, i.__name__, plugin or 'Unknown', tnargs),
-                  secondary=plugin)
+                  'event %s : function %s (%s) returned %s' % \
+                    (eventname, i.__name__, plugin or 'Unknown', tnargs),
+                    secondary=[plugin, calledfrom])
               if tnargs:
                 nargs = tnargs
             except:
