@@ -153,7 +153,7 @@ class PersistentDict(dict):
           return self.update(loader(fileobj))
       except:
         #if not ('log' in self.filename):
-        #  api.get('send.traceback')("Error when loading %s" % loader)
+        #  api('send.traceback')("Error when loading %s" % loader)
         #else:
         #  pass
         pass
@@ -205,10 +205,10 @@ class PersistentDictEvent(PersistentDict):
 
     eventname = 'var_%s_%s' % (self.plugin.sname, key)
     if not self.plugin.resetflag and key != '_version':
-      self.plugin.api.get('events.eraise')(eventname,
-                                           {'var':key,
-                                            'newvalue':val,
-                                            'oldvalue':oldvalue})
+      self.plugin.api('events.eraise')(eventname,
+                                       {'var':key,
+                                        'newvalue':val,
+                                        'oldvalue':oldvalue})
 
   def sync(self):
     """

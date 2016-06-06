@@ -279,35 +279,35 @@ def test():
   api = API()
   api.add('test', 'api', testapi)
   api.add('test', 'over', testapi)
-  print 'test.api', api.get('test.api')()
-  print 'test.over', api.get('test.over')()
+  print 'test.api', api('test.api')()
+  print 'test.over', api('test.over')()
   print 'dict api.api', api.api
   api.overload('over', 'api', testover)
   print 'dict api.overloadedapi', api.overloadedapi
-  print 'over.api', api.get('over.api')()
+  print 'over.api', api('over.api')()
   api.overload('test', 'over', testover)
-  print 'test.over', api.get('test.over')()
-  print 'test.api', api.get('test.api')()
-  print 'api.has', api.get('api.has')('test.over')
-  print 'api.has', api.get('api.has')('test.over2')
+  print 'test.over', api('test.over')()
+  print 'test.api', api('test.api')()
+  print 'api.has', api('api.has')('test.over')
+  print 'api.has', api('api.has')('test.over2')
   print 'dict api.api', api.api
   print 'dict api.overloadapi', api.overloadedapi
   #print 'test.three', api.test.three()
 
   api2 = API()
-  print 'api2 test.api', api2.get('test.api')()
-  print 'api2 test.over', api2.get('test.over')()
+  print 'api2 test.api', api2('test.api')()
+  print 'api2 test.over', api2('test.over')()
   print 'api2 dict api.api', api2.api
   api2.overload('over', 'api', testover)
   print 'api2 dict api.overloadedapi', api2.overloadedapi
-  print 'api2 over.api', api2.get('over.api')()
+  print 'api2 over.api', api2('over.api')()
   api2.overload('test', 'over', testover)
   print 'api2 dict api.api', api2.api
   print 'api2 dict api.overloadapi', api2.overloadedapi
-  print 'api2 test.over', api2.get('test.over')()
-  print 'api2 test.api', api2.get('test.api')()
+  print 'api2 test.over', api2('test.over')()
+  print 'api2 test.api', api2('test.api')()
   print 'api_has', api2.api_has('test.three')
-  print 'test.three', api2.get('test.three')()
+  print 'test.three', api2('test.three')()
 
 if __name__ == '__main__':
   test()

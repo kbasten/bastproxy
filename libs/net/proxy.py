@@ -25,9 +25,9 @@ class Proxy(Telnet):
     self.ttype = 'BastProxy'
     self.banned = {}
     self.connectedtime = None
-    self.api.get('events.register')('to_mud_event', self.addtooutbuffer,
-                                    prio=99)
-    self.api.get('options.prepareserver')(self)
+    self.api('events.register')('to_mud_event', self.addtooutbuffer,
+                                prio=99)
+    self.api('options.prepareserver')(self)
 
   def handle_read(self):
     """
@@ -43,23 +43,23 @@ class Proxy(Telnet):
       self.lastmsg = ndatal[-1]
       for i in ndatal[:-1]:
         tosend = i
-        if self.api.get('api.has')('colors.stripansi'):
-          tnoansi = self.api.get('colors.stripansi')(tosend)
+        if self.api('api.has')('colors.stripansi'):
+          tnoansi = self.api('colors.stripansi')(tosend)
         else:
           tnoansi = tosend
-        if self.api.get('api.has')('colors.convertansi'):
-          tconvertansi = self.api.get('colors.convertansi')(tosend)
+        if self.api('api.has')('colors.convertansi'):
+          tconvertansi = self.api('colors.convertansi')(tosend)
         else:
           tconvertansi = tosend
         if tosend != tconvertansi:
-          self.api.get('send.msg')('converted %s to %s' % (repr(tosend),
-                                                           tconvertansi),
-                                   'ansi')
-        newdata = self.api.get('events.eraise')('from_mud_event',
-                                                {'original':tosend,
-                                                 'dtype':'frommud',
-                                                 'noansi':tnoansi,
-                                                 'convertansi':tconvertansi})
+          self.api('send.msg')('converted %s to %s' % (repr(tosend),
+                                                       tconvertansi),
+                               'ansi')
+        newdata = self.api('events.eraise')('from_mud_event',
+                                            {'original':tosend,
+                                             'dtype':'frommud',
+                                             'noansi':tnoansi,
+                                             'convertansi':tconvertansi})
 
         if 'original' in newdata:
           tosend = newdata['original']
@@ -69,19 +69,19 @@ class Proxy(Telnet):
 
         if tosend != None:
           #data cannot be transformed here
-          if self.api.get('api.has')('colors.stripansi'):
-            tnoansi = self.api.get('colors.stripansi')(tosend)
+          if self.api('api.has')('colors.stripansi'):
+            tnoansi = self.api('colors.stripansi')(tosend)
           else:
             tnoansi = tosend
-          if self.api.get('api.has')('colors.convertansi'):
-            tconvertansi = self.api.get('colors.convertansi')(tosend)
+          if self.api('api.has')('colors.convertansi'):
+            tconvertansi = self.api('colors.convertansi')(tosend)
           else:
             tconvertansi = tosend
-          self.api.get('events.eraise')('to_client_event',
-                                        {'original':tosend,
-                                         'dtype':'frommud',
-                                         'noansi':tnoansi,
-                                         'convertansi':tconvertansi})
+          self.api('events.eraise')('to_client_event',
+                                    {'original':tosend,
+                                     'dtype':'frommud',
+                                     'noansi':tnoansi,
+                                     'convertansi':tconvertansi})
 
   def addclient(self, client):
     """
@@ -136,22 +136,22 @@ class Proxy(Telnet):
     self.outbuffer = ''
     self.doconnect(mudhost, mudport)
     self.connectedtime = time.mktime(time.localtime())
-    self.api.get('send.msg')('Connected to mud', 'net')
-    self.api.get('events.eraise')('mudconnect', {})
+    self.api('send.msg')('Connected to mud', 'net')
+    self.api('events.eraise')('mudconnect', {})
 
   def handle_close(self):
     """
     hand closing the connection
     """
-    self.api.get('send.msg')('Disconnected from mud', 'net')
-    self.api.get('events.eraise')('to_client_event',
-                                  {'original':self.api.get('colors.convertcolors')(
-                                      '@R#BP@w: The mud closed the connection'),
-                                   'dtype':'fromproxy'})
-    self.api.get('options.resetoptions')(self, True)
+    self.api('send.msg')('Disconnected from mud', 'net')
+    self.api('events.eraise')('to_client_event',
+                              {'original':self.api('colors.convertcolors')(
+                                  '@R#BP@w: The mud closed the connection'),
+                               'dtype':'fromproxy'})
+    self.api('options.resetoptions')(self, True)
     Telnet.handle_close(self)
     self.connectedtime = None
-    self.api.get('events.eraise')('muddisconnect', {})
+    self.api('events.eraise')('muddisconnect', {})
 
   def addtooutbuffer(self, args, raw=False):
     """

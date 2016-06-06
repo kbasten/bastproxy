@@ -34,13 +34,13 @@ class Client(Telnet):
       self.connected = True
       self.connectedtime = time.mktime(time.localtime())
 
-    self.api.get('events.register')('to_client_event',
-                                    self.addtooutbufferevent, prio=99)
+    self.api('events.register')('to_client_event',
+                                self.addtooutbufferevent, prio=99)
 
-    self.api.get('options.prepareclient')(self)
+    self.api('options.prepareclient')(self)
 
     self.state = PASSWORD
-    self.addtooutbufferevent({'original':self.api.get('colors.convertcolors')(
+    self.addtooutbufferevent({'original':self.api('colors.convertcolors')(
         '@R#BP@w: @RPlease enter the proxy password:@w'),
                               'dtype':'passwd'})
 
@@ -74,7 +74,7 @@ class Client(Telnet):
     handle a read
     """
 
-    proxy = self.api.get('managers.getm')('proxy')
+    proxy = self.api('managers.getm')('proxy')
 
     if not self.connected:
       return
@@ -86,11 +86,11 @@ class Client(Telnet):
       if self.state == CONNECTED:
         if self.viewonly:
           self.addtooutbufferevent(
-              {'todata':self.api.get('colors.convertcolors')(
+              {'todata':self.api('colors.convertcolors')(
                   '@R#BP@w: @RYou are in view mode!@w')})
         else:
           if len(data) > 0:
-            self.api.get('send.execute')(data, fromclient=True)
+            self.api('send.execute')(data, fromclient=True)
 
       elif self.state == PASSWORD:
         data = data.strip()
@@ -99,42 +99,42 @@ class Client(Telnet):
         vpw = proxyp.api('proxy.proxypwview')()
 
         if dpw and  data == dpw:
-          self.api.get('send.msg')('Successful password from %s : %s' % \
+          self.api('send.msg')('Successful password from %s : %s' % \
                                             (self.host, self.port), 'net')
           self.state = CONNECTED
           self.viewonly = False
           proxy.addclient(self)
-          self.api.get('events.eraise')('client_connected', {'client':self})
-          self.api.get('send.client')("%s - %s: Client Connected" % \
+          self.api('events.eraise')('client_connected', {'client':self})
+          self.api('send.client')("%s - %s: Client Connected" % \
                                       (self.host, self.port))
         elif vpw and data == vpw:
-          self.api.get('send.msg')('Successful view password from %s : %s' % \
+          self.api('send.msg')('Successful view password from %s : %s' % \
                               (self.host, self.port), 'net')
           self.state = CONNECTED
           self.viewonly = True
           self.addtooutbufferevent(
-              {'original':self.api.get('colors.convertcolors')(
+              {'original':self.api('colors.convertcolors')(
                   '@R#BP@W: @GYou are connected in view mode@w')})
           proxy.addclient(self)
-          self.api.get('events.eraise')('client_connected_view',
-                                        {'client':self})
-          self.api.get('send.client')(
+          self.api('events.eraise')('client_connected_view',
+                                    {'client':self})
+          self.api('send.client')(
               "%s - %s: Client Connected (View Mode)" % \
                   (self.host, self.port))
         else:
           self.pwtries += 1
           if self.pwtries == 5:
             self.addtooutbufferevent(
-                {'original':self.api.get('colors.convertcolors')(
+                {'original':self.api('colors.convertcolors')(
                     '@R#BP@w: @RYou have been BANNED for 10 minutes:@w'),
                  'dtype':'passwd'})
-            self.api.get('send.msg')('%s has been banned.' % self.host, 'net')
+            self.api('send.msg')('%s has been banned.' % self.host, 'net')
             proxy.removeclient(self)
             proxy.addbanned(self.host)
             self.close()
           else:
             self.addtooutbufferevent(
-                {'original':self.api.get('colors.convertcolors')(
+                {'original':self.api('colors.convertcolors')(
                     '@R#BP@w: @RPlease try again! Proxy Password:@w'),
                  'dtype':'passwd'})
 
@@ -142,10 +142,10 @@ class Client(Telnet):
     """
     handle a close
     """
-    self.api.get('send.client')("%s - %s: Client Disconnected" % \
+    self.api('send.client')("%s - %s: Client Disconnected" % \
                                 (self.host, self.port))
-    self.api.get('managers.getm')('proxy').removeclient(self)
-    self.api.get('events.eraise')('client_disconnected', {'client':self})
-    self.api.get('events.unregister')('to_client_event', self.addtooutbuffer)
+    self.api('managers.getm')('proxy').removeclient(self)
+    self.api('events.eraise')('client_disconnected', {'client':self})
+    self.api('events.unregister')('to_client_event', self.addtooutbuffer)
     Telnet.handle_close(self)
 
