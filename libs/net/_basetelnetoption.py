@@ -31,7 +31,7 @@ class BaseTelnetOption(object):
     self.telnetobj.msg('handleopt for option', ord(self.option),
                        command, sbdata, mtype='option')
 
-  def reset(self, onclose=False):
+  def reset(self, onclose=False): # pylint: disable=unused-argument
     """
     reset and option
     """

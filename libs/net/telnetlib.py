@@ -141,6 +141,8 @@ def addcode(code, codestr):
 
 
 class Telnet(asyncore.dispatcher):
+  # have to keep up with a lot of things, so disabling pylint warning
+  # pylint: disable=too-many-instance-attributes
   """
   Telnet interface class.
 
@@ -255,7 +257,7 @@ class Telnet(asyncore.dispatcher):
       mtype = kwargs['mtype']
     if kwargs['level'] >= self.debuglevel or mtype in self.debug_types:
       self.api('send.msg')('Telnet(%-15s - %-5s %-7s %-5s): ' % \
-                          (self.host, self.port, self.ttype, mtype), mtype)
+                          (self.host, self.port, self.ttype, mtype), args)
 
   def set_debuglevel(self, debuglevel):
     """
@@ -321,6 +323,8 @@ class Telnet(asyncore.dispatcher):
     """
     override this to convert something from the outbuffer
     """
+    # this function can be overridden so disabling pylint warning
+    # pylint: disable=no-self-use
     return outbuffer
 
   def writable(self):
@@ -390,6 +394,8 @@ class Telnet(asyncore.dispatcher):
     the midst of an IAC sequence.
 
     """
+    # parsing a string with subdata isn't easy, so disabling pylint warning
+    # pylint: disable=too-many-nested-blocks,too-many-branches,too-many-statements
     buf = ['', '']
     try:
       while self.rawq:

@@ -151,7 +151,7 @@ class PersistentDict(dict):
           return self.update(nstuff)
         else:
           return self.update(loader(fileobj))
-      except:
+      except Exception:  # pylint: disable=broad-except
         #if not ('log' in self.filename):
         #  api('send.traceback')("Error when loading %s" % loader)
         #else:

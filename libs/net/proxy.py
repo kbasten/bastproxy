@@ -43,13 +43,13 @@ class Proxy(Telnet):
       self.lastmsg = ndatal[-1]
       for i in ndatal[:-1]:
         tosend = i
-        if self.api('api.has')('colors.stripansi'):
+        try:
           tnoansi = self.api('colors.stripansi')(tosend)
-        else:
+        except AttributeError:
           tnoansi = tosend
-        if self.api('api.has')('colors.convertansi'):
+        try:
           tconvertansi = self.api('colors.convertansi')(tosend)
-        else:
+        except AttributeError:
           tconvertansi = tosend
         if tosend != tconvertansi:
           self.api('send.msg')('converted %s to %s' % (repr(tosend),

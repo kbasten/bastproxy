@@ -3,6 +3,25 @@ this module handles the api for all other modules
 """
 import inspect
 
+def getargs(apif):
+  """
+  get arguments from the function declaration
+  """
+  src = inspect.getsource(apif)
+  dec = src.split('\n')[0]
+  args = dec.split('(')[-1].strip()
+  args = args.split(')')[0]
+  argsl = args.split(',')
+  argn = []
+  for i in argsl:
+    if i == 'self':
+      continue
+    argn.append('@Y%s@w' % i.strip())
+
+  args = ', '.join(argn)
+
+  return args
+
 class API(object):
   """
   A class that exports an api for plugins and modules to use
@@ -147,6 +166,9 @@ class API(object):
     """
     return the detail of an api function
     """
+    # parsing a function declaration and figuring out where the function
+    # resides is intensive, so disabling pylint warning
+    # pylint: disable=too-many-locals,too-many-branches
     tmsg = []
     apia = None
     apio = None
@@ -167,6 +189,8 @@ class API(object):
 
       if not apia and not apio:
         tmsg.append('%s is not in the api' % apiname)
+        return tmsg
+
       else:
         if apia and not apio:
           apif = apia
@@ -190,18 +214,8 @@ class API(object):
           apiapath = inspect.getsourcefile(apia)
           apiapath = apiapath[len(self.BASEPATH)+1:]
 
-        src = inspect.getsource(apif)
-        dec = src.split('\n')[0]
-        args = dec.split('(')[-1].strip()
-        args = args.split(')')[0]
-        argsl = args.split(',')
-        argn = []
-        for i in argsl:
-          if i == 'self':
-            continue
-          argn.append('@Y%s@w' % i.strip())
+        args = getargs(apif)
 
-        args = ', '.join(argn)
         tmsg.append('@G%s@w(%s)' % (apiname, args))
         tmsg.append(apif.__doc__ % tdict)
 
@@ -215,6 +229,43 @@ class API(object):
 
     return tmsg
 
+  def gettoplevelapilist(self, toplevel):
+    """
+    build a dictionary of apis in toplevel
+    """
+    apilist = {}
+
+    if toplevel in self.api:
+      apilist[toplevel] = {}
+      for k in self.api[toplevel]:
+        apilist[toplevel][k] = True
+    if toplevel in self.overloadedapi:
+      if toplevel not in apilist:
+        apilist[toplevel] = {}
+      for k in self.overloadedapi[toplevel]:
+        apilist[toplevel][k] = True
+
+    return apilist
+
+  def getapilist(self):
+    """
+    build a dictionary of all apis
+    """
+    apilist = {}
+    for i in self.api:
+      if i not in apilist:
+        apilist[i] = {}
+      for k in self.api[i]:
+        apilist[i][k] = True
+
+    for i in self.overloadedapi:
+      if i not in apilist:
+        apilist[i] = {}
+      for k in self.overloadedapi[i]:
+        apilist[i][k] = True
+
+    return apilist
+
   # return a formatted list of functions in a toplevel api
   def api_list(self, toplevel=None):
     """
@@ -223,27 +274,9 @@ class API(object):
     apilist = {}
     tmsg = []
     if toplevel:
-      if toplevel in self.api:
-        apilist[toplevel] = {}
-        for k in self.api[toplevel]:
-          apilist[toplevel][k] = True
-      if toplevel in self.overloadedapi:
-        if toplevel not in apilist:
-          apilist[toplevel] = {}
-        for k in self.overloadedapi[toplevel]:
-          apilist[toplevel][k] = True
+      apilist = self.gettoplevelapilist(toplevel)
     else:
-      for i in self.api:
-        if i not in apilist:
-          apilist[i] = {}
-        for k in self.api[i]:
-          apilist[i][k] = True
-
-      for i in self.overloadedapi:
-        if i not in apilist:
-          apilist[i] = {}
-        for k in self.overloadedapi[i]:
-          apilist[i][k] = True
+      apilist = self.getapilist()
 
     tkeys = apilist.keys()
     tkeys.sort()
@@ -308,6 +341,7 @@ def test():
   print 'api2 test.api', api2('test.api')()
   print 'api_has', api2.api_has('test.three')
   print 'test.three', api2('test.three')()
+  print "doesn't exist", api2('test.four')()
 
 if __name__ == '__main__':
   test()

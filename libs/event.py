@@ -2,6 +2,7 @@
 This plugin has the base event class
 """
 class Event(object):
+  # pylint: disable=too-few-public-methods
   """
   a basic event class
   """
