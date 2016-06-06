@@ -77,8 +77,8 @@ import socket
 #import signal
 from libs.api import API as BASEAPI
 
-# import io so we can get the functions added to the api
-from libs import io
+# import io so we can get the "send" functions added to the api
+from libs import io # pylint: disable=unused-import
 
 sys.stderr = sys.stdout
 
@@ -160,7 +160,10 @@ class Listener(asyncore.dispatcher):
         #client keeps up with itself
         from libs.net.client import Client
         Client(client_connection, source_addr[0], source_addr[1])
-    except Exception:
+
+    # catch everything because we don't want to exit if we can't connect a
+    # client
+    except Exception: # pylint: disable=broad-except
       API('send.traceback')('Error handling client')
 
 def start(listen_port):
