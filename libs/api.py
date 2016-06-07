@@ -39,7 +39,7 @@ class API(object):
     self.overloadedapi = {}
     self.classapi = self.__class__.api
     self.timestring = '%a %b %d %Y %H:%M:%S'
-    self.splitre = r'(?<=[^|])|(?=[^|])'
+    self.splitre = r'(?<=[^\|])\|(?=[^\|])'
     self.overload('managers', 'add', self.addmanager)
     self.overload('managers', 'getm', self.getmanager)
     self.overload('api', 'add', self.add)
