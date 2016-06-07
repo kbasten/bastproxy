@@ -22,11 +22,11 @@ class Plugin(BasePlugin):
   """
   the plugin to handle MCCP
   """
-  def __init__(self, tname, tsname, filename, directory, importloc):
+  def __init__(self, *args, **kwargs):
     """
     Iniitilaize the class
     """
-    BasePlugin.__init__(self, tname, tsname, filename, directory, importloc)
+    BasePlugin.__init__(self, *args, **kwargs)
 
     self.canreload = False
 
@@ -54,15 +54,15 @@ class SERVER(BaseTelnetOption):
     handle the mccp opt
     """
     self.telnetobj.msg('MCCP2:', ord(command), '- in handleopt',
-                                                mtype='MCCP2')
+                       mtype='MCCP2')
     if command == WILL:
       self.telnetobj.msg('MCCP2: sending IAC DO MCCP2', mtype='MCCP2')
       self.telnetobj.send(IAC + DO + MCCP2)
     elif command == SE:
       self.telnetobj.msg('MCCP2: got an SE mccp in handleopt',
-                                              mtype='MCCP2')
+                         mtype='MCCP2')
       self.telnetobj.msg('MCCP2: starting compression with server',
-                                              mtype='MCCP2')
+                         mtype='MCCP2')
       self.telnetobj.options[ord(MCCP2)] = True
       self.negotiate()
 
@@ -79,13 +79,13 @@ class SERVER(BaseTelnetOption):
       else:
         ind = ind + 1
       self.telnetobj.msg('MCCP2: converting rawq in handleopt',
-                                                mtype='MCCP2')
+                         mtype='MCCP2')
       try:
         tempraw = self.telnetobj.rawq[:ind]
         rawq = self.zlib_decomp.decompress(self.telnetobj.rawq[ind:])
         self.telnetobj.rawq = tempraw + rawq
         self.telnetobj.process_rawq()
-      except:
+      except Exception: # pylint: disable=broad-except
         self.telnetobj.handle_error()
 
     orig_readdatafromsocket = self.telnetobj.readdatafromsocket
@@ -111,7 +111,7 @@ class SERVER(BaseTelnetOption):
     self.telnetobj.addtooutbuffer(IAC + DONT + MCCP2, True)
     self.telnetobj.rawq = self.zlib_decomp.decompress(self.telnetobj.rawq)
     setattr(self.telnetobj, 'readdatafromsocket',
-                                self.orig_readdatafromsocket)
+            self.orig_readdatafromsocket)
     BaseTelnetOption.reset(self)
 
 class CLIENT(BaseTelnetOption):
@@ -134,7 +134,7 @@ class CLIENT(BaseTelnetOption):
     handle the mccp option
     """
     self.telnetobj.msg('MCCP2:', ord(command), '- in handleopt',
-                                                        mtype='MCCP2')
+                       mtype='MCCP2')
 
     if command == DO:
       self.telnetobj.options[ord(MCCP2)] = True

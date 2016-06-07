@@ -22,6 +22,7 @@ class Plugin(BasePlugin):
   the plugin to handle the Terminal Type telnet option
   """
   def __init__(self, tname, tsname, filename, directory, importloc):
+    # pylint: disable=too-many-arguments
     """
     Iniitilaize the class
     """
@@ -51,13 +52,13 @@ class SERVER(BaseTelnetOption):
     handle the opt
     """
     self.telnetobj.msg('TTYPE:', ord(command), '- in handleopt',
-                                  mtype='TTYPE')
+                       mtype='TTYPE')
     if command == DO:
       self.telnetobj.msg(
-            'TTYPE: sending IAC SB TTYPE NOOPT MUSHclient-Aard IAC SE',
-            mtype='TTYPE')
+          'TTYPE: sending IAC SB TTYPE NOOPT MUSHclient-Aard IAC SE',
+          mtype='TTYPE')
       self.telnetobj.send(
-                IAC + SB + TTYPE + NOOPT + self.telnetobj.ttype + IAC + SE)
+          IAC + SB + TTYPE + NOOPT + self.telnetobj.ttype + IAC + SE)
 
 
 class CLIENT(BaseTelnetOption):
@@ -78,11 +79,11 @@ class CLIENT(BaseTelnetOption):
     handle the opt
     """
     self.telnetobj.msg('TTYPE:', ord(command), '- in handleopt: ',
-                                  sbdata, mtype='TTYPE')
+                       sbdata, mtype='TTYPE')
 
     if command == WILL:
       self.telnetobj.addtooutbuffer(
-                          IAC + SB + TTYPE +  chr(1)  + IAC + SE, True)
+          IAC + SB + TTYPE +  chr(1)  + IAC + SE, True)
     elif command == SE:
       self.telnetobj.ttype = sbdata.strip()
 

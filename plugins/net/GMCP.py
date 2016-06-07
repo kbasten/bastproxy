@@ -4,9 +4,9 @@ This plugins handles TCP option 201, GMCP (aardwolf implementation)
 import argparse
 import pprint
 from libs.net._basetelnetoption import BaseTelnetOption
-from plugins._baseplugin import BasePlugin
 from libs.net.telnetlib import WILL, DO, IAC, SE, SB
 from libs.persistentdict import convert
+from plugins._baseplugin import BasePlugin
 
 GMCP = chr(201)
 
@@ -67,22 +67,26 @@ class Plugin(BasePlugin):
     self.api.get('options.addclientoption')(self.sname, CLIENT)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='send something through GMCP')
+                                     description='send something through GMCP')
     parser.add_argument('stuff',
                         help='the item to send through GCMP',
                         default='',
                         nargs='?')
-    self.api('commands.add')('send', self.cmd_send, history=False,
-                                        parser=parser)
+    self.api('commands.add')('send',
+                             self.cmd_send,
+                             history=False,
+                             parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show an item in the cache')
+                                     description='show an item in the cache')
     parser.add_argument('item',
                         help='the item to show',
                         default='',
                         nargs='?')
-    self.api('commands.add')('cache', self.cmd_cache, history=False,
-                                        parser=parser)
+    self.api('commands.add')('cache',
+                             self.cmd_cache,
+                             history=False,
+                             parser=parser)
 
   def cmd_cache(self, args):
     """
@@ -122,11 +126,11 @@ class Plugin(BasePlugin):
     this function returns no values
 
     Format: IAC SB GMCP <gmcp message text> IAC SE"""
-    from libs.api import API
-    api = API()
-    api.get('events.eraise')('to_mud_event', {'data':'%s%s%s%s%s%s' % \
-                (IAC, SB, GMCP, message.replace(IAC, IAC+IAC), IAC, SE),
-                'raw':True, 'dtype':GMCP})
+    self.api.get('events.eraise')(
+        'to_mud_event',
+        {'data':'%s%s%s%s%s%s' % \
+              (IAC, SB, GMCP, message.replace(IAC, IAC+IAC), IAC, SE),
+         'raw':True, 'dtype':GMCP})
 
   def disconnect(self, _=None):
     """
@@ -142,7 +146,7 @@ class Plugin(BasePlugin):
     @Ymstate@w  = the state, either True or False
 
     this function returns no values"""
-    if not (modname in self.modstates):
+    if modname not in self.modstates:
       self.modstates[modname] = 0
 
     if mstate:
@@ -172,7 +176,7 @@ class Plugin(BasePlugin):
     currenttable = self.gmcpcache
 
     for i in range(0, tlen):
-      if not (mods[i] in currenttable):
+      if mods[i] not in currenttable:
         return None
 
       #previoustable = currenttable
@@ -191,10 +195,11 @@ class Plugin(BasePlugin):
       import json
       tdata = json.dumps(data)
       tpack = '%s %s' % (modname, tdata)
-      self.api.get('events.eraise')('to_client_event',
-              {'original':'%s%s%s%s%s%s' % \
-              (IAC, SB, GMCP, tpack.replace(IAC, IAC+IAC), IAC, SE),
-              'raw':True, 'dtype':GMCP})
+      self.api.get('events.eraise')(
+          'to_client_event',
+          {'original':'%s%s%s%s%s%s' % \
+                (IAC, SB, GMCP, tpack.replace(IAC, IAC+IAC), IAC, SE),
+           'raw':True, 'dtype':GMCP})
 
   def gmcpfromserver(self, args):
     """
@@ -210,7 +215,7 @@ class Plugin(BasePlugin):
       currenttable = self.gmcpcache
       previoustable = {}
       for i in range(0, tlen):
-        if not (mods[i] in currenttable):
+        if mods[i] not in currenttable:
           currenttable[mods[i]] = {}
 
         previoustable = currenttable
@@ -270,10 +275,8 @@ class Plugin(BasePlugin):
         tmod = i.strip()
         tmod = tmod[1:-1]
         modname, toggle = tmod.split()
-        if int(toggle) == 1:
-          toggle = True
-        else:
-          toggle = False
+
+        toggle = bool(toggle)
 
         if not proxy.connected:
           self.gmcpmodqueue.append({'modname':modname, 'toggle':toggle})
@@ -285,7 +288,7 @@ class Plugin(BasePlugin):
       return
     else:
       if not proxy.connected:
-        if not (data in self.gmcpqueue):
+        if data not in self.gmcpqueue:
           self.gmcpqueue.append(data)
       else:
         self.api.get('GMCP.sendpacket')(data)
@@ -307,7 +310,7 @@ class SERVER(BaseTelnetOption):
     handle the gmcp option
     """
     self.telnetobj.msg('GMCP:', ord(command), '- in handleopt',
-                              level=2, mtype='GMCP')
+                       level=2, mtype='GMCP')
     if command == WILL:
       self.telnetobj.msg('GMCP: sending IAC DO GMCP', level=2, mtype='GMCP')
       self.telnetobj.send(IAC + DO + GMCP)
@@ -318,7 +321,7 @@ class SERVER(BaseTelnetOption):
       if not self.telnetobj.options[ord(GMCP)]:
         # somehow we missed negotiation
         self.telnetobj.msg('##BUG: Enabling GMCP, missed negotiation',
-                                                  level=2, mtype='GMCP')
+                           level=2, mtype='GMCP')
         self.telnetobj.options[ord(GMCP)] = True
         self.api.get('events.eraise')('GMCP:server-enabled', {})
 
@@ -326,9 +329,9 @@ class SERVER(BaseTelnetOption):
       modname, data = data.split(" ", 1)
       try:
         import json
-        newdata = json.loads(data.decode('utf-8','ignore'),
-                                object_hook=convert)
-      except (UnicodeDecodeError, ValueError) as etype:
+        newdata = json.loads(data.decode('utf-8', 'ignore'),
+                             object_hook=convert)
+      except (UnicodeDecodeError, ValueError):
         newdata = {}
         self.api.get('send.traceback')('Could not decode: %s' % data)
       self.telnetobj.msg(modname, data, level=2, mtype='GMCP')
@@ -337,10 +340,11 @@ class SERVER(BaseTelnetOption):
       tdata['data'] = newdata
       tdata['module'] = modname
       tdata['server'] = self.telnetobj
-      self.api.get('events.eraise')('to_client_event',
-                      {'original':'%s%s%s%s%s%s' % \
-                      (IAC, SB, GMCP, sbdata.replace(IAC, IAC+IAC), IAC, SE),
-                      'raw':True, 'dtype':GMCP})
+      self.api.get('events.eraise')(
+          'to_client_event',
+          {'original':'%s%s%s%s%s%s' % \
+                (IAC, SB, GMCP, sbdata.replace(IAC, IAC+IAC), IAC, SE),
+           'raw':True, 'dtype':GMCP})
       self.api.get('events.eraise')('GMCP_raw', tdata)
 
 # Client
@@ -365,8 +369,8 @@ class CLIENT(BaseTelnetOption):
     self.telnetobj.msg('GMCP:', ord(command), '- in handleopt', mtype='GMCP')
     if command == DO:
       self.telnetobj.msg('GMCP:setting options["GMCP"] to True',
-                                    mtype='GMCP')
+                         mtype='GMCP')
       self.telnetobj.options[ord(GMCP)] = True
     elif command == SE:
       self.api.get('events.eraise')('GMCP_from_client',
-                      {'data': sbdata, 'client':self.telnetobj})
+                                    {'data': sbdata, 'client':self.telnetobj})
