@@ -6,11 +6,7 @@ This plugin sends messages through the pushbullet api
  * Enter your api key with the apikey command
 
 """
-import smtplib
-import os
 import argparse
-import stat
-from datetime import datetime
 
 from plugins._baseplugin import BasePlugin
 
@@ -25,7 +21,7 @@ VERSION = 1
 # This keeps the plugin from being autoloaded if set to False
 AUTOLOAD = False
 
-Pushbullet = None
+PUSHBULLET = None
 
 class Plugin(BasePlugin):
   """
@@ -38,6 +34,8 @@ class Plugin(BasePlugin):
     BasePlugin.__init__(self, *args, **kwargs)
     self.api.get('dependency.add')('ssc')
 
+    self.apikey = None
+
     self.api('api.add')('note', self.api_note)
     self.api('api.add')('link', self.api_link)
 
@@ -48,10 +46,10 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     self.api('setting.add')('channel', '', str,
-                        'the channel to send to')
+                            'the channel to send to')
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='send a note')
+                                     description='send a note')
     parser.add_argument('title',
                         help='the title of the note',
                         default='Pushbullet note from bastproxy',
@@ -61,13 +59,13 @@ class Plugin(BasePlugin):
                         default='A Pushbullet note sent through bastproxy',
                         nargs='?')
     parser.add_argument('-c', "--channel",
-          help="the pushbullet channel to send to",
-              default='')
+                        help="the pushbullet channel to send to",
+                        default='')
     self.api('commands.add')('note', self.cmd_note,
-                                        parser=parser)
+                             parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='send a link')
+                                     description='send a link')
     parser.add_argument('title',
                         help='the title of the link',
                         default='Pushbullet link from bastproxy',
@@ -77,22 +75,22 @@ class Plugin(BasePlugin):
                         default='https://github.com/endavis/bastproxy',
                         nargs='?')
     parser.add_argument('-c', "--channel",
-          help="the pushbullet channel to send to",
-              default='')
+                        help="the pushbullet channel to send to",
+                        default='')
     self.api('commands.add')('link', self.cmd_link,
-                                        parser=parser)
+                             parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show channels associated with pb')
+                                     description='show channels associated with pb')
     self.api('commands.add')('channels', self.cmd_channels,
-                                        parser=parser)
+                             parser=parser)
 
     ssc = self.api('ssc.baseclass')()
     self.apikey = ssc('apikey', self, desc='Pushbullet API key')
 
-    if not Pushbullet:
-      global Pushbullet
-      from pushbullet import Pushbullet
+    if not PUSHBULLET:
+      global PUSHBULLET
+      from pushbullet import Pushbullet as PUSHBULLET
 
 
   # send a note through pushbullet
@@ -109,13 +107,13 @@ class Plugin(BasePlugin):
     if not apikey:
       return False
 
-    pb = Pushbullet(apikey)
+    pbc = PUSHBULLET(apikey)
 
     rval = {}
     found = False
     nchannel = channel or self.api.get('setting.gets')('channel')
     if nchannel:
-      for i in pb.channels:
+      for i in pbc.channels:
         if str(i.channel_tag) == nchannel:
           found = True
           rval = i.push_note(title, body)
@@ -126,9 +124,9 @@ class Plugin(BasePlugin):
         return False
 
     else:
-      rval = pb.push_note(title, body)
+      rval = pbc.push_note(title, body)
 
-    pb._session.close()
+    pbc._session.close()
 
     if 'error' in rval:
       self.api('send.error')('Pushbullet send failed with %s' % rval)
@@ -151,12 +149,12 @@ class Plugin(BasePlugin):
     if not apikey:
       return False
 
-    pb = Pushbullet(apikey)
+    pbc = PUSHBULLET(apikey)
 
     rval = {}
     nchannel = channel or self.api.get('setting.gets')('channel')
     if nchannel:
-      for i in pb.channels:
+      for i in pbc.channels:
         if str(i.channel_tag) == nchannel:
           found = True
           rval = i.push_link(title, url)
@@ -167,9 +165,9 @@ class Plugin(BasePlugin):
         return False
 
     else:
-      rval = pb.push_link(title, url)
+      rval = pbc.push_link(title, url)
 
-    pb._session.close()
+    pbc._session.close()
 
     if 'error' in rval:
       self.api('send.error')('Pushbullet send failed with %s' % rval)
@@ -188,9 +186,9 @@ class Plugin(BasePlugin):
     if not apikey:
       return False
 
-    pb = Pushbullet(apikey)
+    pbc = PUSHBULLET(apikey)
 
-    for i in pb.channels:
+    for i in pbc.channels:
       tmsg.append(str(i.channel_tag))
 
     return True, tmsg
