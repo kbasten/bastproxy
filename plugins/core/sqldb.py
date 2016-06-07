@@ -66,6 +66,7 @@ def dict_factory(cursor, row):
 
 
 class Sqldb(object):
+  # pylint: disable=too-many-public-methods
   """
   a class to manage sqlite3 databases
   """
@@ -141,7 +142,7 @@ class Sqldb(object):
     self.api('send.msg')('close: called by - %s' % inspect.stack()[1][3])
     try:
       self.dbconn.close()
-    except:
+    except Exception: # pylint: disable=broad-except
       pass
     self.dbconn = None
 
@@ -154,8 +155,9 @@ class Sqldb(object):
     if funcname == '__getattribute__':
       funcname = inspect.stack()[2][3]
     self.api('send.msg')('open: called by - %s' % funcname)
-    self.dbconn = sqlite3.connect(self.dbfile,
-                detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+    self.dbconn = sqlite3.connect(
+        self.dbfile,
+        detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     self.dbconn.row_factory = dict_factory
     # only return byte strings so is easier to send to a client or the mud
     self.dbconn.text_factory = str
@@ -168,12 +170,13 @@ class Sqldb(object):
     badfuncs = ['open']
     attr = object.__getattribute__(self, name)
     if inspect.ismethod(attr) and name[0] != '_' and \
-            not (name in badfuncs):
+        name not in badfuncs:
       if not self.dbconn:
         self.open()
     return attr
 
   def fixsql(self, tstr, like=False):
+    # pylint: disable=no-self-use
     """
     Fix quotes in a item that will be passed into a sql statement
     """
@@ -191,42 +194,69 @@ class Sqldb(object):
     add commands to the plugin to use the database
     """
     parser = argparse.ArgumentParser(add_help=False,
-                 description='backup the database')
-    parser.add_argument('name', help='the name to backup to',
-                        default='', nargs='?')
-    self.api('commands.add')('dbbackup', self.cmd_backup,
-                                           parser=parser, group='DB')
+                                     description='backup the database')
+    parser.add_argument('name',
+                        help='the name to backup to',
+                        default='',
+                        nargs='?')
+    self.api('commands.add')('dbbackup',
+                             self.cmd_backup,
+                             parser=parser,
+                             group='DB')
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='close the database')
-    self.api('commands.add')('dbclose', self.cmd_close,
-                                           parser=parser, group='DB')
+                                     description='close the database')
+    self.api('commands.add')('dbclose',
+                             self.cmd_close,
+                             parser=parser,
+                             group='DB')
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='vacuum the database')
-    self.api('commands.add')('dbvac', self.cmd_vac,
-                                           parser=parser, group='DB')
+                                     description='vacuum the database')
+    self.api('commands.add')('dbvac',
+                             self.cmd_vac,
+                             parser=parser,
+                             group='DB')
 
-    parser = argparse.ArgumentParser(add_help=False,
-                 description='run a sql statement against the database')
-    parser.add_argument('stmt', help='the sql statement', default='', nargs='?')
-    self.api('commands.add')('dbselect', self.cmd_select,
-                                           parser=parser, group='DB')
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description='run a sql statement against the database')
+    parser.add_argument('stmt',
+                        help='the sql statement',
+                        default='',
+                        nargs='?')
+    self.api('commands.add')('dbselect',
+                             self.cmd_select,
+                             parser=parser,
+                             group='DB')
 
-    parser = argparse.ArgumentParser(add_help=False,
-                 description='run a sql update/insert against the database')
-    parser.add_argument('stmt', help='the sql statement', default='', nargs='?')
-    self.api('commands.add')('dbmodify', self.cmd_modify,
-                                           parser=parser, group='DB')
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description='run a sql update/insert against the database')
+    parser.add_argument('stmt',
+                        help='the sql statement',
+                        default='',
+                        nargs='?')
+    self.api('commands.add')('dbmodify',
+                             self.cmd_modify,
+                             parser=parser,
+                             group='DB')
 
-    parser = argparse.ArgumentParser(add_help=False,
-                 description='remove a row from a table')
-    parser.add_argument('table', help='the table to remove the row from',
-                                        default='', nargs='?')
-    parser.add_argument('rownumber', help='the row number to remove',
-                                        default=-1, nargs='?')
-    self.api('commands.add')('dbremove', self.cmd_remove,
-                                           parser=parser, group='DB')
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description='remove a row from a table')
+    parser.add_argument('table',
+                        help='the table to remove the row from',
+                        default='',
+                        nargs='?')
+    parser.add_argument('rownumber',
+                        help='the row number to remove',
+                        default=-1,
+                        nargs='?')
+    self.api('commands.add')('dbremove',
+                             self.cmd_remove,
+                             parser=parser,
+                             group='DB')
 
   def cmd_select(self, args=None):
     """
@@ -251,7 +281,7 @@ class Sqldb(object):
     if args:
       sqlstmt = args['stmt']
       if sqlstmt:
-        rowid, results = self.api('%s.modify' % self.plugin.sname)(sqlstmt)
+        self.api('%s.modify' % self.plugin.sname)(sqlstmt)
       else:
         msg.append('Please enter an update statement')
     return True, msg
@@ -280,12 +310,12 @@ class Sqldb(object):
     backup the database
     """
     msg = []
-    if not args['table'] or not (args['table'] in self.tables):
+    if not args['table'] or args['table'] not in self.tables:
       msg.append('Please include a valid table')
     elif not args['rownumber'] or args['rownumber'] < 0:
       msg.append('Please include a valid row number')
     else:
-      retval, nmsg = self.remove(args['table'], args['rownumber'])
+      dummy, nmsg = self.remove(args['table'], args['rownumber'])
       msg.append(nmsg)
 
     return True, msg
@@ -302,11 +332,11 @@ class Sqldb(object):
 
     newname = self.backupform % name + '.zip'
     if self.backupdb(name):
-      msg.append('backed up %s with name %s' % (self.dbname,
-                    newname))
+      msg.append('backed up %s with name %s' % \
+                      (self.dbname, newname))
     else:
-      msg.append('could not back up %s with name %s' % (self.dbname,
-                    newname))
+      msg.append('could not back up %s with name %s' % \
+                      (self.dbname, newname))
 
     return True, msg
 
@@ -342,11 +372,11 @@ class Sqldb(object):
       args = copy.copy(kwargs)
 
 
-    if not ('precreate' in args):
+    if 'precreate' not in args:
       args['precreate'] = None
-    if not ('postcreate' in args):
+    if 'postcreate' not in args:
       args['postcreate'] = None
-    if not ('keyfield' in args):
+    if 'keyfield' not in args:
       args['keyfield'] = None
 
     args['createsql'] = sql
@@ -363,7 +393,7 @@ class Sqldb(object):
     if table in self.tables:
       keyfield = self.tables[table]['keyfield']
       sql = "DELETE FROM %s where %s=%s;" % (table, keyfield, rownumber)
-      rowid, result = self.api('%s.modify' % self.plugin.sname)(sql)
+      self.api('%s.modify' % self.plugin.sname)(sql)
       return True, '%s was removed from table %s' % (rownumber, table)
     else:
       return False, '%s is not a table' % table
@@ -379,7 +409,7 @@ class Sqldb(object):
       for i in tlist:
         i = i.strip()
         if i and i[0:2] != '--':
-          if not ('CREATE' in i) and not (')' in i):
+          if 'CREATE' not in i and ')' not in i:
             ilist = i.split(' ')
             columns.append(ilist[0])
             columnsbykeys[ilist[0]] = True
@@ -402,7 +432,7 @@ class Sqldb(object):
         execstr = "INSERT INTO %s VALUES (%s)" % (tablename, colstring)
       if keynull and self.tables[tablename]['keyfield']:
         execstr = execstr.replace(":%s" % self.tables[tablename]['keyfield'],
-                                                    'NULL')
+                                  'NULL')
     return execstr
 
 
@@ -420,7 +450,7 @@ class Sqldb(object):
     """
     create an update statement based on the columns of a table
     """
-    if nokey == None:
+    if nokey is None:
       nokey = {}
     execstr = ''
     if self.tables[tablename]:
@@ -432,8 +462,8 @@ class Sqldb(object):
         else:
           sqlstr.append(i + ' = :' + i)
       colstring = ','.join(sqlstr)
-      execstr = "UPDATE %s SET %s WHERE %s = :%s;" % (tablename, colstring,
-                                          wherekey, wherekey)
+      execstr = "UPDATE %s SET %s WHERE %s = :%s;" % \
+          (tablename, colstring, wherekey, wherekey)
     return execstr
 
   def getversion(self):
@@ -468,8 +498,8 @@ class Sqldb(object):
     retv = False
     cur = self.dbconn.cursor()
     for row in cur.execute(
-         'SELECT * FROM sqlite_master WHERE name = "%s" AND type = "table";'
-                        % tablename):
+        'SELECT * FROM sqlite_master WHERE name = "%s" AND type = "table";'
+        % tablename):
       if row['name'] == tablename:
         retv = True
     cur.close()
@@ -498,17 +528,17 @@ class Sqldb(object):
     """
     update a database from oldversion to newversion
     """
-    self.api('send.msg')('updating %s from version %s to %s' % (
-                                  self.dbfile, oldversion, newversion))
+    self.api('send.msg')('updating %s from version %s to %s' % \
+                              (self.dbfile, oldversion, newversion))
     self.backupdb(oldversion)
     for i in range(oldversion + 1, newversion + 1):
       try:
         self.versionfuncs[i]()
         self.api('send.msg')('updated to version %s' % i)
-      except:
+      except Exception: # pylint: disable=broad-except
         self.api('send.traceback')(
-                      'could not upgrade db: %s in plugin: %s' % (self.dbname,
-                                                          self.plugin.sname))
+            'could not upgrade db: %s in plugin: %s' % (self.dbname,
+                                                        self.plugin.sname))
         return
     self.setversion(newversion)
     self.api('send.msg')('Done upgrading!')
@@ -522,7 +552,7 @@ class Sqldb(object):
     try:
       for row in cur.execute(stmt):
         result.append(row)
-    except:
+    except Exception: # pylint: disable=broad-except
       self.api.get('send.traceback')('could not run sql statement : %s' % \
                             stmt)
     cur.close()
@@ -542,7 +572,7 @@ class Sqldb(object):
         cur.execute(stmt)
       rowid = cur.lastrowid
       result = self.dbconn.commit()
-    except:
+    except Exception: # pylint: disable=broad-except
       self.api.get('send.traceback')('could not run sql statement : %s' % \
                             stmt)
 
@@ -559,7 +589,7 @@ class Sqldb(object):
       cur.executemany(stmt, data)
       rowid = cur.lastrowid
       result = self.dbconn.commit()
-    except:
+    except Exception: # pylint: disable=broad-except
       self.api('send.traceback')('could not run sql statement : %s' % \
                             stmt)
 
@@ -576,7 +606,7 @@ class Sqldb(object):
       cur.executescript(stmt)
       rowid = cur.lastrowid
       result = self.dbconn.commit()
-    except:
+    except Exception: # pylint: disable=broad-except
       self.api('send.traceback')('could not run sql statement : %s' % \
                             stmt)
 
@@ -592,7 +622,7 @@ class Sqldb(object):
     try:
       for row in cur.execute(selectstmt):
         result[row[keyword]] = row
-    except:
+    except Exception: # pylint: disable=broad-except
       self.api('send.traceback')('could not run sql statement : %s' % \
                                       selectstmt)
     cur.close()
@@ -603,7 +633,7 @@ class Sqldb(object):
     get the last num items from a table
     """
     results = {}
-    if not (ttable in self.tables):
+    if ttable not in self.tables:
       self.api('send.msg')('table %s does not exist in getlast' % ttable)
       return
 
@@ -624,7 +654,7 @@ class Sqldb(object):
     """
     get a row by id
     """
-    if not (ttable in self.tables):
+    if ttable not in self.tables:
       self.api('send.msg')('table %s does not exist in getrow' % ttable)
       return
 
@@ -643,7 +673,7 @@ class Sqldb(object):
     last = -1
     colid = self.tables[ttable]['keyfield']
     rows = self.api('%s.select' % self.plugin.sname)(
-                    "SELECT MAX(%s) AS MAX FROM %s" % (colid, ttable))
+        "SELECT MAX(%s) AS MAX FROM %s" % (colid, ttable))
     if len(rows) > 0:
       last = rows[0]['MAX']
 
@@ -673,9 +703,9 @@ class Sqldb(object):
       pass
 
     backupzipfile = os.path.join(self.dbdir, 'archive',
-                            self.backupform % postname + '.zip')
+                                 self.backupform % postname + '.zip')
     backupfile = os.path.join(self.dbdir, 'archive',
-                                self.backupform % postname)
+                              self.backupform % postname)
 
     try:
       shutil.copy(self.dbfile, backupfile)
@@ -689,7 +719,7 @@ class Sqldb(object):
       os.remove(backupfile)
       success = True
       self.api('send.msg')('%s was backed up to %s' % (self.dbfile,
-                                                           backupzipfile))
+                                                       backupzipfile))
     except IOError:
       self.api('send.msg')('could not zip backupfile')
       return success
@@ -715,6 +745,7 @@ class Plugin(BasePlugin):
 
   # return the sql baseclass
   def api_baseclass(self):
+    # pylint: disable=no-self-use
     """
     return the sql baseclass
     """

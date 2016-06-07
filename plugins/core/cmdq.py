@@ -20,6 +20,7 @@ class CmdQueue(object):
   a class to manage commands
   """
   def __init__(self, plugin, **kwargs):
+    # pylint: disable=unused-argument
     """
     initialize the class
     """
@@ -32,11 +33,17 @@ class CmdQueue(object):
 
     self._dump_shallow_attrs = ['plugin']
 
-  def addcmdtype(self, cmdtype, cmd, regex, beforef=None, afterf=None):
+  def addcmdtype(self, cmdtype, cmd, regex, **kwargs):
     """
     add a command type
     """
-    if not (cmdtype in self.cmds):
+    beforef = None
+    afterf = None
+    if 'beforef' in kwargs:
+      beforef = kwargs['beforef']
+    if 'afterf' in kwargs:
+      afterf = kwargs['afterf']
+    if cmdtype not in self.cmds:
       self.cmds[cmdtype] = {}
       self.cmds[cmdtype]['cmd'] = cmd
       self.cmds[cmdtype]['regex'] = regex
@@ -129,6 +136,7 @@ class Plugin(BasePlugin):
 
   # return the cmdq baseclass
   def api_baseclass(self):
+    # pylint: disable=no-self-use
     """
     return the cmdq baseclass
     """

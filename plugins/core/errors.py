@@ -36,14 +36,20 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show errors')
-    parser.add_argument('number', help='list the last <number> errors',
-                        default='-1', nargs='?')
-    self.api.get('commands.add')('show', self.cmd_show, parser=parser)
+                                     description='show errors')
+    parser.add_argument('number',
+                        help='list the last <number> errors',
+                        default='-1',
+                        nargs='?')
+    self.api.get('commands.add')('show',
+                                 self.cmd_show,
+                                 parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='clear errors')
-    self.api.get('commands.add')('clear', self.cmd_clear, parser=parser)
+                                     description='clear errors')
+    self.api.get('commands.add')('clear',
+                                 self.cmd_clear,
+                                 parser=parser)
 
   # add an error to the list
   def api_adderror(self, timestamp, error):
@@ -52,7 +58,7 @@ class Plugin(BasePlugin):
     this function adds an error to the list
     """
     self.errors.append({'timestamp':timestamp,
-                 'msg':error})
+                        'msg':error})
 
   # get the errors that have been seen
   def api_geterrors(self):
@@ -107,6 +113,7 @@ class Plugin(BasePlugin):
     return True, msg
 
   def cmd_clear(self, args=None):
+    # pylint: disable=unused-argument
     """
     clear errors
     """

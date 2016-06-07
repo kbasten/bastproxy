@@ -63,9 +63,9 @@ class TimerEvent(Event):
       while diff.days < 0:
         tstuff = self.plugin.api.get('utils.secondstodhms')(self.seconds)
         tnext = tnext + datetime.timedelta(days=tstuff['days'],
-                                          hours=tstuff['hours'],
-                                          minutes=tstuff['mins'],
-                                          seconds=tstuff['secs'])
+                                           hours=tstuff['hours'],
+                                           minutes=tstuff['mins'],
+                                           seconds=tstuff['secs'])
         diff = tnext - now
 
       nextt = time.mktime(tnext.timetuple())
@@ -79,11 +79,12 @@ class TimerEvent(Event):
     """
     return a string representation of the timer
     """
-    return 'Timer - %-10s : %-15s : %05d : %-6s : %s' % (self.name,
-                                  self.plugin,
-                                  self.seconds, self.enabled,
-                                  time.strftime('%a %b %d %Y %H:%M:%S',
-                                  time.localtime(self.nextcall)))
+    return 'Timer - %-10s : %-15s : %05d : %-6s : %s' % \
+      (self.name,
+       self.plugin,
+       self.seconds, self.enabled,
+       time.strftime('%a %b %d %Y %H:%M:%S',
+                     time.localtime(self.nextcall)))
 
 class Plugin(BasePlugin):
   """
@@ -114,35 +115,43 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     self.api.get('events.register')('global_timer', self.checktimerevents,
-                                        prio=1)
+                                    prio=1)
     self.api.get('send.msg')('lasttime:  %s' % self.lasttime)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='list timers')
+                                     description='list timers')
     parser.add_argument('match',
-              help='list only events that have this argument in their name',
-              default='', nargs='?')
-    self.api.get('commands.add')('list', self.cmd_list,
+                        help='list only events that have this argument in their name',
+                        default='',
+                        nargs='?')
+    self.api.get('commands.add')('list',
+                                 self.cmd_list,
                                  parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='toggle log flag for a timer')
+                                     description='toggle log flag for a timer')
     parser.add_argument('timername',
-              help='the timer name',
-              default='', nargs='?')
-    self.api.get('commands.add')('log', self.cmd_log,
+                        help='the timer name',
+                        default='',
+                        nargs='?')
+    self.api.get('commands.add')('log',
+                                 self.cmd_log,
                                  parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='get details for timers')
-    parser.add_argument('timers', help='a list of timers to get details',
-                        default=[], nargs='*')
-    self.api.get('commands.add')('detail', self.cmd_detail,
+                                     description='get details for timers')
+    parser.add_argument('timers',
+                        help='a list of timers to get details',
+                        default=[],
+                        nargs='*')
+    self.api.get('commands.add')('detail',
+                                 self.cmd_detail,
                                  parser=parser)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='get overall timer stats')
-    self.api.get('commands.add')('stats', self.cmd_stats,
+                                     description='get overall timer stats')
+    self.api.get('commands.add')('stats',
+                                 self.cmd_stats,
                                  parser=parser)
 
     self.api.get('events.register')('plugin_unloaded', self.pluginunloaded)
@@ -161,9 +170,11 @@ class Plugin(BasePlugin):
     """
     msg = []
     if args['timername'] in self.timerlookup:
-      self.timerlookup[args['timername']].log = not self.timerlookup[args['timername']].log
-      msg.append('changed log flag to %s for timer %s' % (self.timerlookup[args['timername']].log,
-                                                     args['timername']))
+      self.timerlookup[args['timername']].log = \
+          not self.timerlookup[args['timername']].log
+      msg.append('changed log flag to %s for timer %s' % \
+        (self.timerlookup[args['timername']].log,
+         args['timername']))
     else:
       msg.append('timer %s does not exist' % args['timername'])
 
@@ -204,18 +215,18 @@ class Plugin(BasePlugin):
     match = args['match']
 
     tmsg.append('Local time is: %s' % time.strftime('%a %b %d %Y %H:%M:%S',
-                                             time.localtime()))
+                                                    time.localtime()))
 
     tmsg.append('%-20s : %-13s %-9s %-8s %s' % ('Name', 'Defined in',
-                                        'Enabled', 'Fired', 'Next Fire'))
+                                                'Enabled', 'Fired', 'Next Fire'))
     for i in self.timerlookup:
       if not match or match in i:
         timerc = self.timerlookup[i]
         tmsg.append('%-20s : %-13s %-9s %-8s %s' % (
-                                timerc.name, timerc.plugin.sname,
-                                timerc.enabled, timerc.timesfired,
-                                time.strftime('%a %b %d %Y %H:%M:%S',
-                                time.localtime(timerc.nextcall))))
+            timerc.name, timerc.plugin.sname,
+            timerc.enabled, timerc.timesfired,
+            time.strftime('%a %b %d %Y %H:%M:%S',
+                          time.localtime(timerc.nextcall))))
 
     return True, tmsg
 
@@ -239,8 +250,8 @@ class Plugin(BasePlugin):
           tmsg.append('%-13s : %s' % ('Times Fired', timerc.timesfired))
           tmsg.append('%-13s : %s' % ('Log', timerc.log))
           tmsg.append('%-13s : %s' % ('Next Fire',
-                                        time.strftime('%a %b %d %Y %H:%M:%S',
-                                        time.localtime(timerc.nextcall))))
+                                      time.strftime('%a %b %d %Y %H:%M:%S',
+                                                    time.localtime(timerc.nextcall))))
           tmsg.append('')
 
     else:
@@ -266,33 +277,32 @@ class Plugin(BasePlugin):
     try:
       plugin = func.im_self
     except AttributeError:
-      plugin = ''
+      plugin = None
 
     if 'plugin' in kwargs:
       plugin = self.api.get('plugins.getp')(kwargs['plugin'])
 
-    args = {}
     if not plugin:
       self.api.get('send.msg')('timer %s has no plugin, not adding' % name)
       return
     if seconds <= 0:
       self.api.get('send.msg')('timer %s has seconds <= 0, not adding' % name,
-                                    secondary=plugin)
+                               secondary=plugin)
       return
     if not func:
       self.api.get('send.msg')('timer %s has no function, not adding' % name,
-                                    secondary=plugin)
+                               secondary=plugin)
       return
 
     if 'nodupe' in kwargs and kwargs['nodupe']:
       if name in self.timerlookup:
         self.api.get('send.msg')('trying to add duplicate timer: %s' % name,
-                                    secondary=plugin)
+                                 secondary=plugin)
         return
 
     tevent = TimerEvent(name, func, seconds, plugin, **kwargs)
     self.api.get('send.msg')('adding %s from plugin %s' % (tevent, plugin),
-                             secondary=plugin.sname)
+                             secondary=plugin.sname)  # pylint: disable=no-member
     self._addtimer(tevent)
     return tevent
 
@@ -347,12 +357,14 @@ class Plugin(BasePlugin):
     """
     nexttime = timer.nextcall
     if nexttime != -1:
-      if not (nexttime in self.timerevents):
+      if nexttime not in self.timerevents:
         self.timerevents[nexttime] = []
       self.timerevents[nexttime].append(timer)
     self.timerlookup[timer.name] = timer
 
   def checktimerevents(self, args):
+    # this is a callback, so disable unused-argument
+    # pylint: disable=unused-argument,too-many-nested-blocks
     """
     check all timers
     """
@@ -370,7 +382,7 @@ class Plugin(BasePlugin):
               if timer.log:
                 self.api.get('send.msg')('Timer fired: %s' % timer,
                                          secondary=timer.plugin.sname)
-            except:
+            except Exception:  # pylint: disable=broad-except
               self.api.get('send.traceback')('A timer had an error')
           try:
             self.timerevents[i].remove(timer)
@@ -379,10 +391,11 @@ class Plugin(BasePlugin):
           if not timer.onetime:
             timer.nextcall = timer.nextcall + timer.seconds
             if timer.log:
-              self.api.get('send.msg')('Re adding timer %s for %s' % (timer.name,
-                                    time.strftime('%a %b %d %Y %H:%M:%S',
-                                             time.localtime(timer.nextcall))),
-                                    secondary=timer.plugin.sname)
+              self.api.get('send.msg')('Re adding timer %s for %s' % \
+                (timer.name,
+                 time.strftime('%a %b %d %Y %H:%M:%S',
+                               time.localtime(timer.nextcall))),
+                                       secondary=timer.plugin.sname)
             self._addtimer(timer)
           else:
             self.api.get('timers.remove')(timer.name)

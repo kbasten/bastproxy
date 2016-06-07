@@ -53,13 +53,15 @@ class SSC(object):
     self.api('api.add')(self.ssname, self.getss)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='set the %s' % self.desc)
+                                     description='set the %s' % self.desc)
     parser.add_argument('value',
                         help=self.desc,
                         default='',
                         nargs='?')
-    self.api('commands.add')(self.ssname, self.cmd_setssc, history=False,
-                                        parser=parser)
+    self.api('commands.add')(self.ssname,
+                             self.cmd_setssc,
+                             history=False,
+                             parser=parser)
 
 
   # read the secret from a file
@@ -70,14 +72,14 @@ class SSC(object):
     first_line = ''
     filen = os.path.join(self.plugin.savedir, self.ssname)
     try:
-      with open(filen, 'r') as f:
-        first_line = f.readline()
+      with open(filen, 'r') as fileo:
+        first_line = fileo.readline()
 
       return first_line.strip()
     except IOError:
       self.api('send.error')('Please set the %s with #bp.%s.%s' % (self.desc,
-                                                                 self.sname,
-                                                                 self.ssname))
+                                                                   self.sname,
+                                                                   self.ssname))
 
     return self.default
 
@@ -113,6 +115,7 @@ class Plugin(BasePlugin):
 
   # return the secret setting baseclass
   def api_baseclass(self):
+    # pylint: disable=no-self-use
     """
     return the sql baseclass
     """

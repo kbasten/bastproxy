@@ -33,102 +33,106 @@ PRIORITY = 11
 AUTOLOAD = True
 
 # for finding ANSI color sequences
-XTERM_COLOR_REGEX = re.compile('^@[xz](?P<num>[\d]{1,3})$')
+XTERM_COLOR_REGEX = re.compile(r'^@[xz](?P<num>[\d]{1,3})$')
 ANSI_COLOR_REGEX = re.compile(chr(27) + r'\[(?P<arg_1>\d+)(;(?P<arg_2>\d+)' \
-                                              '(;(?P<arg_3>\d+))?)?m')
+                                              r'(;(?P<arg_3>\d+))?)?m')
 
-COLORCODE_REGEX = re.compile('(@[cmyrgbwCMYRGBWD|xz[\d{0:3}]])(?P<stuff>.*)')
+COLORCODE_REGEX = re.compile(r'(@[cmyrgbwCMYRGBWD|xz[\d{0:3}]])(?P<stuff>.*)')
 
 CONVERTANSI = {}
 
 CONVERTCOLORS = {
-  'k' : '0;30',
-  'r' : '0;31',
-  'g' : '0;32',
-  'y' : '0;33',
-  'b' : '0;34',
-  'm' : '0;35',
-  'c' : '0;36',
-  'w' : '0;37',
-  'D' : '1;30',
-  'R' : '1;31',
-  'G' : '1;32',
-  'Y' : '1;33',
-  'B' : '1;34',
-  'M' : '1;35',
-  'C' : '1;36',
-  'W' : '1;37',
-  'x' : '0',
+    'k' : '0;30',
+    'r' : '0;31',
+    'g' : '0;32',
+    'y' : '0;33',
+    'b' : '0;34',
+    'm' : '0;35',
+    'c' : '0;36',
+    'w' : '0;37',
+    'D' : '1;30',
+    'R' : '1;31',
+    'G' : '1;32',
+    'Y' : '1;33',
+    'B' : '1;34',
+    'M' : '1;35',
+    'C' : '1;36',
+    'W' : '1;37',
+    'x' : '0',
 }
 
-colortable = {}
+COLORTABLE = {}
 def build_color_table():
-    # colors 0..15: 16 basic colors
+  """
+  colors 0..15: 16 basic colors
+  """
+  COLORTABLE[0] = (0x00, 0x00, 0x00) # 0
+  COLORTABLE['k'] = COLORTABLE[0]
+  COLORTABLE[1] = (0xcd, 0x00, 0x00) # 1
+  COLORTABLE['r'] = COLORTABLE[1]
+  COLORTABLE[2] = (0x00, 0xcd, 0x00) # 2
+  COLORTABLE['g'] = COLORTABLE[2]
+  COLORTABLE[3] = (0xcd, 0xcd, 0x00) # 3
+  COLORTABLE['y'] = COLORTABLE[3]
+  COLORTABLE[4] = (0x00, 0x00, 0xee) # 4
+  COLORTABLE['b'] = COLORTABLE[4]
+  COLORTABLE[5] = (0xcd, 0x00, 0xcd) # 5
+  COLORTABLE['m'] = COLORTABLE[5]
+  COLORTABLE[6] = (0x00, 0xcd, 0xcd) # 6
+  COLORTABLE['c'] = COLORTABLE[6]
+  COLORTABLE[7] = (0xe5, 0xe5, 0xe5) # 7
+  COLORTABLE['w'] = COLORTABLE[7]
+  COLORTABLE[8] = (0x7f, 0x7f, 0x7f) # 8
+  COLORTABLE['D'] = COLORTABLE[8]
+  COLORTABLE[9] = (0xff, 0x00, 0x00) # 9
+  COLORTABLE['R'] = COLORTABLE[9]
+  COLORTABLE[10] = (0x00, 0xff, 0x00) # 10
+  COLORTABLE['G'] = COLORTABLE[10]
+  COLORTABLE[11] = (0xff, 0xff, 0x00) # 11
+  COLORTABLE['Y'] = COLORTABLE[11]
+  COLORTABLE[12] = (0x5c, 0x5c, 0xff) # 12
+  COLORTABLE['B'] = COLORTABLE[12]
+  COLORTABLE[13] = (0xff, 0x00, 0xff) # 13
+  COLORTABLE['M'] = COLORTABLE[13]
+  COLORTABLE[14] = (0x00, 0xff, 0xff) # 14
+  COLORTABLE['C'] = COLORTABLE[14]
+  COLORTABLE[15] = (0xff, 0xff, 0xff) # 15
+  COLORTABLE['W'] = COLORTABLE[15]
 
-    colortable[0] = (0x00, 0x00, 0x00) # 0
-    colortable['k'] = colortable[0]
-    colortable[1] = (0xcd, 0x00, 0x00) # 1
-    colortable['r'] = colortable[1]
-    colortable[2] = (0x00, 0xcd, 0x00) # 2
-    colortable['g'] = colortable[2]
-    colortable[3] = (0xcd, 0xcd, 0x00) # 3
-    colortable['y'] = colortable[3]
-    colortable[4] = (0x00, 0x00, 0xee) # 4
-    colortable['b'] = colortable[4]
-    colortable[5] = (0xcd, 0x00, 0xcd) # 5
-    colortable['m'] = colortable[5]
-    colortable[6] = (0x00, 0xcd, 0xcd) # 6
-    colortable['c'] = colortable[6]
-    colortable[7] = (0xe5, 0xe5, 0xe5) # 7
-    colortable['w'] = colortable[7]
-    colortable[8] = (0x7f, 0x7f, 0x7f) # 8
-    colortable['D'] = colortable[8]
-    colortable[9] = (0xff, 0x00, 0x00) # 9
-    colortable['R'] = colortable[9]
-    colortable[10] = (0x00, 0xff, 0x00) # 10
-    colortable['G'] = colortable[10]
-    colortable[11] = (0xff, 0xff, 0x00) # 11
-    colortable['Y'] = colortable[11]
-    colortable[12] = (0x5c, 0x5c, 0xff) # 12
-    colortable['B'] = colortable[12]
-    colortable[13] = (0xff, 0x00, 0xff) # 13
-    colortable['M'] = colortable[13]
-    colortable[14] = (0x00, 0xff, 0xff) # 14
-    colortable['C'] = colortable[14]
-    colortable[15] = (0xff, 0xff, 0xff) # 15
-    colortable['W'] = colortable[15]
+  # colors 16..232: the 6x6x6 color cube
 
-    # colors 16..232: the 6x6x6 color cube
+  valuerange = (0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff)
 
-    valuerange = (0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff)
+  for i in range(217):
+    red = valuerange[(i // 36) % 6]
+    green = valuerange[(i // 6) % 6]
+    blue = valuerange[i % 6]
+    COLORTABLE[i + 16] = ((red, green, blue))
 
-    for i in range(217):
-        r = valuerange[(i // 36) % 6]
-        g = valuerange[(i // 6) % 6]
-        b = valuerange[i % 6]
-        colortable[i + 16] = ((r, g, b))
+  # colors 233..253: grayscale
 
-    # colors 233..253: grayscale
-
-    for i in range(1, 22):
-        v = 8 + i * 10
-        colortable[i + 233] = ((v, v, v))
+  for i in range(1, 22):
+    gray = 8 + i * 10
+    COLORTABLE[i + 233] = ((gray, gray, gray))
 
 build_color_table()
 
 def convertcolorcodetohtml(colorcode):
+  """
+  convert a colorcode to an html color
+  """
   try:
     colorcode = int(colorcode)
-    if colorcode in colortable:
-      #print colortable[colorcode]
-      return '#%.2x%.2x%.2x' % (colortable[colorcode][0],
-                          colortable[colorcode][1],
-                          colortable[colorcode][2])
+    if colorcode in COLORTABLE:
+      #print COLORTABLE[colorcode]
+      return '#%.2x%.2x%.2x' % (COLORTABLE[colorcode][0],
+                                COLORTABLE[colorcode][1],
+                                COLORTABLE[colorcode][2])
   except ValueError:
-    if colorcode in colortable:
-      return '#%.2x%.2x%.2x' % (colortable[colorcode][0],
-                          colortable[colorcode][1],
-                          colortable[colorcode][2])
+    if colorcode in COLORTABLE:
+      return '#%.2x%.2x%.2x' % (COLORTABLE[colorcode][0],
+                                COLORTABLE[colorcode][1],
+                                COLORTABLE[colorcode][2])
 
   return '#000'
 
@@ -151,13 +155,13 @@ def createspan(color, text):
     ncolor = convertcolorcodetohtml(color)
 
   if background:
-    return '<span style="background-color:%(COLOR)s">%(TEXT)s</span>' % {
-                      'COLOR':ncolor,
-                      'TEXT':text}
+    return '<span style="background-color:%(COLOR)s">%(TEXT)s</span>' % \
+        {'COLOR':ncolor,
+         'TEXT':text}
   else:
-    return '<span style="color:%(COLOR)s">%(TEXT)s</span>' % {
-                      'COLOR':ncolor,
-                      'TEXT':text}
+    return '<span style="color:%(COLOR)s">%(TEXT)s</span>' % \
+        {'COLOR':ncolor,
+         'TEXT':text}
 
 for colorc in CONVERTCOLORS.keys():
   CONVERTANSI[CONVERTCOLORS[colorc]] = colorc
@@ -189,19 +193,19 @@ def fixstring(tstr):
   # http://code.google.com/p/aardwolfclientpackage/
 
   # fix tildes
-  tstr = re.sub("@-", "~", tstr)
+  tstr = re.sub(r"@-", "~", tstr)
   # change @@ to \0
-  tstr = re.sub("@@", "\0", tstr)
+  tstr = re.sub(r"@@", "\0", tstr)
   # strip invalid xterm codes (non-number)
-  tstr = re.sub("@[xz]([^\d])", genrepl, tstr)
+  tstr = re.sub(r"@[xz]([^\d])", genrepl, tstr)
   # strip invalid xterm codes (300+)
-  tstr = re.sub("@[xz][3-9]\d\d", "", tstr)
+  tstr = re.sub(r"@[xz][3-9]\d\d", "", tstr)
   # strip invalid xterm codes (260+)
-  tstr = re.sub("@[xz]2[6-9]\d", "", tstr)
+  tstr = re.sub(r"@[xz]2[6-9]\d", "", tstr)
   # strip invalid xterm codes (256+)
-  tstr = re.sub("@[xz]25[6-9]", "", tstr)
+  tstr = re.sub(r"@[xz]25[6-9]", "", tstr)
   # rip out hidden garbage
-  tstr = re.sub("@[^xzcmyrgbwCMYRGBWD]", "", tstr)
+  tstr = re.sub(r"@[^xzcmyrgbwCMYRGBWD]", "", tstr)
   return tstr
 
 class Plugin(BasePlugin):
@@ -227,20 +231,23 @@ class Plugin(BasePlugin):
     BasePlugin.load(self)
 
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show colors')
-    self.api.get('commands.add')('show', self.cmd_show,
-                                    parser=parser)
+                                     description='show colors')
+    self.api.get('commands.add')('show',
+                                 self.cmd_show,
+                                 parser=parser)
     parser = argparse.ArgumentParser(add_help=False,
-                 description='show color examples')
-    self.api.get('commands.add')('example', self.cmd_example,
-                                    parser=parser)
+                                     description='show color examples')
+    self.api.get('commands.add')('example',
+                                 self.cmd_example,
+                                 parser=parser)
 
   # convert color codes to html
-  def api_colorcodestohtml(self, input):
+  def api_colorcodestohtml(self, sinput):
+    # pylint: disable=no-self-use,too-many-branches
     """
     convert colorcodes to html
     """
-    tinput = input.split('\n')
+    tinput = sinput.split('\n')
 
     olist = []
     for line in tinput:
@@ -253,7 +260,7 @@ class Plugin(BasePlugin):
       #line = fixstring(line)
       if '@@' in line:
         line = line.replace('@@', '\0')
-      tlist = re.split('(@[cmyrgbwCMYRGBWD]|@[xz]\d\d\d|@[xz]\d\d|@[xz]\d)', line)
+      tlist = re.split(r'(@[cmyrgbwCMYRGBWD]|@[xz]\d\d\d|@[xz]\d\d|@[xz]\d)', line)
 
       nlist = []
       color = 'w'
@@ -266,7 +273,7 @@ class Plugin(BasePlugin):
           if tlist[i][0] == '@' and tlist[i][1] in 'xzcmyrgbwCMYRGBWD':
             #print 'found color'
             words = tlist[tstart:tend]
-            if not (color in ['x', 'D', 'w']):
+            if color not in ['x', 'D', 'w']:
               #print 'would put %s in a %s span' % (words, color)
               nlist.append(createspan(color, ''.join(words)))
             else:
@@ -284,7 +291,7 @@ class Plugin(BasePlugin):
           tend = tend + 1
         if i == len(tlist) - 1:
           words = tlist[tstart:]
-          if not (color in ['x', 'D', 'w']):
+          if color not in ['x', 'D', 'w']:
             #print 'would put %s in a %s span' % (words, color)
             nlist.append(createspan(color, ''.join(words)))
           else:
@@ -309,13 +316,14 @@ class Plugin(BasePlugin):
 
   # check if a string is an @@ color, either xterm or ansi
   def api_iscolor(self, color):
+    # pylint: disable=no-self-use
     """
     check if a string is a @ color, either xterm or ansi
     """
-    if re.match('^@[cmyrgbwCMYRGBWD]$', color):
+    if re.match(r'^@[cmyrgbwCMYRGBWD]$', color):
       return True
     else:
-      mat = XTERM_COLOR_REGEX.match( color)
+      mat = XTERM_COLOR_REGEX.match(color)
       if mat:
         num = int(mat.groupdict()['num'])
         if num >= 0 and num < 257:
@@ -333,20 +341,20 @@ class Plugin(BasePlugin):
       if tstr[-2:] != '@w':
         tstr = tstr + '@w'
       tstr = fixstring(tstr)
-      if test:
-        print 'After fixstring', tstr
+      #if test:
+        #print 'After fixstring', tstr
       tstr2 = ''
-      tmat = re.search("@(\w)([^@]+)", tstr)
+      tmat = re.search(r"@(\w)([^@]+)", tstr)
       if tmat and tmat.start() != 0:
         tstr2 = tstr[0:tmat.start()]
-      for tmatch in re.finditer("@(\w)([^@]+)", tstr):
+      for tmatch in re.finditer(r"@(\w)([^@]+)", tstr):
         color, text = tmatch.groups()
         if color == 'x':
-          tcolor, newtext = re.findall("^(\d\d?\d?)(.*)$", text)[0]
+          tcolor, newtext = re.findall(r"^(\d\d?\d?)(.*)$", text)[0]
           color = '38;5;%s' % tcolor
           tstr2 = tstr2 + self.api_ansicode(color, newtext)
         elif color == 'z':
-          tcolor, newtext = re.findall("^(\d\d?\d?)(.*)$", text)[0]
+          tcolor, newtext = re.findall(r"^(\d\d?\d?)(.*)$", text)[0]
           color = '48;5;%s' % tcolor
           tstr2 = tstr2 + self.api_ansicode(color, newtext)
         else:
@@ -363,6 +371,7 @@ class Plugin(BasePlugin):
 
   # convert ansi color escape sequences to @@ colors
   def api_convertansi(self, text):
+    # pylint: disable=no-self-use
     """
     convert ansi color escape sequences to @@ colors
     """
@@ -388,6 +397,7 @@ class Plugin(BasePlugin):
 
   # return an ansi coded string
   def api_ansicode(self, color, data):
+    # pylint: disable=no-self-use
     """
     return an ansi coded string
     """
@@ -395,6 +405,7 @@ class Plugin(BasePlugin):
 
   # strip all ansi from a string
   def api_stripansi(self, text):
+    # pylint: disable=no-self-use
     """
     strip all ansi from a string
     """
@@ -408,6 +419,7 @@ class Plugin(BasePlugin):
     return self.api_stripansi(self.api_convertcolors(text))
 
   def cmd_show(self, args):
+    # pylint: disable=no-self-use
     """
     @G%(name)s@w - @B%(cmdname)s@w
       Show xterm colors
@@ -461,6 +473,7 @@ class Plugin(BasePlugin):
 
 
   def cmd_example(self, _=None):
+    # pylint: disable=no-self-use
     """
     @G%(name)s@w - @B%(cmdname)s@w
       Show examples of how to use colors

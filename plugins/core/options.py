@@ -83,7 +83,7 @@ class Plugin(BasePlugin):
       self.options[plugin] = True
       self.optionsmod[plugin] = module
       self.api.get('send.msg')('adding %s as a telnet option' % plugin,
-                                        secondary=plugin)
+                               secondary=plugin)
 
   def reloadmod(self, mod):
     """
@@ -101,7 +101,7 @@ class Plugin(BasePlugin):
         self.clientoptions[i](client)
       except AttributeError:
         self.api.get('send.msg')('Did not add option to client: %s' % i,
-                                                                    'telopt')
+                                 'telopt')
 
   # prepare the server to process telnet options
   def api_prepareserver(self, server):
@@ -113,10 +113,11 @@ class Plugin(BasePlugin):
         self.serveroptions[i](server)
       except AttributeError:
         self.api.get('send.msg')('Did not add option to server: %s' % i,
-                                                                    'telopt')
+                                 'telopt')
 
   # reset options
   def api_resetoptions(self, server, onclose=False):
+    # pylint: disable=no-self-use
     """
     reset options
     """

@@ -19,7 +19,7 @@ PRIORITY = 12
 AUTOLOAD = True
 
 TIMELENGTH_REGEXP = re.compile(r"^(?P<days>\d+d)?:?(?P<hours>\d+h)" \
-                              "?:?(?P<minutes>\d+m)?:?(?P<seconds>\d+s?)?$")
+                              r"?:?(?P<minutes>\d+m)?:?(?P<seconds>\d+s?)?$")
 
 
 class Plugin(BasePlugin):
@@ -27,6 +27,9 @@ class Plugin(BasePlugin):
   a plugin to handle ansi colors
   """
   def __init__(self, *args, **kwargs):
+    """
+    initialize the plugin
+    """
     BasePlugin.__init__(self, *args, **kwargs)
 
     self.api.get('api.add')('timedeltatostring', self.api_timedeltatostring)
@@ -47,16 +50,17 @@ class Plugin(BasePlugin):
 
   # return the difference of two times
   def api_timedeltatostring(self, stime, etime, fmin=False, colorn='',
-                        colors='', nosec=False):
+                            colors='', nosec=False):
+    # pylint: disable=no-self-use,too-many-arguments
     """
     take two times and return a string of the difference
     in the form ##d:##h:##m:##s
     """
     delay = datetime.timedelta(seconds=abs(etime - stime))
-    if (delay.days > 0):
+    if delay.days > 0:
       tstr = str(delay)
       tstr = tstr.replace(" day, ", ":")
-      out  = tstr.replace(" days, ", ":")
+      out = tstr.replace(" days, ", ":")
     else:
       out = "0:" + str(delay)
     outar = out.split(':')
@@ -74,11 +78,12 @@ class Plugin(BasePlugin):
     if not nosec:
       tmsg.append('%s%02d%ss' % (colorn, outar[3], colors))
 
-    out   = ":".join(tmsg)
+    out = ":".join(tmsg)
     return out
 
   # convert a number to a shorter readable number
   def api_readablenumber(self, num, places=2):
+    # pylint: disable=no-self-use
     """
     convert a number to a shorter readable number
     """
@@ -100,6 +105,7 @@ class Plugin(BasePlugin):
 
   # convert seconds to years, days, hours, mins, secs
   def api_secondstodhms(self, sseconds):
+    # pylint: disable=no-self-use
     """
     convert seconds to years, days, hours, mins, secs
     """
@@ -163,6 +169,7 @@ class Plugin(BasePlugin):
 
   # verify a value to be a boolean
   def verify_bool(self, val):
+    # pylint: disable=no-self-use
     """
     convert a value to a bool, also converts some string and numbers
     """
@@ -172,7 +179,7 @@ class Plugin(BasePlugin):
       return True
     elif isinstance(val, basestring):
       val = val.lower()
-      if val  == 'false' or val == 'no':
+      if val == 'false' or val == 'no':
         return False
       elif val == 'true' or val == 'yes':
         return True
@@ -191,6 +198,7 @@ class Plugin(BasePlugin):
 
   # verify a time to be military
   def verify_miltime(self, mtime):
+    # pylint: disable=no-self-use
     """
     verify a time like 0830 or 1850
     """
@@ -247,8 +255,8 @@ class Plugin(BasePlugin):
 
     thalf = tdiff / 2
     tstr = "{filler}  {lstring}  {filler}".format(
-          filler = fillerc * thalf,
-          lstring = tstr)
+        filler=fillerc * thalf,
+        lstring=tstr)
 
     newl = (thalf * 2) + tlen
 
@@ -259,6 +267,7 @@ class Plugin(BasePlugin):
 
   # check a list for a match
   def api_checklistformatch(self, arg, tlist):
+    # pylint: disable=no-self-use
     """
     check a list for a match of arg
     """
@@ -286,6 +295,7 @@ class Plugin(BasePlugin):
 
   # convert a time length to seconds
   def api_timelengthtosecs(self, timel):
+    # pylint: disable=no-self-use
     """
     converts a time length to seconds
 
@@ -338,11 +348,11 @@ class Plugin(BasePlugin):
       parentframe = ifr[0]
 
       if 'self' in parentframe.f_locals:
-          # I don't know any way to detect call from the object method
-          # XXX: there seems to be no way to detect static method call - it will
-          #      be just a function call
-          tc = parentframe.f_locals['self']
-          if tc != self and isinstance(tc, BasePlugin):
-            return tc.sname
+        # I don't know any way to detect call from the object method
+        # TODO: there seems to be no way to detect static method call - it will
+        #      be just a function call
+        tcs = parentframe.f_locals['self']
+        if tcs != self and isinstance(tcs, BasePlugin):
+          return tcs.sname
 
     return None
