@@ -4,6 +4,7 @@ this plugin has a timer interface for internal timers
 import time
 import datetime
 import argparse
+import sys
 from plugins._baseplugin import BasePlugin
 from libs.event import Event
 
@@ -180,13 +181,11 @@ class Plugin(BasePlugin):
 
     return True, msg
 
-  def cmd_stats(self, args=None):
+  def getstats(self):
     """
-    @G%(name)s@w - @B%(cmdname)s@w
-      show timer stats
-      @CUsage@w: detail
+    return stats for this plugin
     """
-    tmsg = []
+    stats = BasePlugin.getstats(self)
 
     disabled = 0
     enabled = 0
@@ -197,12 +196,15 @@ class Plugin(BasePlugin):
       else:
         disabled = disabled + 1
 
-    tmsg.append('%-20s : %s' % ('Total Timers', len(self.timerlookup)))
-    tmsg.append('%-20s : %s' % ('Timers Fired', self.overallfire))
-    tmsg.append('%-20s : %s' % ('Enabled', enabled))
-    tmsg.append('%-20s : %s' % ('Disabled', disabled))
-
-    return True, tmsg
+    stats['Timers'] = {}
+    stats['Timers']['showorder'] = ['Total', 'Enabled', 'Disabled',
+                                      'Fired', 'Memory Usage']
+    stats['Timers']['Total'] = len(self.timerlookup)
+    stats['Timers']['Enabled'] = enabled
+    stats['Timers']['Disabled'] = disabled
+    stats['Timers']['Fired'] = self.overallfire
+    stats['Timers']['Memory Usage'] = sys.getsizeof(self.timerevents)
+    return stats
 
   def cmd_list(self, args):
     """

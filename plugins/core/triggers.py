@@ -4,6 +4,7 @@ This plugin handles internal triggers for the proxy
 import re
 import sys
 import argparse
+import time
 from plugins._baseplugin import BasePlugin
 from libs.timing import timeit
 
@@ -67,9 +68,6 @@ class Plugin(BasePlugin):
     self.api.get('commands.add')('list',
                                  self.cmd_list,
                                  parser=parser)
-
-    #self.api.get('commands.add')('stats', self.cmd_stats,
-    #                             shelp='show trigger stats')
 
     self.api.get('events.register')('from_mud_event',
                                     self.checktrigger, prio=1)
@@ -243,13 +241,14 @@ class Plugin(BasePlugin):
       for i in self.triggergroups[triggroup]:
         self.api.get('triggers.toggle')(i, flag)
 
-  @timeit
   def checktrigger(self, args):
     # pylint: disable=too-many-nested-blocks,too-many-branches
     """
     check a line of text from the mud to see if it matches any triggers
     called whenever the from_mud_event is raised
     """
+    time1 = time.time()
+    self.api.get('send.msg')('checktrigger: %s started' % (args), 'timing')
     data = args['noansi']
     colordata = args['convertansi']
 
@@ -289,13 +288,17 @@ class Plugin(BasePlugin):
                   break
 
     self.raisetrigger('all', {'line':data, 'triggername':'all'}, args)
-
+    time2 = time.time()
+    self.api('send.msg')('%s: %0.3f ms' % \
+              ('checktrigger', (time2-time1)*1000.0), 'timing')
     return args
 
   def raisetrigger(self, triggername, args, origargs):
     """
     raise a trigger event
     """
+    time1 = time.time()
+    self.api.get('send.msg')('raisetrigger: %s started %s' % (triggername, args), 'timing')
     try:
       eventname = self.triggers[triggername]['eventname']
     except KeyError:
@@ -313,6 +316,9 @@ class Plugin(BasePlugin):
     if triggername in self.triggers and self.triggers[triggername]['omit']:
       origargs['original'] = ''
       origargs['omit'] = True
+    time2 = time.time()
+    self.api('send.msg')('%s: %0.3f ms' % \
+              (triggername, (time2-time1)*1000.0), 'timing')
     return
 
   def cmd_list(self, args):
@@ -364,33 +370,6 @@ class Plugin(BasePlugin):
     stats['Triggers']['Total Hits'] = totalhits
     stats['Triggers']['Memory Usage'] = sys.getsizeof(self.triggers)
     return stats
-
-  def cmd_stats(self, args=None):
-    """
-    @G%(name)s@w - @B%(cmdname)s@w
-      get stats for the # of triggers, hits, etc
-      @CUsage@w: stats
-    """
-    tmsg = []
-    totalhits = 0
-    totalenabled = 0
-    totaldisabled = 0
-    for trigger in self.triggers:
-      totalhits = totalhits + self.triggers[trigger]['hits']
-      if self.triggers[trigger]['enabled']:
-        totalenabled = totalenabled + 1
-      else:
-        totaldisabled = totaldisabled + 1
-
-    totaltriggers = len(self.triggers)
-
-    tmsg.append('%-20s : %s' % ('Total Triggers', totaltriggers))
-    tmsg.append('%-20s : %s' % ('Enabled', totalenabled))
-    tmsg.append('%-20s : %s' % ('Disabled', totaldisabled))
-    tmsg.append('%-20s : %s' % ('Total Hits', totalhits))
-
-    return True, tmsg
-
 
   def cmd_detail(self, args):
     """

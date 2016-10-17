@@ -13,7 +13,9 @@ This plugin handles events.
  * ```self.api.get('events.eraise')(eventname, argtable)```
 """
 import argparse
+import time
 from plugins._baseplugin import BasePlugin
+from libs.timing import timeit
 
 NAME = 'Event Handler'
 SNAME = 'events'
@@ -237,8 +239,17 @@ class Plugin(BasePlugin):
                     'event %s : calling function %s (%s) with args %s' % \
                         (eventname, i.__name__, plugin or 'Unknown', nargs),
                     secondary=[plugin, calledfrom])
+                time1 = time.time()
+                self.api.get('send.msg')(
+                  'event %s : calling function %s (%s) with args %s' % \
+                  (eventname, i.__name__, plugin or 'Unknown', nargs), 'timing')
               tnargs = i(nargs)
               if eventname != 'global_timer':
+                time2 = time.time()
+                self.api('send.msg')(
+                  'event %s : calling function %s (%s) with args %s - %0.3f ms' % \
+                (eventname, i.__name__, plugin or 'Unknown', nargs,
+                  (time2-time1)*1000.0), 'timing')
                 self.api.get('send.msg')(
                     'event %s : function %s (%s) returned %s' % \
                       (eventname, i.__name__, plugin or 'Unknown', tnargs),

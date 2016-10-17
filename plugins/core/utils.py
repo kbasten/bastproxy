@@ -341,6 +341,8 @@ class Plugin(BasePlugin):
   def api_callerplugin(self):
     """
     check to see if the caller is a plugin, if so return the plugin object
+
+    this is so plugins can figure out who gave them data and keep up with it.
     """
     stack = inspect.stack()
 
