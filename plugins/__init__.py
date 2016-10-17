@@ -70,7 +70,7 @@ class PluginMgr(object):
     self.sname = 'plugins'
     self.lname = 'Plugin Manager'
 
-    self.api.add(self.sname, 'isinstalled', self.api_isinstalled)
+    self.api.add(self.sname, 'isloaded', self.api_isloaded)
     self.api.add(self.sname, 'getp', self.api_getp)
     self.api.add(self.sname, 'module', self.api_getmodule)
     self.api.add(self.sname, 'allplugininfo', self.api_allplugininfo)
@@ -146,9 +146,9 @@ class PluginMgr(object):
 
     return None
 
-  # check if a plugin is installed
-  def api_isinstalled(self, pluginname):
-    """  check if a plugin is installed
+  # check if a plugin is loaded
+  def api_isloaded(self, pluginname):
+    """  check if a plugin is loaded
     @Ypluginname@w  = the plugin to check for"""
     if pluginname in self.plugins or pluginname in self.pluginl:
       return True
