@@ -1,5 +1,15 @@
 """
 this module handles the api for all other modules
+
+Most api functions will go in as a class api.
+
+However, some api functions will need to be overloaded.
+The main reason for overloading an api is when
+a class instance calls an api function and needs to access itself,
+or there are multiple instances of a class that will add the
+same function to the api.
+
+See the BasePlugin class
 """
 import inspect
 
@@ -26,20 +36,36 @@ class API(object):
   """
   A class that exports an api for plugins and modules to use
   """
-  api = {} # where the main api resides
+  # where the main api resides
+  api = {}
+
+  # the basepath that the proxy was run from, will be dynamically set in
+  # bastproxy.py
   BASEPATH = ''
+
+  # a flag to show that bastproxy is loading
   loading = False
+
+  # a flag to show that bastproxy is shutting down
   shutdown = False
+
+  # a dictionary of managers that could not be made into plugins
   MANAGERS = {}
 
   def __init__(self):
     """
     initialize the class
     """
+    # apis that have been overloaded will be put here
     self.overloadedapi = {}
-    self.classapi = self.__class__.api
+
+    # the format for the time
     self.timestring = '%a %b %d %Y %H:%M:%S'
+
+    # The command seperator is |
     self.splitre = r'(?<=[^\|])\|(?=[^\|])'
+
+    # overloaded functions
     self.overload('managers', 'add', self.addmanager)
     self.overload('managers', 'getm', self.getmanager)
     self.overload('api', 'add', self.add)
@@ -60,6 +86,9 @@ class API(object):
     the function is added as toplevel.name into the api
 
     this function returns no values"""
+
+    ## do some magic to get plugin this was added from
+
     if toplevel not in self.__class__.api:
       self.__class__.api[toplevel] = {}
 
@@ -118,7 +147,7 @@ class API(object):
 
   def get(self, apiname, toplevelapi=False):
     """
-    get an api
+    get an api function
     """
     toplevel, name = apiname.split('.')
     if not toplevelapi:
@@ -163,12 +192,12 @@ class API(object):
 
   # get the details for an api function
   def api_detail(self, apiname):
-    """
-    return the detail of an api function
-    """
     # parsing a function declaration and figuring out where the function
     # resides is intensive, so disabling pylint warning
     # pylint: disable=too-many-locals,too-many-branches
+    """
+    return the detail of an api function
+    """
     tmsg = []
     apia = None
     apio = None
